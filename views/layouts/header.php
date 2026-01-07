@@ -90,7 +90,8 @@
                     <span>Hotline: <?= SITE_PHONE ?></span>
                 </div>
                 
-                <!-- Cart - Always visible -->
+                <!-- Cart - Hidden for admin -->
+                <?php if (!isAdmin()): ?>
                 <a class="cart-link-techstore d-none d-lg-flex" href="<?= BASE_URL ?>cart">
                     <i class="fas fa-shopping-cart"></i>
                     <span class="cart-count-techstore" id="cart-count">
@@ -106,6 +107,7 @@
                         ?>
                     </span>
                 </a>
+                <?php endif; ?>
                 
                 <!-- Login/User Button - Always visible on desktop -->
                 <?php if (isLoggedIn()): ?>
@@ -116,7 +118,9 @@
                     </a>
                     <ul class="dropdown-menu dropdown-menu-end user-menu-techstore">
                         <li><a class="dropdown-item" href="<?= BASE_URL ?>profile"><i class="fas fa-user"></i> Thông tin cá nhân</a></li>
+                        <?php if (!isAdmin()): ?>
                         <li><a class="dropdown-item" href="<?= BASE_URL ?>don-hang"><i class="fas fa-shopping-bag"></i> Đơn hàng của tôi</a></li>
+                        <?php endif; ?>
                         <?php if (isEmployee()): ?>
                         <li><hr class="dropdown-divider"></li>
                         <li><a class="dropdown-item" href="<?= BASE_URL ?>employee?page=dashboard"><i class="fas fa-chart-line"></i> Trang nhân viên</a></li>

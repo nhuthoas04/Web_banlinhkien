@@ -1,6 +1,18 @@
 <?php
 $pageTitle = 'Quản lý danh mục';
 include __DIR__ . '/../layouts/admin-header.php';
+
+// Map tên danh mục với file ảnh
+$imageMap = [
+    'Laptop' => 'Laptop.png',
+    'PC Gaming' => 'PC.png',
+    'Linh kien may tinh' => 'linhkien.png',
+    'Man hinh' => 'Manhinh.jpg',
+    'Ban phim' => 'Banphim.jpg',
+    'Chuot' => 'Chuot.jpg',
+    'Tai nghe' => 'Tainghe.jpg',
+    'Phu kien' => 'Phukien.png'
+];
 ?>
 
 <div class="admin-content">
@@ -17,131 +29,76 @@ include __DIR__ . '/../layouts/admin-header.php';
         </div>
     </div>
 
-    <div class="row g-3">
-        <!-- Categories Table -->
-        <div class="col-xl-8 col-lg-12">
-            <div class="admin-card">
-                <div class="card-body p-0">
-                    <div class="table-responsive">
-                        <table class="admin-table">
-                            <thead>
-                                <tr>
-                                    <th width="60" class="d-none d-md-table-cell">Hình</th>
-                                    <th>Tên danh mục</th>
-                                    <th class="d-none d-lg-table-cell">Slug</th>
-                                    <th class="d-none d-md-table-cell">Số SP</th>
-                                    <th class="d-none d-lg-table-cell">Thứ tự</th>
-                                    <th>Trạng thái</th>
-                                    <th width="100">Thao tác</th>
-                                </tr>
-                            </thead>
-                            <tbody id="categoriesBody">
-                                <?php foreach ($categories as $category): ?>
-                                    <tr data-id="<?= $category['id'] ?>">
-                                        <td class="d-none d-md-table-cell">
-                                            <?php if (!empty($category['image'])): ?>
-                                                <img src="<?= BASE_URL . $category['image'] ?>" alt="" 
-                                                     class="category-thumb">
-                                            <?php else: ?>
-                                                <div class="category-thumb no-image">
-                                                    <i class="fas fa-image"></i>
-                                                </div>
-                                            <?php endif; ?>
-                                        </td>
-                                        <td>
-                                            <strong><?= htmlspecialchars($category['name']) ?></strong>
-                                            <?php if (!empty($category['description'])): ?>
-                                                <br><small class="text-muted d-none d-sm-inline"><?= htmlspecialchars(mb_substr($category['description'], 0, 50)) ?>...</small>
-                                            <?php endif; ?>
-                                        </td>
-                                        <td class="d-none d-lg-table-cell"><code><?= htmlspecialchars($category['slug']) ?></code></td>
-                                        <td class="d-none d-md-table-cell">
-                                            <span class="badge bg-secondary"><?= $category['product_count'] ?? 0 ?></span>
-                                        </td>
-                                        <td class="d-none d-lg-table-cell">
-                                            <input type="number" class="form-control form-control-sm order-input" 
-                                                   value="<?= $category['sort_order'] ?? 0 ?>" style="width: 70px;"
-                                                   data-id="<?= $category['id'] ?>">
-                                        </td>
-                                        <td>
-                                            <div class="form-check form-switch">
-                                                <input class="form-check-input status-toggle" type="checkbox" 
-                                                       data-id="<?= $category['id'] ?>"
-                                                       <?= ($category['status'] ?? 'active') == 'active' ? 'checked' : '' ?>>
-                                            </div>
-                                        </td>
-                                        <td>
-                                            <div class="action-buttons">
-                                                <button class="btn-icon edit edit-btn" 
-                                                        data-id="<?= $category['id'] ?>"
-                                                        data-name="<?= htmlspecialchars($category['name']) ?>"
-                                                        data-slug="<?= htmlspecialchars($category['slug']) ?>"
-                                                        data-description="<?= htmlspecialchars($category['description'] ?? '') ?>"
-                                                        data-image="<?= $category['image'] ?? '' ?>"
-                                                        data-icon="<?= $category['icon'] ?? '' ?>"
-                                                        title="Sửa">
-                                                    <i class="fas fa-edit"></i>
-                                                </button>
-                                                <button class="btn-icon delete" data-id="<?= $category['id'] ?>" title="Xóa">
-                                                    <i class="fas fa-trash"></i>
-                                                </button>
-                                            </div>
-                                        </td>
-                                                        data-icon="<?= $category['icon'] ?? '' ?>"
-                                                        title="Sửa">
-                                                    <i class="fas fa-edit"></i>
-                                                </button>
-                                                <button class="btn-icon delete" data-id="<?= $category['id'] ?>" title="Xóa">
-                                                    <i class="fas fa-trash"></i>
-                                                </button>
-                                            </div>
-                                        </td>
-                                    </tr>
-                                <?php endforeach; ?>
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <!-- Category Stats -->
-        <div class="col-xl-4 col-lg-12">
-            <div class="admin-card mb-4">
-                <div class="card-header">
-                    <h6><i class="fas fa-chart-pie me-2"></i>Thống kê danh mục</h6>
-                </div>
-                <div class="card-body">
-                    <canvas id="categoryChart" height="300"></canvas>
-                </div>
-            </div>
-
-            <div class="admin-card">
-                <div class="card-header">
-                    <h6><i class="fas fa-lightbulb me-2"></i>Hướng dẫn</h6>
-                </div>
-                    <h6><i class="fas fa-info-circle me-2"></i>Hướng dẫn</h6>
-                </div>
-                <div class="card-body">
-                    <ul class="guide-list">
-                        <li>
-                            <i class="fas fa-lightbulb"></i>
-                            <span>Kéo thả để sắp xếp thứ tự danh mục</span>
-                        </li>
-                        <li>
-                            <i class="fas fa-lightbulb"></i>
-                            <span>Slug tự động tạo từ tên danh mục</span>
-                        </li>
-                        <li>
-                            <i class="fas fa-lightbulb"></i>
-                            <span>Tắt trạng thái để ẩn danh mục khỏi menu</span>
-                        </li>
-                        <li>
-                            <i class="fas fa-lightbulb"></i>
-                            <span>Không thể xóa danh mục đang có sản phẩm</span>
-                        </li>
-                    </ul>
-                </div>
+    <!-- Categories Table -->
+    <div class="admin-card">
+        <div class="card-body p-0">
+            <div class="table-responsive">
+                <table class="admin-table">
+                    <thead>
+                        <tr>
+                            <th width="60" class="d-none d-md-table-cell">Hình</th>
+                            <th>Tên danh mục</th>
+                            <th class="d-none d-lg-table-cell">Slug</th>
+                            <th class="d-none d-md-table-cell">Số SP</th>
+                            <th class="d-none d-lg-table-cell">Thứ tự</th>
+                            <th>Trạng thái</th>
+                            <th width="100">Thao tác</th>
+                        </tr>
+                    </thead>
+                    <tbody id="categoriesBody">
+                        <?php foreach ($categories as $category): ?>
+                            <tr data-id="<?= $category['id'] ?>">
+                                <td class="d-none d-md-table-cell">
+                                    <?php
+                                    $imageName = $imageMap[$category['name']] ?? 'Laptop.png';
+                                    $imagePath = BASE_URL . 'img-danhmuc/' . $imageName;
+                                    ?>
+                                    <img src="<?= $imagePath ?>" alt="<?= htmlspecialchars($category['name']) ?>" 
+                                         class="category-thumb">
+                                </td>
+                                <td>
+                                    <strong><?= htmlspecialchars($category['name']) ?></strong>
+                                    <?php if (!empty($category['description'])): ?>
+                                        <br><small class="text-muted d-none d-sm-inline"><?= htmlspecialchars(mb_substr($category['description'], 0, 50)) ?>...</small>
+                                    <?php endif; ?>
+                                </td>
+                                <td class="d-none d-lg-table-cell"><code><?= htmlspecialchars($category['slug']) ?></code></td>
+                                <td class="d-none d-md-table-cell">
+                                    <span class="badge bg-secondary"><?= $category['product_count'] ?? 0 ?></span>
+                                </td>
+                                <td class="d-none d-lg-table-cell">
+                                    <input type="number" class="form-control form-control-sm order-input" 
+                                           value="<?= $category['sort_order'] ?? 0 ?>" style="width: 70px;"
+                                           data-id="<?= $category['id'] ?>">
+                                </td>
+                                <td>
+                                    <div class="form-check form-switch">
+                                        <input class="form-check-input status-toggle" type="checkbox" 
+                                               data-id="<?= $category['id'] ?>"
+                                               <?= ($category['status'] ?? 'active') == 'active' ? 'checked' : '' ?>>
+                                    </div>
+                                </td>
+                                <td>
+                                    <div class="action-buttons">
+                                        <button class="btn-icon edit edit-btn" 
+                                                data-id="<?= $category['id'] ?>"
+                                                data-name="<?= htmlspecialchars($category['name']) ?>"
+                                                data-slug="<?= htmlspecialchars($category['slug']) ?>"
+                                                data-description="<?= htmlspecialchars($category['description'] ?? '') ?>"
+                                                data-image="<?= $category['image'] ?? '' ?>"
+                                                data-icon="<?= $category['icon'] ?? '' ?>"
+                                                title="Sửa">
+                                            <i class="fas fa-edit"></i>
+                                        </button>
+                                        <button class="btn-icon delete" data-id="<?= $category['id'] ?>" title="Xóa">
+                                            <i class="fas fa-trash"></i>
+                                        </button>
+                                    </div>
+                                </td>
+                            </tr>
+                        <?php endforeach; ?>
+                    </tbody>
+                </table>
             </div>
         </div>
     </div>

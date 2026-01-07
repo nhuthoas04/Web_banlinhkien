@@ -50,34 +50,41 @@ class UserController {
      */
     public function products() {
         $page = isset($_GET['page']) ? (int)$_GET['page'] : 1;
-        $categoryId = $_GET['category'] ?? null;
+        $categorySlug = $_GET['category'] ?? null;
         $sort = $_GET['sort'] ?? 'newest';
         $minPrice = $_GET['min_price'] ?? null;
         $maxPrice = $_GET['max_price'] ?? null;
         
-        $filter = ['status' => 'active'];
+        $filters = ['status' => 'active'];
+        $category = null;
         
-        if ($categoryId) {
-            $filter['category_id'] = $categoryId;
+        // Nếu có category slug, chuyển thành ID
+        if ($categorySlug) {
+            $category = $this->categoryModel->findBySlug($categorySlug);
+            if ($category) {
+                $filters['category_id'] = $category['id'];
+            }
         }
         
-        if ($minPrice !== null && $maxPrice !== null) {
-            $filter['price'] = ['$gte' => (float)$minPrice, '$lte' => (float)$maxPrice];
+        // Filter theo giá
+        if ($minPrice !== null) {
+            $filters['min_price'] = (float)$minPrice;
+        }
+        if ($maxPrice !== null) {
+            $filters['max_price'] = (float)$maxPrice;
         }
         
-        $sortOptions = [
-            'newest' => ['created_at' => -1],
-            'oldest' => ['created_at' => 1],
-            'price_asc' => ['price' => 1],
-            'price_desc' => ['price' => -1],
-            'best_selling' => ['sold' => -1],
-            'rating' => ['rating' => -1]
-        ];
+        // Sort
+        if ($sort) {
+            $filters['sort'] = $sort;
+        }
         
-        $sortBy = $sortOptions[$sort] ?? ['created_at' => -1];
+        $result = $this->productModel->getAll($page, 12, $filters);
+        $products = $result['products'] ?? [];
+        $total = $result['total'] ?? 0;
+        $totalPages = $result['totalPages'] ?? 1;
         
-        $result = $this->productModel->getAll($filter, $sortBy, $page);
-        $categories = $this->categoryModel->getCategoryTree();
+        $categories = $this->categoryModel->getAll('active');
         
         include __DIR__ . '/../views/user/products.php';
     }

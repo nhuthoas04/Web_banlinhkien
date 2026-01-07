@@ -525,6 +525,10 @@ class AdminController {
         $startDate = $_GET['start_date'] ?? null;
         $endDate = $_GET['end_date'] ?? null;
         
+        // Lấy thống kê theo trạng thái
+        $orderStats = $this->orderModel->getStatsByStatus();
+        $totalOrders = $this->orderModel->getTotalCount();
+        
         $filter = [];
         if ($status) {
             $filter['status'] = $status;

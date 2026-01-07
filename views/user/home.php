@@ -142,7 +142,21 @@ include __DIR__ . '/../layouts/header.php';
             <div class="col-lg-2 col-md-4 col-6 mb-4" data-aos="fade-up" data-aos-delay="<?= $index * 50 ?>">
                 <a href="<?= BASE_URL ?>products?category=<?= $category['id'] ?>" class="category-card">
                     <div class="category-icon">
-                        <i class="<?= $category['icon'] ?? 'fas fa-laptop' ?>"></i>
+                        <?php
+                        // Map tên danh mục với file ảnh
+                        $imageMap = [
+                            'Laptop' => 'Laptop.png',
+                            'PC Gaming' => 'PC.png',
+                            'Linh kien may tinh' => 'linhkien.png',
+                            'Man hinh' => 'Manhinh.jpg',
+                            'Ban phim' => 'Banphim.jpg',
+                            'Chuot' => 'Chuot.jpg',
+                            'Tai nghe' => 'Tainghe.jpg',
+                            'Phu kien' => 'Phukien.png'
+                        ];
+                        $imageName = $imageMap[$category['name']] ?? 'Laptop.png';
+                        ?>
+                        <img src="<?= BASE_URL ?>img-danhmuc/<?= $imageName ?>" alt="<?= $category['name'] ?>" class="category-image">
                     </div>
                     <h6 class="category-name"><?= $category['name'] ?></h6>
                 </a>

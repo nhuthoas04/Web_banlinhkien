@@ -442,6 +442,30 @@ class Order {
     }
     
     /**
+     * Get stats by status (formatted for admin view)
+     */
+    public function getStatsByStatus() {
+        $counts = $this->getCountsByStatus();
+        return [
+            'pending' => $counts['pending'] ?? 0,
+            'confirmed' => $counts['confirmed'] ?? 0,
+            'processing' => $counts['processing'] ?? 0,
+            'shipping' => $counts['shipping'] ?? 0,
+            'delivered' => $counts['delivered'] ?? 0,
+            'cancelled' => $counts['cancelled'] ?? 0
+        ];
+    }
+    
+    /**
+     * Get total count of all orders
+     */
+    public function getTotalCount() {
+        $sql = "SELECT COUNT(*) as count FROM {$this->table}";
+        $stmt = $this->db->query($sql);
+        return $stmt->fetch()['count'];
+    }
+    
+    /**
      * Get revenue by days
      */
     public function getRevenueByDays($days = 7) {

@@ -208,11 +208,11 @@ class Product {
         $stmt->execute();
         
         return [
-            'data' => $stmt->fetchAll(),
+            'products' => $stmt->fetchAll(),
             'total' => $total,
             'page' => $page,
             'limit' => $limit,
-            'total_pages' => ceil($total / $limit)
+            'totalPages' => ceil($total / $limit)
         ];
     }
     

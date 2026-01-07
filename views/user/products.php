@@ -1,5 +1,17 @@
 <?php
 $pageTitle = $category ? htmlspecialchars($category['name']) : 'Tất cả sản phẩm';
+
+// Khởi tạo các biến mặc định
+$products = $products ?? [];
+$total = $total ?? 0;
+$totalPages = $totalPages ?? 1;
+$page = $page ?? 1;
+$categories = $categories ?? [];
+$category = $category ?? null;
+$sort = $sort ?? 'newest';
+$minPrice = $minPrice ?? null;
+$maxPrice = $maxPrice ?? null;
+
 include __DIR__ . '/../layouts/header.php';
 ?>
 
@@ -37,11 +49,11 @@ include __DIR__ . '/../layouts/header.php';
                         <div class="filter-body">
                             <ul class="category-list">
                                 <li class="<?= !$category ? 'active' : '' ?>">
-                                    <a href="<?= BASE_URL ?>?page=products">Tất cả sản phẩm</a>
+                                    <a href="<?= BASE_URL ?>products">Tất cả sản phẩm</a>
                                 </li>
                                 <?php foreach ($categories as $cat): ?>
                                     <li class="<?= ($category && $category['id'] == $cat['id']) ? 'active' : '' ?>">
-                                        <a href="<?= BASE_URL ?>?page=products&category=<?= $cat['slug'] ?>">
+                                        <a href="<?= BASE_URL ?>products?category=<?= $cat['id'] ?>">
                                             <?= htmlspecialchars($cat['name']) ?>
                                             <?php if (!empty($cat['product_count'])): ?>
                                                 <span class="count">(<?= $cat['product_count'] ?>)</span>
@@ -155,7 +167,7 @@ include __DIR__ . '/../layouts/header.php';
                     <div class="toolbar-left">
                         <h4 class="products-title"><?= $pageTitle ?></h4>
                         <p class="products-count">
-                            Hiển thị <?= count($products) ?> / <?= $totalProducts ?> sản phẩm
+                            Hiển thị <?= count($products) ?> / <?= $total ?> sản phẩm
                         </p>
                     </div>
                     <div class="toolbar-right">
@@ -178,7 +190,7 @@ include __DIR__ . '/../layouts/header.php';
                                 <option value="price_desc" <?= ($sort ?? '') == 'price_desc' ? 'selected' : '' ?>>
                                     Giá cao đến thấp
                                 </option>
-                                <option value="popular" <?= ($sort ?? '') == 'popular' ? 'selected' : '' ?>>
+                                <option value="bestselling" <?= ($sort ?? '') == 'bestselling' ? 'selected' : '' ?>>
                                     Bán chạy nhất
                                 </option>
                                 <option value="rating" <?= ($sort ?? '') == 'rating' ? 'selected' : '' ?>>
@@ -195,7 +207,7 @@ include __DIR__ . '/../layouts/header.php';
                         <img src="<?= BASE_URL ?>assets/images/empty-products.svg" alt="No products">
                         <h5>Không tìm thấy sản phẩm</h5>
                         <p>Thử thay đổi bộ lọc hoặc tìm kiếm với từ khóa khác</p>
-                        <a href="<?= BASE_URL ?>?page=products" class="btn btn-primary">
+                        <a href="<?= BASE_URL ?>products" class="btn btn-primary">
                             Xem tất cả sản phẩm
                         </a>
                     </div>
@@ -208,18 +220,30 @@ include __DIR__ . '/../layouts/header.php';
                     </div>
 
                     <!-- Pagination -->
-                    <?php if ($totalPages > 1): ?>
+                    <?php 
+                    // Helper function cho pagination URL
+                    if (!function_exists('buildPaginationUrl')) {
+                        function buildPaginationUrl($pageNum) {
+                            $params = $_GET;
+                            $params['p'] = $pageNum;
+                            unset($params['page']); // Remove old page param
+                            return BASE_URL . 'products?' . http_build_query($params);
+                        }
+                    }
+                    
+                    if ($totalPages > 1): 
+                    ?>
                         <nav class="products-pagination">
                             <ul class="pagination justify-content-center">
-                                <li class="page-item <?= $currentPage <= 1 ? 'disabled' : '' ?>">
-                                    <a class="page-link" href="<?= buildPaginationUrl($currentPage - 1) ?>">
+                                <li class="page-item <?= $page <= 1 ? 'disabled' : '' ?>">
+                                    <a class="page-link" href="<?= buildPaginationUrl($page - 1) ?>">
                                         <i class="fas fa-chevron-left"></i>
                                     </a>
                                 </li>
                                 
                                 <?php
-                                $startPage = max(1, $currentPage - 2);
-                                $endPage = min($totalPages, $currentPage + 2);
+                                $startPage = max(1, $page - 2);
+                                $endPage = min($totalPages, $page + 2);
                                 
                                 if ($startPage > 1): ?>
                                     <li class="page-item">
@@ -231,7 +255,7 @@ include __DIR__ . '/../layouts/header.php';
                                 <?php endif; ?>
                                 
                                 <?php for ($i = $startPage; $i <= $endPage; $i++): ?>
-                                    <li class="page-item <?= $i == $currentPage ? 'active' : '' ?>">
+                                    <li class="page-item <?= $i == $page ? 'active' : '' ?>">
                                         <a class="page-link" href="<?= buildPaginationUrl($i) ?>"><?= $i ?></a>
                                     </li>
                                 <?php endfor; ?>
@@ -245,8 +269,8 @@ include __DIR__ . '/../layouts/header.php';
                                     </li>
                                 <?php endif; ?>
                                 
-                                <li class="page-item <?= $currentPage >= $totalPages ? 'disabled' : '' ?>">
-                                    <a class="page-link" href="<?= buildPaginationUrl($currentPage + 1) ?>">
+                                <li class="page-item <?= $page >= $totalPages ? 'disabled' : '' ?>">
+                                    <a class="page-link" href="<?= buildPaginationUrl($page + 1) ?>">
                                         <i class="fas fa-chevron-right"></i>
                                     </a>
                                 </li>

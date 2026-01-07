@@ -18,10 +18,11 @@
     <script src="https://cdn.ckeditor.com/ckeditor5/40.1.0/classic/ckeditor.js"></script>
     
     <!-- Admin JS -->
-    <script src="<?= ASSETS_URL ?>/js/admin.js"></script>
+    <script src="<?= ASSETS_URL ?>/js/admin.js?v=<?= time() ?>"></script>
     
     <script>
-        const BASE_URL = '<?= BASE_URL ?>';
+        // BASE_URL already defined in admin.js
+        // const BASE_URL = '<?= BASE_URL ?>';
         const ASSETS_URL = '<?= ASSETS_URL ?>';
         
         // Sidebar Toggle

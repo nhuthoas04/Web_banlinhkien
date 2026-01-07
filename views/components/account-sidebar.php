@@ -20,6 +20,7 @@ $userAvatar = $user['avatar'] ?? 'assets/images/default-avatar.svg';
                 <i class="fas fa-user"></i> Thông tin tài khoản
             </a>
         </li>
+        <?php if (!isAdmin()): ?>
         <li class="<?= ($currentPage ?? '') == 'orders' ? 'active' : '' ?>">
             <a href="<?= BASE_URL ?>don-hang">
                 <i class="fas fa-shopping-bag"></i> Đơn hàng của tôi
@@ -28,6 +29,7 @@ $userAvatar = $user['avatar'] ?? 'assets/images/default-avatar.svg';
                 <?php endif; ?>
             </a>
         </li>
+        <?php endif; ?>
         <li class="<?= ($currentPage ?? '') == 'reviews' ? 'active' : '' ?>">
             <a href="<?= BASE_URL ?>my-reviews">
                 <i class="fas fa-star"></i> Đánh giá của tôi

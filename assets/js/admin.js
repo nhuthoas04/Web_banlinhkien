@@ -532,6 +532,9 @@ const StatusUpdate = {
                 
                 if (data.success) {
                     Modal.success('Thành công', 'Đã cập nhật trạng thái');
+                    setTimeout(() => {
+                        window.location.reload();
+                    }, 1000);
                     return true;
                 } else {
                     Modal.error('Lỗi', data.message || 'Có lỗi xảy ra');

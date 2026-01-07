@@ -116,31 +116,58 @@ try {
             $page = isset($query_params['p']) ? (int)$query_params['p'] : 1;
             $limit = 12;
             $category = null;
+            $sort = $query_params['sort'] ?? 'newest';
+            $minPrice = $query_params['min_price'] ?? null;
+            $maxPrice = $query_params['max_price'] ?? null;
             
-            $filters = [
-                'category' => $query_params['category'] ?? null,
-                'brand' => $query_params['brand'] ?? null,
-                'price_min' => $query_params['price_min'] ?? null,
-                'price_max' => $query_params['price_max'] ?? null,
-                'rating' => $query_params['rating'] ?? null,
-                'search' => $query_params['q'] ?? null,
-            ];
+            // Filters array for Product model
+            $filters = ['status' => 'active'];
             
             // Get category info if filtering by category
-            if (!empty($filters['category'])) {
-                $category = $categoryModel->getBySlug($filters['category']);
+            if (!empty($query_params['category'])) {
+                // Try to get by ID first, then by slug
+                if (is_numeric($query_params['category'])) {
+                    $category = $categoryModel->findById($query_params['category']);
+                } else {
+                    $category = $categoryModel->findBySlug($query_params['category']);
+                }
+                
+                if ($category) {
+                    $filters['category_id'] = $category['id'];
+                }
             }
             
-            $sort = $query_params['sort'] ?? 'newest';
+            // Brand filter
+            if (!empty($query_params['brand'])) {
+                $filters['brand'] = $query_params['brand'];
+            }
             
-            $result = $productModel->getFiltered($filters, $sort, $page, $limit);
-            $products = $result['products'];
-            $totalProducts = $result['total'];
-            $totalPages = ceil($totalProducts / $limit);
-            $currentPage = $page;
+            // Price range filter
+            if ($minPrice !== null) {
+                $filters['min_price'] = (float)$minPrice;
+            }
+            if ($maxPrice !== null) {
+                $filters['max_price'] = (float)$maxPrice;
+            }
             
-            $brands = $productModel->getAllBrands();
-            $categories = $categoryModel->getCategoryTree();
+            // Search filter
+            if (!empty($query_params['q'])) {
+                $filters['search'] = $query_params['q'];
+            }
+            
+            // Sort
+            if ($sort) {
+                $filters['sort'] = $sort;
+            }
+            
+            // Get products
+            $result = $productModel->getAll($page, $limit, $filters);
+            $products = $result['products'] ?? [];
+            $total = $result['total'] ?? 0;
+            $totalPages = $result['totalPages'] ?? 1;
+            
+            // Get all categories for sidebar
+            $categories = $categoryModel->getAll('active');
             
             include __DIR__ . '/views/user/products.php';
             break;
