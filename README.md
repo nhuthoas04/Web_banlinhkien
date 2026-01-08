@@ -66,11 +66,13 @@ Website thương mại điện tử bán thiết bị máy tính được xây d
 
 | Tính năng | Mô tả |
 |-----------|-------|
-| ✅ Dashboard | Thống kê đơn hàng cần xử lý |
-| ✅ Quản lý đơn hàng | Xem, cập nhật trạng thái đơn hàng |
+| ✅ Dashboard | Thống kê đơn hàng, chat, đánh giá cần xử lý |
+| ✅ Quản lý đơn hàng | Xem, cập nhật trạng thái, lọc theo status |
 | ✅ Xử lý đơn hàng | Xác nhận, giao hàng, hoàn thành |
-| ✅ Duyệt đánh giá | Phê duyệt/từ chối đánh giá |
-| ✅ Chat hỗ trợ | Trả lời chat từ khách hàng |
+| ✅ Chi tiết đơn hàng | Xem chi tiết, cập nhật trạng thái |
+| ✅ Duyệt đánh giá | Phê duyệt/từ chối đánh giá sản phẩm |
+| ✅ Chat hỗ trợ | Trả lời chat từ khách hàng realtime |
+| ✅ Giao diện đồng bộ | Màu sắc dark slate giống admin |
 
 ### 👑 Quản trị viên (Admin)
 
@@ -82,7 +84,9 @@ Website thương mại điện tử bán thiết bị máy tính được xây d
 | ✅ Xem trước sản phẩm | Preview sản phẩm trước khi lưu |
 | ✅ Quản lý danh mục | CRUD danh mục sản phẩm |
 | ✅ Quản lý đơn hàng | Xem tất cả đơn, cập nhật trạng thái |
-| ✅ Thống kê doanh thu | Báo cáo doanh thu chi tiết |
+| ✅ Lọc đơn hàng | Lọc theo trạng thái với stats cards |
+| ✅ Thống kê doanh thu | Báo cáo doanh thu chi tiết theo ngày |
+| ✅ Bộ lọc ngày | Filter orders và revenue theo khoảng thời gian |
 | ✅ Quản lý người dùng | CRUD users, phân quyền, khóa tài khoản |
 | ✅ Quản lý đánh giá | Xem, duyệt, xóa đánh giá |
 | ✅ Quản lý chat | Xem lịch sử chat hỗ trợ |
@@ -314,22 +318,25 @@ doan_web_php/
 
 ### 🔐 Authentication
 
-| Endpoint | Method | Mô tả |
-|----------|--------|-------|
-| `/api/auth.php?action=login` | POST | Đăng nhập |
-| `/api/auth.php?action=register` | POST | Đăng ký |
-| `/api/auth.php?action=logout` | POST | Đăng xuất |
-| `/api/auth.php?action=check` | GET | Kiểm tra đăng nhập |
+| Endpoint | Method | Mô tả | Params |
+|----------|--------|-------|--------|
+| `/api/auth.php?action=login` | POST | Đăng nhập | email, password, remember |
+| `/api/auth.php?action=register` | POST | Đăng ký | name, email, password, phone |
+| `/api/auth.php?action=logout` | POST | Đăng xuất | - |
+| `/api/auth.php?action=check` | GET | Kiểm tra đăng nhập | - |
+| `/api/auth.php?action=forgot-password` | POST | Quên mật khẩu | email |
+| `/api/auth.php?action=reset-password` | POST | Đặt lại mật khẩu | token, password |
 
 ### 📦 Products
 
-| Endpoint | Method | Mô tả |
-|----------|--------|-------|
-| `/api/products.php?action=list` | GET | Danh sách sản phẩm |
-| `/api/products.php?action=search` | GET | Tìm kiếm |
-| `/api/products.php?action=detail&id=X` | GET | Chi tiết sản phẩm |
-| `/api/products.php?action=featured` | GET | Sản phẩm nổi bật |
-| `/api/products.php?action=bestselling` | GET | Sản phẩm bán chạy |
+| Endpoint | Method | Mô tả | Params |
+|----------|--------|-------|--------|
+| `/api/products.php?action=list` | GET | Danh sách sản phẩm | page, limit, category, search |
+| `/api/products.php?action=search` | GET | Tìm kiếm | q, category |
+| `/api/products.php?action=detail&id=X` | GET | Chi tiết sản phẩm | id |
+| `/api/products.php?action=featured` | GET | Sản phẩm nổi bật | limit |
+| `/api/products.php?action=bestselling` | GET | Sản phẩm bán chạy | limit |
+| `/api/products.php?action=related` | GET | Sản phẩm liên quan | id, limit |
 
 ### 🛒 Cart
 
@@ -466,6 +473,18 @@ doan_web_php/
 
 ## 🔄 Changelog
 
+### v2.2.0 (09/01/2026)
+- ✅ **Trang Admin Orders**: Thêm stats cards có thể click để lọc theo trạng thái
+- ✅ **Trang Revenue**: Sửa lỗi hiển thị doanh thu, chỉ tính đơn delivered
+- ✅ **Date Filter**: Cập nhật bộ lọc ngày cho trang orders và revenue
+- ✅ **Employee Dashboard**: Sửa lỗi hiển thị dữ liệu, thống kê đơn hàng
+- ✅ **Employee Colors**: Đồng bộ màu sắc employee với admin (dark slate)
+- ✅ **Chat Model**: Sửa lỗi tên cột database (message → content)
+- ✅ **Order Stats**: Thêm status_counts array với đầy đủ 6 trạng thái
+- ✅ **CSS Styling**: Thêm order-stat-card styles với hover effects
+- ✅ **Responsive**: Cải thiện responsive cho mobile
+- ✅ **Code Cleanup**: Xóa các file test và SQL không dùng
+
 ### v2.1.0 (08/01/2026)
 - ✅ Sửa lỗi toggle sidebar trên mobile
 - ✅ Cải thiện giao diện nhân viên
@@ -493,7 +512,64 @@ doan_web_php/
 
 ---
 
-## 📝 License
+## � Contributors
+
+Dự án được phát triển bởi:
+
+<table>
+  <tr>
+    <td align="center">
+      <a href="https://github.com/nhuthoas04">
+        <img src="https://github.com/nhuthoas04.png" width="100px;" alt="Nhut Hoa"/>
+        <br />
+        <sub><b>Nhut Hoa</b></sub>
+      </a>
+      <br />
+      <sub>📦 Database & Config<br/>🎨 Admin UI<br/>📄 Layouts</sub>
+    </td>
+    <td align="center">
+      <a href="https://github.com/maidat">
+        <img src="https://github.com/maidat.png" width="100px;" alt="Mai Dat"/>
+        <br />
+        <sub><b>Mai Dat</b></sub>
+      </a>
+      <br />
+      <sub>🔧 Models & API<br/>📊 Admin Views<br/>🎨 CSS Styling</sub>
+    </td>
+    <td align="center">
+      <a href="https://github.com/leduy">
+        <img src="https://github.com/leduy.png" width="100px;" alt="Le Duy"/>
+        <br />
+        <sub><b>Le Duy</b></sub>
+      </a>
+      <br />
+      <sub>⚙️ Controllers<br/>👨‍💼 Employee Views<br/>💻 JavaScript</sub>
+    </td>
+  </tr>
+</table>
+
+### Đóng góp
+
+Mỗi thành viên đã đóng góp các phần khác nhau:
+
+- **Nhut Hoa** (nhuthoas04@gmail.com)
+  - Database configuration và SQL updates
+  - Admin order và revenue pages
+  - Admin/Employee layouts
+
+- **Mai Dat** (maidat6890@gmail.com)
+  - Models (Order, Chat, Review, etc.)
+  - API endpoints cho admin/employee
+  - CSS styling và responsive design
+
+- **Le Duy** (leduytctv2019@gmail.com)
+  - AdminController và EmployeeController
+  - Employee dashboard và pages
+  - JavaScript functionality
+
+---
+
+## �📝 License
 
 MIT License - xem file [LICENSE](LICENSE) để biết thêm chi tiết.
 
