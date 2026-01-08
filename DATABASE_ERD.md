@@ -1,4 +1,5 @@
 # ERD DIAGRAM - TechShop Database
+# Database: computer_shop | Tables: 19 | Relationships: 27
 # Copy đoạn code dưới đây và paste vào: https://mermaid.live/
 
 ```mermaid
@@ -14,6 +15,8 @@ erDiagram
     users ||--o{ messages : "sends"
     users ||--o{ user_addresses : "has"
     users ||--o{ notifications : "receives"
+    users ||--o{ order_history : "creates"
+    users ||--o{ contacts : "replies_to"
     
     categories ||--o{ categories : "parent_of"
     categories ||--o{ products : "contains"
@@ -29,6 +32,7 @@ erDiagram
     
     orders ||--o{ order_items : "contains"
     orders ||--o{ reviews : "has"
+    orders ||--o{ order_history : "has"
     
     carts ||--o{ cart_items : "contains"
     
@@ -162,6 +166,16 @@ erDiagram
         decimal total
     }
 
+    order_history {
+        int id PK
+        int order_id FK
+        enum old_status
+        enum new_status
+        text note
+        int created_by FK
+        timestamp created_at
+    }
+
     reviews {
         int id PK
         int product_id FK
@@ -236,6 +250,7 @@ erDiagram
         varchar subject
         text message
         enum status
+        int replied_by FK
         datetime replied_at
         timestamp created_at
     }
