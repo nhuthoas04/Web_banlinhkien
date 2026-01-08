@@ -191,7 +191,7 @@ function createProduct($productModel, $data) {
     $productData = [
         'name' => $data['name'],
         'slug' => generateSlug($data['name']),
-        'sku' => $data['sku'] ?? '',
+        'sku' => !empty($data['sku']) ? $data['sku'] : null,
         'category_id' => (int)$data['category_id'],
         'brand' => $data['brand'] ?? '',
         'brand_id' => !empty($data['brand_id']) ? (int)$data['brand_id'] : null,

@@ -3,66 +3,58 @@
  * About Page - TechShop
  */
 
-$pageTitle = 'Về chúng tôi';
-$currentPage = 'about';
-
-ob_start();
+$pageTitle = 'Giới thiệu - ' . SITE_NAME;
+include __DIR__ . '/../layouts/header.php';
 ?>
 
 <!-- Hero Section -->
-<section class="about-hero py-5 bg-primary text-white">
+<section class="about-hero py-5" style="background: linear-gradient(135deg, var(--primary-color), var(--secondary-color)); margin-top: -1px;">
     <div class="container">
         <div class="row align-items-center">
-            <div class="col-lg-6">
+            <div class="col-lg-8 mx-auto text-center text-white">
                 <h1 class="display-4 fw-bold mb-4">Về TechShop</h1>
                 <p class="lead mb-4">
                     Chúng tôi là đơn vị tiên phong trong lĩnh vực phân phối thiết bị công nghệ, 
-                    máy tính và phụ kiện chính hãng tại Việt Nam với hơn 10 năm kinh nghiệm.
+                    máy tính và phụ kiện chính hãng tại Việt Nam.
                 </p>
-                <div class="d-flex gap-4">
+                <div class="d-flex justify-content-center gap-5 mt-4">
                     <div class="text-center">
-                        <h3 class="fw-bold mb-0">10+</h3>
+                        <h3 class="fw-bold mb-0">1+</h3>
                         <small>Năm kinh nghiệm</small>
                     </div>
                     <div class="text-center">
-                        <h3 class="fw-bold mb-0">50K+</h3>
+                        <h3 class="fw-bold mb-0">5K+</h3>
                         <small>Khách hàng</small>
                     </div>
                     <div class="text-center">
-                        <h3 class="fw-bold mb-0">100+</h3>
-                        <small>Nhân viên</small>
+                        <h3 class="fw-bold mb-0">1000+</h3>
+                        <small>Sản phẩm</small>
                     </div>
                 </div>
-            </div>
-            <div class="col-lg-6">
-                <img src="/assets/images/about-hero.jpg" alt="TechShop Office" class="img-fluid rounded-4 shadow-lg">
             </div>
         </div>
     </div>
 </section>
 
 <!-- Our Story -->
-<section class="py-5">
+<section class="py-4">
     <div class="container">
-        <div class="row">
-            <div class="col-lg-6">
-                <img src="/assets/images/our-story.jpg" alt="Our Story" class="img-fluid rounded-4">
-            </div>
-            <div class="col-lg-6">
-                <h2 class="fw-bold mb-4">Câu chuyện của chúng tôi</h2>
+        <div class="row align-items-center">
+            <div class="col-lg-12">
+                <h2 class="fw-bold mb-3">Câu chuyện của chúng tôi</h2>
                 <p class="text-muted mb-4">
-                    Được thành lập từ năm 2014, TechShop bắt đầu từ một cửa hàng nhỏ với niềm đam mê 
+                    Được thành lập từ năm 2025, TechShop bắt đầu từ một cửa hàng nhỏ với niềm đam mê 
                     công nghệ và mong muốn mang đến cho khách hàng những sản phẩm chất lượng nhất 
                     với giá cả hợp lý.
                 </p>
                 <p class="text-muted mb-4">
-                    Qua hơn 10 năm phát triển, TechShop đã trở thành một trong những đơn vị hàng đầu 
-                    trong lĩnh vực phân phối thiết bị công nghệ, với mạng lưới hơn 20 showroom 
-                    trên toàn quốc và đội ngũ hơn 100 nhân viên chuyên nghiệp.
+                    Với sự phát triển không ngừng, TechShop đã trở thành một trong những đơn vị uy tín 
+                    trong lĩnh vực phân phối thiết bị công nghệ, với đội ngũ nhân viên chuyên nghiệp
+                    và tận tâm.
                 </p>
                 <p class="text-muted">
                     Chúng tôi tự hào là đối tác chính thức của các thương hiệu công nghệ hàng đầu 
-                    như Apple, Dell, HP, ASUS, Lenovo, MSI, Acer...
+                    như Dell, HP, ASUS, Lenovo, MSI, Acer...
                 </p>
             </div>
         </div>
@@ -141,108 +133,108 @@ ob_start();
     </div>
 </section>
 
-<!-- Partners -->
+<!-- Why Choose Us -->
 <section class="py-5">
     <div class="container">
         <div class="text-center mb-5">
-            <h2 class="fw-bold">Đối tác chính thức</h2>
-            <p class="text-muted">Chúng tôi là đại lý ủy quyền của các thương hiệu hàng đầu</p>
+            <h2 class="fw-bold">Tại sao chọn TechShop?</h2>
+            <p class="text-muted">Những lý do khách hàng tin tưởng chúng tôi</p>
         </div>
         
-        <div class="row align-items-center justify-content-center g-4">
-            <div class="col-4 col-md-2">
-                <img src="/assets/images/brands/dell.png" alt="Dell" class="img-fluid" style="filter: grayscale(100%); opacity: 0.7;">
+        <div class="row g-4">
+            <div class="col-md-6">
+                <div class="d-flex gap-3">
+                    <div class="flex-shrink-0">
+                        <div class="bg-primary text-white rounded-circle d-flex align-items-center justify-content-center" 
+                             style="width: 50px; height: 50px;">
+                            <i class="fas fa-check"></i>
+                        </div>
+                    </div>
+                    <div>
+                        <h5 class="fw-bold">Sản phẩm chính hãng 100%</h5>
+                        <p class="text-muted">Tất cả sản phẩm đều được nhập từ các nhà phân phối chính thức, có đầy đủ giấy tờ và bảo hành.</p>
+                    </div>
+                </div>
             </div>
-            <div class="col-4 col-md-2">
-                <img src="/assets/images/brands/hp.png" alt="HP" class="img-fluid" style="filter: grayscale(100%); opacity: 0.7;">
+            
+            <div class="col-md-6">
+                <div class="d-flex gap-3">
+                    <div class="flex-shrink-0">
+                        <div class="bg-primary text-white rounded-circle d-flex align-items-center justify-content-center" 
+                             style="width: 50px; height: 50px;">
+                            <i class="fas fa-shipping-fast"></i>
+                        </div>
+                    </div>
+                    <div>
+                        <h5 class="fw-bold">Giao hàng nhanh chóng</h5>
+                        <p class="text-muted">Giao hàng toàn quốc trong 1-3 ngày. Miễn phí vận chuyển cho đơn hàng từ 500.000đ.</p>
+                    </div>
+                </div>
             </div>
-            <div class="col-4 col-md-2">
-                <img src="/assets/images/brands/asus.png" alt="ASUS" class="img-fluid" style="filter: grayscale(100%); opacity: 0.7;">
+            
+            <div class="col-md-6">
+                <div class="d-flex gap-3">
+                    <div class="flex-shrink-0">
+                        <div class="bg-primary text-white rounded-circle d-flex align-items-center justify-content-center" 
+                             style="width: 50px; height: 50px;">
+                            <i class="fas fa-shield-alt"></i>
+                        </div>
+                    </div>
+                    <div>
+                        <h5 class="fw-bold">Bảo hành uy tín</h5>
+                        <p class="text-muted">Chính sách bảo hành lên đến 36 tháng. Hỗ trợ 1 đổi 1 trong 30 ngày nếu lỗi nhà sản xuất.</p>
+                    </div>
+                </div>
             </div>
-            <div class="col-4 col-md-2">
-                <img src="/assets/images/brands/lenovo.png" alt="Lenovo" class="img-fluid" style="filter: grayscale(100%); opacity: 0.7;">
-            </div>
-            <div class="col-4 col-md-2">
-                <img src="/assets/images/brands/msi.png" alt="MSI" class="img-fluid" style="filter: grayscale(100%); opacity: 0.7;">
-            </div>
-            <div class="col-4 col-md-2">
-                <img src="/assets/images/brands/acer.png" alt="Acer" class="img-fluid" style="filter: grayscale(100%); opacity: 0.7;">
+            
+            <div class="col-md-6">
+                <div class="d-flex gap-3">
+                    <div class="flex-shrink-0">
+                        <div class="bg-primary text-white rounded-circle d-flex align-items-center justify-content-center" 
+                             style="width: 50px; height: 50px;">
+                            <i class="fas fa-headset"></i>
+                        </div>
+                    </div>
+                    <div>
+                        <h5 class="fw-bold">Hỗ trợ tận tâm</h5>
+                        <p class="text-muted">Đội ngũ tư vấn chuyên nghiệp, sẵn sàng hỗ trợ 24/7 qua hotline, chat và email.</p>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
 </section>
 
-<!-- Team -->
+<!-- Contact Info -->
 <section class="py-5 bg-light">
     <div class="container">
-        <div class="text-center mb-5">
-            <h2 class="fw-bold">Đội ngũ lãnh đạo</h2>
-            <p class="text-muted">Những người đứng sau thành công của TechShop</p>
-        </div>
-        
-        <div class="row g-4 justify-content-center">
-            <div class="col-md-6 col-lg-4">
-                <div class="card h-100 border-0 shadow-sm text-center">
-                    <div class="card-body p-4">
-                        <img src="/assets/images/team/ceo.jpg" alt="CEO" 
-                             class="rounded-circle mb-3" width="120" height="120" style="object-fit: cover;">
-                        <h5 class="fw-bold mb-1">Nguyễn Văn A</h5>
-                        <p class="text-primary mb-3">Giám đốc điều hành (CEO)</p>
-                        <p class="text-muted small">
-                            Hơn 15 năm kinh nghiệm trong lĩnh vực công nghệ và bán lẻ
-                        </p>
-                        <div class="d-flex justify-content-center gap-2">
-                            <a href="#" class="btn btn-sm btn-outline-primary rounded-circle">
-                                <i class="fab fa-facebook-f"></i>
-                            </a>
-                            <a href="#" class="btn btn-sm btn-outline-primary rounded-circle">
-                                <i class="fab fa-linkedin-in"></i>
-                            </a>
-                        </div>
+        <div class="row g-4">
+            <div class="col-md-4">
+                <div class="card h-100 border-0 shadow-sm text-center p-4">
+                    <div class="card-body">
+                        <i class="fas fa-map-marker-alt fa-3x text-primary mb-3"></i>
+                        <h5 class="fw-bold">Địa chỉ</h5>
+                        <p class="text-muted mb-0"><?= SITE_ADDRESS ?></p>
                     </div>
                 </div>
             </div>
             
-            <div class="col-md-6 col-lg-4">
-                <div class="card h-100 border-0 shadow-sm text-center">
-                    <div class="card-body p-4">
-                        <img src="/assets/images/team/cto.jpg" alt="CTO" 
-                             class="rounded-circle mb-3" width="120" height="120" style="object-fit: cover;">
-                        <h5 class="fw-bold mb-1">Trần Văn B</h5>
-                        <p class="text-primary mb-3">Giám đốc công nghệ (CTO)</p>
-                        <p class="text-muted small">
-                            Chuyên gia về hệ thống và giải pháp công nghệ
-                        </p>
-                        <div class="d-flex justify-content-center gap-2">
-                            <a href="#" class="btn btn-sm btn-outline-primary rounded-circle">
-                                <i class="fab fa-facebook-f"></i>
-                            </a>
-                            <a href="#" class="btn btn-sm btn-outline-primary rounded-circle">
-                                <i class="fab fa-linkedin-in"></i>
-                            </a>
-                        </div>
+            <div class="col-md-4">
+                <div class="card h-100 border-0 shadow-sm text-center p-4">
+                    <div class="card-body">
+                        <i class="fas fa-phone-alt fa-3x text-primary mb-3"></i>
+                        <h5 class="fw-bold">Hotline</h5>
+                        <p class="text-muted mb-0"><?= SITE_PHONE ?></p>
                     </div>
                 </div>
             </div>
             
-            <div class="col-md-6 col-lg-4">
-                <div class="card h-100 border-0 shadow-sm text-center">
-                    <div class="card-body p-4">
-                        <img src="/assets/images/team/cmo.jpg" alt="CMO" 
-                             class="rounded-circle mb-3" width="120" height="120" style="object-fit: cover;">
-                        <h5 class="fw-bold mb-1">Lê Thị C</h5>
-                        <p class="text-primary mb-3">Giám đốc marketing (CMO)</p>
-                        <p class="text-muted small">
-                            10 năm kinh nghiệm trong marketing và phát triển thương hiệu
-                        </p>
-                        <div class="d-flex justify-content-center gap-2">
-                            <a href="#" class="btn btn-sm btn-outline-primary rounded-circle">
-                                <i class="fab fa-facebook-f"></i>
-                            </a>
-                            <a href="#" class="btn btn-sm btn-outline-primary rounded-circle">
-                                <i class="fab fa-linkedin-in"></i>
-                            </a>
-                        </div>
+            <div class="col-md-4">
+                <div class="card h-100 border-0 shadow-sm text-center p-4">
+                    <div class="card-body">
+                        <i class="fas fa-envelope fa-3x text-primary mb-3"></i>
+                        <h5 class="fw-bold">Email</h5>
+                        <p class="text-muted mb-0"><?= SITE_EMAIL ?></p>
                     </div>
                 </div>
             </div>
@@ -251,19 +243,14 @@ ob_start();
 </section>
 
 <!-- CTA -->
-<section class="py-5 bg-primary text-white">
-    <div class="container text-center">
+<section class="py-5" style="background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));">
+    <div class="container text-center text-white">
         <h2 class="fw-bold mb-3">Bạn cần tư vấn?</h2>
         <p class="mb-4">Đội ngũ chuyên gia của chúng tôi luôn sẵn sàng hỗ trợ bạn</p>
-        <a href="/contact" class="btn btn-light btn-lg rounded-pill px-5">
+        <a href="<?= BASE_URL ?>lien-he" class="btn btn-light btn-lg rounded-pill px-5">
             <i class="fas fa-phone-alt me-2"></i>Liên hệ ngay
         </a>
     </div>
 </section>
 
-<?php
-$content = ob_get_clean();
-include 'views/layouts/main.php';
-?>
-
-
+<?php include __DIR__ . '/../layouts/footer.php'; ?>

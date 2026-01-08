@@ -18,7 +18,15 @@ include __DIR__ . '/../layouts/header.php';
                     <!-- Profile Header -->
                     <div class="profile-header">
                         <div class="profile-avatar">
-                            <img src="<?= BASE_URL . ($user['avatar'] ?? 'assets/images/default-avatar.svg') ?>" 
+                            <?php 
+                            $avatarSrc = $user['avatar'] ?? null;
+                            if (empty($avatarSrc)) {
+                                $avatarSrc = BASE_URL . 'assets/images/default-avatar.svg';
+                            } elseif (strpos($avatarSrc, 'http://') !== 0 && strpos($avatarSrc, 'https://') !== 0) {
+                                $avatarSrc = BASE_URL . $avatarSrc;
+                            }
+                            ?>
+                            <img src="<?= $avatarSrc ?>" 
                                  alt="Avatar" id="avatarPreview">
                             <label class="avatar-upload">
                                 <input type="file" accept="image/*" id="avatarInput">

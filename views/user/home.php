@@ -334,30 +334,6 @@ include __DIR__ . '/../layouts/header.php';
     </div>
 </section>
 
-<!-- Newsletter -->
-<section class="newsletter-section">
-    <div class="container">
-        <div class="newsletter-box" data-aos="zoom-in">
-            <div class="row align-items-center">
-                <div class="col-lg-6 mb-4 mb-lg-0">
-                    <h3><i class="fas fa-envelope"></i> Đăng ký nhận tin</h3>
-                    <p>Nhận thông tin khuyến mãi và sản phẩm mới nhất</p>
-                </div>
-                <div class="col-lg-6">
-                    <form class="newsletter-form">
-                        <div class="input-group">
-                            <input type="email" class="form-control" placeholder="Nhập email của bạn...">
-                            <button type="submit" class="btn btn-primary">
-                                Đăng ký <i class="fas fa-paper-plane"></i>
-                            </button>
-                        </div>
-                    </form>
-                </div>
-            </div>
-        </div>
-    </div>
-</section>
-
 <script>
 // Initialize Swipers
 document.addEventListener('DOMContentLoaded', function() {

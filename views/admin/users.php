@@ -128,14 +128,22 @@ include __DIR__ . '/../layouts/admin-header.php';
                         </tr>
                     </thead>
                     <tbody>
-                        <?php foreach ($users as $user): ?>
+                        <?php foreach ($users as $user): 
+                            // Xử lý avatar URL
+                            $avatarUrl = $user['avatar'] ?? null;
+                            if (empty($avatarUrl)) {
+                                $avatarUrl = BASE_URL . 'assets/images/default-avatar.svg';
+                            } elseif (strpos($avatarUrl, 'http://') !== 0 && strpos($avatarUrl, 'https://') !== 0) {
+                                $avatarUrl = BASE_URL . $avatarUrl;
+                            }
+                        ?>
                             <tr>
                                 <td>
                                     <input type="checkbox" class="item-select" value="<?= $user['id'] ?>">
                                 </td>
                                 <td>
                                     <div class="user-cell">
-                                        <img src="<?= BASE_URL . ($user['avatar'] ?? 'assets/images/default-avatar.svg') ?>" 
+                                        <img src="<?= $avatarUrl ?>" 
                                              alt="Avatar">
                                         <div class="user-info">
                                             <span class="name"><?= htmlspecialchars($user['name'] ?? '') ?></span>

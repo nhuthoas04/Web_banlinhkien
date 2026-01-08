@@ -43,11 +43,11 @@ include __DIR__ . '/../layouts/header.php';
                     <!-- Orders List -->
                     <div class="orders-list" id="ordersList">
                         <?php if (empty($orders)): ?>
-                            <div class="empty-orders">
-                                <img src="<?= BASE_URL ?>assets/images/empty-orders.svg" alt="No orders">
+                            <div class="empty-orders text-center py-5">
+                                <i class="fas fa-shopping-bag fa-4x text-muted mb-3"></i>
                                 <h5>Chưa có đơn hàng nào</h5>
-                                <p>Hãy mua sắm và quay lại đây nhé!</p>
-                                <a href="<?= BASE_URL ?>?page=products" class="btn btn-primary">
+                                <p class="text-muted">Hãy mua sắm và quay lại đây nhé!</p>
+                                <a href="<?= BASE_URL ?>products" class="btn btn-primary">
                                     Mua sắm ngay
                                 </a>
                             </div>

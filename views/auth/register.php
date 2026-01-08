@@ -31,7 +31,7 @@ $pageTitle = 'Đăng ký - ' . SITE_NAME;
             </div>
             
             <div class="auth-illustration">
-                <img src="<?= ASSETS_URL ?>/images/register-illustration.svg" alt="Register">
+                <i class="fas fa-user-plus fa-6x" style="color: rgba(255,255,255,0.3);"></i>
             </div>
             
             <div class="auth-features">
@@ -171,10 +171,10 @@ $pageTitle = 'Đăng ký - ' . SITE_NAME;
                 </div>
                 
                 <div class="social-login">
-                    <button class="btn btn-social btn-google">
+                    <a href="<?= BASE_URL ?>google-login" class="btn btn-social btn-google">
                         <i class="fab fa-google"></i> Google
-                    </button>
-                    <button class="btn btn-social btn-facebook">
+                    </a>
+                    <button class="btn btn-social btn-facebook" disabled title="Sắp ra mắt">
                         <i class="fab fa-facebook-f"></i> Facebook
                     </button>
                 </div>

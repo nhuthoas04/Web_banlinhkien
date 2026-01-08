@@ -391,6 +391,22 @@ document.addEventListener('DOMContentLoaded', function() {
         console.log('Editors ready:', editorsReady);
     }
     
+    // Preview button - mở trang sản phẩm trong tab mới
+    document.getElementById('previewBtn').addEventListener('click', function() {
+        <?php if ($isEdit && !empty($product['slug'])): ?>
+        // Nếu đang edit, mở trang sản phẩm hiện tại
+        window.open('<?= BASE_URL ?>product/<?= $product['slug'] ?>', '_blank');
+        <?php else: ?>
+        // Nếu đang tạo mới, hiển thị thông báo
+        Swal.fire({
+            icon: 'info',
+            title: 'Chưa thể xem trước',
+            text: 'Vui lòng lưu sản phẩm trước khi xem trước.',
+            confirmButtonText: 'Đã hiểu'
+        });
+        <?php endif; ?>
+    });
+    
     // CKEditor for description
     ClassicEditor
         .create(document.querySelector('#description'), {

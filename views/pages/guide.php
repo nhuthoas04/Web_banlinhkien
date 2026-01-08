@@ -3,10 +3,8 @@
  * Shopping Guide Page - TechShop
  */
 
-$pageTitle = 'Hướng dẫn mua hàng';
-$currentPage = 'guide';
-
-ob_start();
+$pageTitle = 'Hướng dẫn mua hàng - ' . SITE_NAME;
+include __DIR__ . '/../layouts/header.php';
 ?>
 
 <div class="container py-5">
@@ -291,9 +289,6 @@ ob_start();
     </div>
 </div>
 
-<?php
-$content = ob_get_clean();
-include 'views/layouts/main.php';
-?>
+<?php include __DIR__ . '/../layouts/footer.php'; ?>
 
 

@@ -229,7 +229,6 @@
     <?php endif; ?>
     
     <!-- Main Content -->
-    <main class="main-content">
-
+    <main class="main-content" style="margin-top: 0; padding-top: 0;">
 
 

@@ -179,8 +179,11 @@ class Product {
         }
         
         if (!empty($filters['search'])) {
-            $where[] = "(p.name LIKE :search OR p.description LIKE :search OR p.brand LIKE :search)";
-            $params[':search'] = '%' . $filters['search'] . '%';
+            $where[] = "(p.name LIKE :search1 OR p.description LIKE :search2 OR p.brand LIKE :search3)";
+            $searchTerm = '%' . $filters['search'] . '%';
+            $params[':search1'] = $searchTerm;
+            $params[':search2'] = $searchTerm;
+            $params[':search3'] = $searchTerm;
         }
         
         if (!empty($filters['sort'])) {

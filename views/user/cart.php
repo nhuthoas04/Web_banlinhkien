@@ -13,11 +13,11 @@ include __DIR__ . '/../layouts/header.php';
 
         <?php if (empty($cartItems)): ?>
             <!-- Empty Cart -->
-            <div class="empty-cart">
-                <img src="<?= BASE_URL ?>assets/images/empty-cart.svg" alt="Empty Cart">
+            <div class="empty-cart text-center py-5">
+                <i class="fas fa-shopping-cart fa-4x text-muted mb-3"></i>
                 <h4>Giỏ hàng trống</h4>
-                <p>Bạn chưa có sản phẩm nào trong giỏ hàng</p>
-                <a href="<?= BASE_URL ?>?page=products" class="btn btn-primary">
+                <p class="text-muted">Bạn chưa có sản phẩm nào trong giỏ hàng</p>
+                <a href="<?= BASE_URL ?>products" class="btn btn-primary">
                     <i class="fas fa-arrow-left"></i> Tiếp tục mua sắm
                 </a>
             </div>
@@ -810,6 +810,7 @@ function updateItemQuantity(productId, quantity) {
 }
 
 function removeCartItem(productId) {
+    console.log('Removing product:', productId);
     fetch('<?= BASE_URL ?>api/cart.php', {
         method: 'POST',
         headers: {
@@ -820,24 +821,45 @@ function removeCartItem(productId) {
             product_id: productId
         })
     })
-    .then(response => response.json())
+    .then(response => {
+        console.log('Response status:', response.status);
+        return response.json();
+    })
     .then(data => {
+        console.log('Response data:', data);
         if (data.success) {
             const item = document.querySelector(`.cart-item[data-product-id="${productId}"]`);
-            item.remove();
+            if (item) {
+                item.remove();
+            }
             
             updateCartSummary();
             updateCartCount(data.cart_count);
+            
+            Swal.fire({
+                icon: 'success',
+                title: 'Đã xóa!',
+                text: 'Sản phẩm đã được xóa khỏi giỏ hàng',
+                timer: 1500,
+                showConfirmButton: false
+            });
             
             // Check if cart is empty
             if (document.querySelectorAll('.cart-item').length === 0) {
                 location.reload();
             }
+        } else {
+            Swal.fire('Lỗi', data.message || 'Không thể xóa sản phẩm', 'error');
         }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        Swal.fire('Lỗi', 'Không thể kết nối đến server', 'error');
     });
 }
 
 function removeMultipleItems(itemIds) {
+    console.log('Removing items:', itemIds);
     fetch('<?= BASE_URL ?>api/cart.php', {
         method: 'POST',
         headers: {
@@ -850,6 +872,7 @@ function removeMultipleItems(itemIds) {
     })
     .then(response => response.json())
     .then(data => {
+        console.log('Response:', data);
         if (data.success) {
             itemIds.forEach(id => {
                 const item = document.querySelector(`.cart-item[data-item-id="${id}"]`);
@@ -859,10 +882,24 @@ function removeMultipleItems(itemIds) {
             updateCartSummary();
             updateCartCount(data.cart_count);
             
+            Swal.fire({
+                icon: 'success',
+                title: 'Đã xóa!',
+                text: 'Đã xóa các sản phẩm đã chọn',
+                timer: 1500,
+                showConfirmButton: false
+            });
+            
             if (document.querySelectorAll('.cart-item').length === 0) {
                 location.reload();
             }
+        } else {
+            Swal.fire('Lỗi', data.message || 'Không thể xóa sản phẩm', 'error');
         }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        Swal.fire('Lỗi', 'Không thể kết nối đến server', 'error');
     });
 }
 

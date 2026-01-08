@@ -39,6 +39,9 @@ switch ($action) {
     case 'remove':
         removeFromCart($cartModel, $userId, $sessionId, $input);
         break;
+    case 'remove_multiple':
+        removeMultipleFromCart($cartModel, $userId, $sessionId, $input);
+        break;
     case 'clear':
         clearCart($cartModel, $userId, $sessionId);
         break;
@@ -124,6 +127,22 @@ function removeFromCart($cartModel, $userId, $sessionId, $data) {
     echo json_encode([
         'success' => true,
         'message' => 'Đã xóa khỏi giỏ hàng',
+        'cart' => $cart,
+        'cart_count' => $cart['count'] ?? 0
+    ]);
+}
+
+function removeMultipleFromCart($cartModel, $userId, $sessionId, $data) {
+    if (empty($data['item_ids']) || !is_array($data['item_ids'])) {
+        echo json_encode(['success' => false, 'message' => 'Item IDs required']);
+        return;
+    }
+    
+    $cart = $cartModel->removeMultipleItems($data['item_ids'], $userId, $sessionId);
+    
+    echo json_encode([
+        'success' => true,
+        'message' => 'Đã xóa các sản phẩm đã chọn',
         'cart' => $cart,
         'cart_count' => $cart['count'] ?? 0
     ]);

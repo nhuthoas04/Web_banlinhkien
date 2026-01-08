@@ -273,10 +273,10 @@ include __DIR__ . '/../layouts/header.php';
 
                 <?php if (empty($products)): ?>
                     <!-- Empty State -->
-                    <div class="empty-products">
-                        <img src="<?= BASE_URL ?>assets/images/empty-products.svg" alt="No products">
+                    <div class="empty-products text-center py-5">
+                        <i class="fas fa-box-open fa-4x text-muted mb-3"></i>
                         <h5>Không tìm thấy sản phẩm</h5>
-                        <p>Thử thay đổi bộ lọc hoặc tìm kiếm với từ khóa khác</p>
+                        <p class="text-muted">Thử thay đổi bộ lọc hoặc tìm kiếm với từ khóa khác</p>
                         <a href="<?= BASE_URL ?>products" class="btn btn-primary">
                             Xem tất cả sản phẩm
                         </a>

@@ -416,4 +416,14 @@ class User {
         
         return $stmt->fetchAll();
     }
+    
+    /**
+     * Get user by reset token
+     */
+    public function getByResetToken($token) {
+        $sql = "SELECT * FROM {$this->table} WHERE reset_token = :token LIMIT 1";
+        $stmt = $this->db->prepare($sql);
+        $stmt->execute([':token' => $token]);
+        return $stmt->fetch();
+    }
 }

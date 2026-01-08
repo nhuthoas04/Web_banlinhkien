@@ -3,10 +3,8 @@
  * Return Policy Page - TechShop
  */
 
-$pageTitle = 'Chính sách đổi trả';
-$currentPage = 'return-policy';
-
-ob_start();
+$pageTitle = 'Chính sách đổi trả - ' . SITE_NAME;
+include __DIR__ . '/../layouts/header.php';
 ?>
 
 <div class="container py-5">
@@ -174,9 +172,6 @@ ob_start();
     </div>
 </div>
 
-<?php
-$content = ob_get_clean();
-include 'views/layouts/main.php';
-?>
+<?php include __DIR__ . '/../layouts/footer.php'; ?>
 
 

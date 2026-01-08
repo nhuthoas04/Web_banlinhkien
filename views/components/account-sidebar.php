@@ -3,11 +3,24 @@
 // Đảm bảo có dữ liệu user
 $userName = $user['name'] ?? $_SESSION['fullname'] ?? 'Người dùng';
 $userEmail = $user['email'] ?? $_SESSION['email'] ?? '';
-$userAvatar = $user['avatar'] ?? 'assets/images/default-avatar.svg';
+$userAvatar = $user['avatar'] ?? $_SESSION['avatar'] ?? null;
+
+// Xử lý URL avatar (hỗ trợ cả URL từ Google và ảnh local)
+function getAvatarUrl($avatar) {
+    if (empty($avatar)) {
+        return BASE_URL . 'assets/images/default-avatar.svg';
+    }
+    // Nếu là URL đầy đủ (từ Google, Facebook...) thì dùng trực tiếp
+    if (strpos($avatar, 'http://') === 0 || strpos($avatar, 'https://') === 0) {
+        return $avatar;
+    }
+    // Nếu là ảnh local thì thêm BASE_URL
+    return BASE_URL . $avatar;
+}
 ?>
 <div class="account-sidebar">
     <div class="sidebar-user-box">
-        <img src="<?= BASE_URL . $userAvatar ?>" alt="Avatar" class="sidebar-avatar">
+        <img src="<?= getAvatarUrl($userAvatar) ?>" alt="Avatar" class="sidebar-avatar">
         <div class="sidebar-user-details">
             <p class="sidebar-username"><?= htmlspecialchars($userName) ?></p>
             <p class="sidebar-useremail"><?= htmlspecialchars($userEmail) ?></p>

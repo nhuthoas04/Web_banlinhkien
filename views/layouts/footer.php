@@ -35,9 +35,9 @@
                             <h6 class="footer-title">Liên kết</h6>
                             <ul class="footer-links compact">
                                 <li><a href="<?= BASE_URL ?>">Trang chủ</a></li>
-                                <li><a href="<?= BASE_URL ?>products">Sản phẩm</a></li>
-                                <li><a href="<?= BASE_URL ?>about">Giới thiệu</a></li>
-                                <li><a href="<?= BASE_URL ?>contact">Liên hệ</a></li>
+                                <li><a href="<?= BASE_URL ?>san-pham">Sản phẩm</a></li>
+                                <li><a href="<?= BASE_URL ?>gioi-thieu">Giới thiệu</a></li>
+                                <li><a href="<?= BASE_URL ?>lien-he">Liên hệ</a></li>
                             </ul>
                         </div>
                     </div>
@@ -47,10 +47,10 @@
                         <div class="footer-widget">
                             <h6 class="footer-title">Danh mục</h6>
                             <ul class="footer-links compact">
-                                <li><a href="<?= BASE_URL ?>products?category=1">Laptop</a></li>
-                                <li><a href="<?= BASE_URL ?>products?category=2">PC Gaming</a></li>
-                                <li><a href="<?= BASE_URL ?>products?category=3">Linh kiện</a></li>
-                                <li><a href="<?= BASE_URL ?>products?category=4">Phụ kiện</a></li>
+                                <li><a href="<?= BASE_URL ?>san-pham?category=1">Laptop</a></li>
+                                <li><a href="<?= BASE_URL ?>san-pham?category=2">PC Gaming</a></li>
+                                <li><a href="<?= BASE_URL ?>san-pham?category=3">Linh kiện</a></li>
+                                <li><a href="<?= BASE_URL ?>san-pham?category=4">Phụ kiện</a></li>
                             </ul>
                         </div>
                     </div>
@@ -110,7 +110,9 @@
                         <div class="footer-bottom-links">
                             <a href="<?= BASE_URL ?>chinh-sach-bao-mat">Chính sách bảo mật</a>
                             <span>|</span>
-                            <a href="<?= BASE_URL ?>dieu-khoan-su-dung">Điều khoản sử dụng</a>
+                            <a href="<?= BASE_URL ?>huong-dan-mua-hang">Hướng dẫn mua hàng</a>
+                            <span>|</span>
+                            <a href="<?= BASE_URL ?>chinh-sach-bao-hanh">Bảo hành</a>
                             <span>|</span>
                             <a href="<?= BASE_URL ?>chinh-sach-doi-tra">Đổi trả</a>
                         </div>

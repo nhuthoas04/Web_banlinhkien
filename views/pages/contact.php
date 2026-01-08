@@ -3,10 +3,8 @@
  * Contact Page - TechShop
  */
 
-$pageTitle = 'Liên hệ';
-$currentPage = 'contact';
-
-ob_start();
+$pageTitle = 'Liên hệ - ' . SITE_NAME;
+include __DIR__ . '/../layouts/header.php';
 ?>
 
 <!-- Hero Section -->
@@ -368,9 +366,6 @@ document.getElementById('contactForm').addEventListener('submit', function(e) {
 });
 </script>
 
-<?php
-$content = ob_get_clean();
-include 'views/layouts/main.php';
-?>
+<?php include __DIR__ . '/../layouts/footer.php'; ?>
 
 

@@ -258,7 +258,7 @@ try {
                     header('Location: ' . $redirect);
                     exit;
                 }
-                $error = $result['message'];
+                flash('error', $result['message']);
             }
             
             include __DIR__ . '/views/auth/login.php';
@@ -289,6 +289,30 @@ try {
             header('Location: ' . BASE_URL);
             exit;
             break;
+        
+        // Google OAuth Routes
+        case 'google-login':
+            // Redirect den trang dang nhap Google
+            $googleLoginUrl = $authController->getGoogleLoginUrl();
+            header('Location: ' . $googleLoginUrl);
+            exit;
+            break;
+            
+        case 'google-callback':
+            // Xu ly callback tu Google
+            $code = $_GET['code'] ?? '';
+            $result = $authController->handleGoogleCallback($code);
+            
+            if ($result['success']) {
+                $redirect = $_SESSION['redirect_after_login'] ?? BASE_URL;
+                unset($_SESSION['redirect_after_login']);
+                header('Location: ' . $redirect);
+            } else {
+                flash('error', $result['message']);
+                header('Location: ' . BASE_URL . 'login');
+            }
+            exit;
+            break;
             
         case 'forgot-password':
         case 'quen-mat-khau':
@@ -304,6 +328,49 @@ try {
             }
             
             include __DIR__ . '/views/auth/forgot-password.php';
+            break;
+        
+        case 'reset-password':
+        case 'dat-lai-mat-khau':
+            if ($isLoggedIn) {
+                header('Location: ' . BASE_URL);
+                exit;
+            }
+            
+            $token = $_GET['token'] ?? $_POST['token'] ?? '';
+            $validToken = true;
+            $message = '';
+            $messageType = '';
+            
+            if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+                // Xử lý đặt lại mật khẩu
+                $result = $authController->resetPassword(
+                    $_POST['token'],
+                    $_POST['password'],
+                    $_POST['confirm_password']
+                );
+                $message = $result['message'];
+                $messageType = $result['success'] ? 'success' : 'error';
+                
+                if (!$result['success'] && strpos($message, 'không hợp lệ') !== false || strpos($message, 'hết hạn') !== false) {
+                    $validToken = false;
+                }
+            } else if (!empty($token)) {
+                // Xác thực token khi truy cập trang
+                $tokenResult = $authController->verifyResetToken($token);
+                if (!$tokenResult['success']) {
+                    $message = $tokenResult['message'];
+                    $messageType = 'error';
+                    $validToken = false;
+                }
+            } else {
+                // Không có token
+                $message = 'Link đặt lại mật khẩu không hợp lệ';
+                $messageType = 'error';
+                $validToken = false;
+            }
+            
+            include __DIR__ . '/views/auth/reset-password.php';
             break;
             
         // ==================== USER ROUTES (Require Login) ====================
@@ -795,6 +862,11 @@ try {
             
         case 'huong-dan-mua-hang':
             include __DIR__ . '/views/pages/guide.php';
+            break;
+        
+        case 'chinh-sach-bao-mat':
+        case 'privacy-policy':
+            include __DIR__ . '/views/pages/privacy-policy.php';
             break;
             
         // ==================== 404 NOT FOUND ====================

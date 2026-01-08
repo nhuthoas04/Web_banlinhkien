@@ -159,6 +159,23 @@ class Cart {
     }
     
     /**
+     * Remove multiple items from cart by item IDs
+     */
+    public function removeMultipleItems($itemIds, $userId = null, $sessionId = null) {
+        $cart = $this->getOrCreate($userId, $sessionId);
+        
+        if (!empty($itemIds)) {
+            $placeholders = implode(',', array_fill(0, count($itemIds), '?'));
+            $sql = "DELETE FROM cart_items WHERE cart_id = ? AND id IN ($placeholders)";
+            $stmt = $this->db->prepare($sql);
+            $params = array_merge([$cart['id']], $itemIds);
+            $stmt->execute($params);
+        }
+        
+        return $this->getCart($userId, $sessionId);
+    }
+    
+    /**
      * Clear cart
      */
     public function clear($userId = null, $sessionId = null) {
