@@ -221,9 +221,13 @@ doan_web_php/
 │       └── main.js              # Main scripts
 │
 ├── 📂 config/                   # Configuration
+│   ├── add_google_login.sql     # SQL: Thêm đăng nhập Google
+│   ├── add_reset_password.sql   # SQL: Thêm reset password
 │   ├── computer_shop.sql        # Database backup
 │   ├── config.php               # App config (SMTP, OAuth)
-│   └── database.php             # Database connection
+│   ├── database.php             # Database connection
+│   ├── fix_categories.sql       # SQL: Fix danh mục
+│   └── update_specifications.sql # SQL: Update thông số
 │
 ├── 📂 controllers/              # MVC Controllers
 │   ├── AdminController.php      # Admin logic
@@ -247,6 +251,7 @@ doan_web_php/
 │   │   ├── categories.php       # Quản lý danh mục
 │   │   ├── chats.php            # Quản lý chat
 │   │   ├── dashboard.php        # Dashboard
+│   │   ├── order-detail.php     # Chi tiết đơn hàng
 │   │   ├── orders.php           # Quản lý đơn hàng
 │   │   ├── product-form.php     # Form thêm/sửa sản phẩm
 │   │   ├── products.php         # Danh sách sản phẩm
@@ -460,6 +465,17 @@ doan_web_php/
 ---
 
 ## 🔄 Changelog
+
+### v2.1.0 (08/01/2026)
+- ✅ Sửa lỗi toggle sidebar trên mobile
+- ✅ Cải thiện giao diện nhân viên
+- ✅ Thêm chức năng xóa cuộc hội thoại chat
+- ✅ Sửa trang chi tiết đơn hàng admin
+- ✅ Sửa chức năng lọc đánh giá theo số sao
+- ✅ Cập nhật trang thống kê doanh thu
+- ✅ Thêm hệ thống CSRF token
+- ✅ Sửa lỗi form filter các trang admin
+- ✅ Sửa lỗi thêm tài khoản mới
 
 ### v2.0.0 (08/01/2026)
 - ✅ Thêm đăng nhập Google OAuth 2.0

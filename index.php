@@ -545,7 +545,30 @@ try {
             }
             
             $user = $userModel->getById($currentUser['id']);
-            $notifications = []; // Placeholder
+            
+            // Get notifications from database
+            $notifications = [];
+            try {
+                $db = getDB();
+                $stmt = $db->query("SHOW TABLES LIKE 'notifications'");
+                if ($stmt->fetch()) {
+                    $stmt = $db->prepare("
+                        SELECT * FROM notifications 
+                        WHERE user_id = ? 
+                        ORDER BY created_at DESC 
+                        LIMIT 50
+                    ");
+                    $stmt->execute([$currentUser['id']]);
+                    $notifications = $stmt->fetchAll(PDO::FETCH_ASSOC);
+                    
+                    // Mark all as read
+                    $stmt = $db->prepare("UPDATE notifications SET is_read = 1 WHERE user_id = ?");
+                    $stmt->execute([$currentUser['id']]);
+                }
+            } catch (Exception $e) {
+                $notifications = [];
+            }
+            
             $currentPage = 'notifications';
             
             $pageTitle = 'Thông báo';
@@ -571,8 +594,14 @@ try {
         // ==================== EMPLOYEE ROUTES ====================
         
         case 'employee':
-            if (!$isLoggedIn || !in_array($userRole, ['employee', 'admin'])) {
-                header('Location: ' . BASE_URL . 'login');
+            // Chỉ cho phép role employee truy cập, admin không được vào
+            if (!$isLoggedIn || $userRole !== 'employee') {
+                if ($userRole === 'admin') {
+                    // Admin thì redirect về trang admin
+                    header('Location: ' . BASE_URL . 'admin');
+                } else {
+                    header('Location: ' . BASE_URL . 'login');
+                }
                 exit;
             }
             
@@ -587,6 +616,7 @@ try {
                     $recentPendingOrders = $orderModel->getRecent('pending', 5);
                     $recentChats = $chatModel->getRecent(5);
                     $recentReviews = $reviewModel->getRecent(5);
+                    $orderGrowth = 0; // Placeholder for growth percentage
                     
                     include __DIR__ . '/views/employee/dashboard.php';
                     break;
@@ -634,8 +664,9 @@ try {
                         $activeConversation = $chatModel->getConversation($query_params['id']);
                         $messages = $chatModel->getMessages($query_params['id']);
                         
-                        // Mark as read
-                        $chatModel->markAsRead($query_params['id']);
+                        // Mark as read - need to pass role (employee or admin)
+                        $userRole = $_SESSION['role'] ?? 'employee';
+                        $chatModel->markAsRead($query_params['id'], $userRole);
                         
                         // Get user stats
                         if ($activeConversation) {
@@ -741,6 +772,26 @@ try {
                     $orderCounts = $orderModel->getCountsByStatus();
                     
                     include __DIR__ . '/views/admin/orders.php';
+                    break;
+                
+                case 'order-detail':
+                    $orderId = $query_params['id'] ?? null;
+                    if (!$orderId) {
+                        header('Location: ' . BASE_URL . 'admin?page=orders');
+                        exit;
+                    }
+                    
+                    $order = $orderModel->getById($orderId);
+                    if (!$order) {
+                        flash('error', 'Đơn hàng không tồn tại');
+                        header('Location: ' . BASE_URL . 'admin?page=orders');
+                        exit;
+                    }
+                    
+                    // Get customer info
+                    $customer = $userModel->findById($order['user_id']);
+                    
+                    include __DIR__ . '/views/admin/order-detail.php';
                     break;
                     
                 case 'users':

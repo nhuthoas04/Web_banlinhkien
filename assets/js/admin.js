@@ -37,30 +37,63 @@ function formatDate(dateStr) {
 const Sidebar = {
     init: function() {
         const toggleBtn = document.getElementById('sidebarToggle');
+        const closeBtn = document.getElementById('sidebarClose');
         const sidebar = document.querySelector('.admin-sidebar');
         const body = document.body;
         
-        if (!toggleBtn || !sidebar) return;
+        if (!sidebar) return;
         
-        // Toggle sidebar
-        toggleBtn.addEventListener('click', () => {
-            sidebar.classList.toggle('collapsed');
-            body.classList.toggle('sidebar-collapsed');
-            localStorage.setItem('sidebarCollapsed', sidebar.classList.contains('collapsed'));
-        });
-        
-        // Restore state from localStorage
+        // Clear old localStorage on first load to fix collapsed issue
         if (localStorage.getItem('sidebarCollapsed') === 'true') {
-            sidebar.classList.add('collapsed');
-            body.classList.add('sidebar-collapsed');
+            localStorage.removeItem('sidebarCollapsed');
         }
         
-        // Mobile sidebar
-        const mobileToggle = document.getElementById('mobileSidebarToggle');
-        if (mobileToggle) {
-            mobileToggle.addEventListener('click', () => {
-                sidebar.classList.toggle('mobile-open');
+        // Toggle sidebar - works for both desktop and mobile
+        if (toggleBtn) {
+            toggleBtn.addEventListener('click', (e) => {
+                e.stopPropagation();
+                // Mobile view (< 1200px)
+                if (window.innerWidth < 1200) {
+                    body.classList.toggle('sidebar-open');
+                } else {
+                    // Desktop: toggle collapsed state
+                    const isCollapsing = !body.classList.contains('sidebar-collapsed');
+                    body.classList.toggle('sidebar-collapsed');
+                    
+                    // Only save to localStorage if user explicitly collapses
+                    if (isCollapsing) {
+                        localStorage.setItem('sidebarCollapsed', 'true');
+                    } else {
+                        localStorage.removeItem('sidebarCollapsed');
+                    }
+                }
             });
+        }
+        
+        // Close button inside sidebar (mobile)
+        if (closeBtn) {
+            closeBtn.addEventListener('click', (e) => {
+                e.stopPropagation();
+                body.classList.remove('sidebar-open');
+            });
+        }
+        
+        // Close sidebar when clicking overlay (mobile)
+        document.addEventListener('click', (e) => {
+            if (body.classList.contains('sidebar-open')) {
+                // Check if click is outside sidebar
+                if (!sidebar.contains(e.target) && !toggleBtn.contains(e.target)) {
+                    body.classList.remove('sidebar-open');
+                }
+            }
+        });
+        
+        // On desktop, only restore collapsed state if user explicitly set it
+        if (window.innerWidth >= 1200 && localStorage.getItem('sidebarCollapsed') === 'true') {
+            body.classList.add('sidebar-collapsed');
+        } else {
+            // Ensure sidebar is not collapsed by default
+            body.classList.remove('sidebar-collapsed');
         }
         
         // Submenu toggle
