@@ -154,6 +154,15 @@ function isAdmin() {
 
 function isEmployee() {
     $role = $_SESSION['role'] ?? $_SESSION['user']['role'] ?? '';
+    return $role === ROLE_EMPLOYEE; // Chỉ employee, không bao gồm admin
+}
+
+/**
+ * Kiểm tra xem user có phải là Employee hoặc Admin không
+ * Dùng cho các tính năng mà cả employee và admin đều có thể truy cập
+ */
+function isEmployeeOrAdmin() {
+    $role = $_SESSION['role'] ?? $_SESSION['user']['role'] ?? '';
     return $role === ROLE_EMPLOYEE || $role === ROLE_ADMIN;
 }
 
@@ -264,6 +273,30 @@ function getOrderStatusText($status) {
         ORDER_CANCELLED => 'Da huy'
     ];
     return $texts[$status] ?? 'Khong xac dinh';
+}
+
+// CSRF Token Functions
+function generateToken() {
+    if (!isset($_SESSION['csrf_token'])) {
+        $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
+    }
+    return $_SESSION['csrf_token'];
+}
+
+function getToken() {
+    return $_SESSION['csrf_token'] ?? generateToken();
+}
+
+function verifyToken($token) {
+    if (!isset($_SESSION['csrf_token'])) {
+        return false;
+    }
+    return hash_equals($_SESSION['csrf_token'], $token);
+}
+
+function tokenField() {
+    $token = getToken();
+    return '<input type="hidden" name="csrf_token" value="' . htmlspecialchars($token) . '">';
 }
 
 // Debug mode

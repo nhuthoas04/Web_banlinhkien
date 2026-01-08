@@ -3,9 +3,9 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Jan 06, 2026 at 05:45 AM
+-- Generation Time: Jan 08, 2026 at 12:50 PM
 -- Server version: 10.4.32-MariaDB
--- PHP Version: 8.2.12
+-- PHP Version: 8.0.30
 
 SET SQL_MODE = "NO_AUTO_VALUE_ON_ZERO";
 START TRANSACTION;
@@ -20,6 +20,32 @@ SET time_zone = "+00:00";
 --
 -- Database: `computer_shop`
 --
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `brands`
+--
+
+CREATE TABLE `brands` (
+  `id` int(11) NOT NULL,
+  `name` varchar(100) NOT NULL,
+  `slug` varchar(100) DEFAULT NULL,
+  `logo` varchar(255) DEFAULT NULL,
+  `description` text DEFAULT NULL,
+  `status` enum('active','inactive') DEFAULT 'active',
+  `sort_order` int(11) DEFAULT 0,
+  `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
+  `updated_at` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp()
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+--
+-- Dumping data for table `brands`
+--
+
+INSERT INTO `brands` (`id`, `name`, `slug`, `logo`, `description`, `status`, `sort_order`, `created_at`, `updated_at`) VALUES
+(1, 'MSI', 'msi', NULL, NULL, 'active', 0, '2026-01-08 02:35:08', '2026-01-08 02:35:08'),
+(2, 'ACER', 'acer', NULL, NULL, 'active', 0, '2026-01-08 10:25:09', '2026-01-08 10:25:09');
 
 -- --------------------------------------------------------
 
@@ -41,7 +67,9 @@ CREATE TABLE `carts` (
 
 INSERT INTO `carts` (`id`, `user_id`, `session_id`, `created_at`, `updated_at`) VALUES
 (1, 1, NULL, '2025-12-31 16:43:30', '2025-12-31 16:43:30'),
-(2, 4, NULL, '2026-01-03 13:09:53', '2026-01-03 13:09:53');
+(2, 4, NULL, '2026-01-03 13:09:53', '2026-01-03 13:09:53'),
+(5, 5, NULL, '2026-01-07 10:51:03', '2026-01-07 10:51:03'),
+(6, 6, NULL, '2026-01-07 16:06:42', '2026-01-07 16:06:42');
 
 -- --------------------------------------------------------
 
@@ -57,6 +85,13 @@ CREATE TABLE `cart_items` (
   `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
   `updated_at` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp()
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+--
+-- Dumping data for table `cart_items`
+--
+
+INSERT INTO `cart_items` (`id`, `cart_id`, `product_id`, `quantity`, `created_at`, `updated_at`) VALUES
+(2, 1, 15, 6, '2026-01-08 02:13:34', '2026-01-08 10:40:03');
 
 -- --------------------------------------------------------
 
@@ -82,14 +117,14 @@ CREATE TABLE `categories` (
 --
 
 INSERT INTO `categories` (`id`, `name`, `slug`, `description`, `image`, `parent_id`, `sort_order`, `status`, `created_at`, `updated_at`) VALUES
-(1, 'Laptop', 'laptop', 'Laptop gaming, v?n ph?ng, ?? h?a c?c th??ng hi?u', NULL, NULL, 1, 'active', '2025-12-31 16:06:27', '2025-12-31 16:06:27'),
-(2, 'PC Gaming', 'pc-gaming', 'M?y t?nh ?? b?n gaming c?u h?nh cao', NULL, NULL, 2, 'active', '2025-12-31 16:06:27', '2025-12-31 16:06:27'),
-(3, 'Linh kien may tinh', 'linh-kien', 'CPU, GPU, RAM, SSD, HDD v? c?c linh ki?n m?y t?nh', NULL, NULL, 3, 'active', '2025-12-31 16:06:27', '2025-12-31 16:07:35'),
-(4, 'Man hinh', 'man-hinh', 'M?n h?nh gaming, ?? h?a, v?n ph?ng', NULL, NULL, 4, 'active', '2025-12-31 16:06:27', '2025-12-31 16:06:50'),
-(5, 'Ban phim', 'ban-phim', 'B?n ph?m c?, b?n ph?m gaming, v?n ph?ng', NULL, NULL, 5, 'active', '2025-12-31 16:06:27', '2025-12-31 16:06:50'),
-(6, 'Chuot', 'chuot', 'Chu?t gaming, chu?t v?n ph?ng, chu?t kh?ng d?y', NULL, NULL, 6, 'active', '2025-12-31 16:06:27', '2025-12-31 16:06:50'),
-(7, 'Tai nghe', 'tai-nghe', 'Tai nghe gaming, tai nghe ?m nh?c', NULL, NULL, 7, 'active', '2025-12-31 16:06:27', '2025-12-31 16:06:27'),
-(8, 'Phu kien', 'phu-kien', 'Balo, t?i ch?ng s?c, ?? t?n nhi?t, hub USB', NULL, NULL, 8, 'active', '2025-12-31 16:06:27', '2025-12-31 16:06:50');
+(1, 'Laptop', 'laptop', 'Laptop gaming, van phong, do hoa cac thuong hieu', NULL, NULL, 1, 'active', '2025-12-31 16:06:27', '2026-01-06 05:37:07'),
+(2, 'PC Gaming', 'pc-gaming', 'May tinh de ban gaming cau hinh cao', NULL, NULL, 2, 'active', '2025-12-31 16:06:27', '2026-01-06 05:37:07'),
+(3, 'Linh kien may tinh', 'linh-kien', 'CPU, RAM, VGA, SSD va cac linh kien khac', NULL, NULL, 3, 'active', '2025-12-31 16:06:27', '2026-01-06 05:37:07'),
+(4, 'Man hinh', 'man-hinh', 'Man hinh gaming, do hoa cac kich thuoc', NULL, NULL, 4, 'active', '2025-12-31 16:06:27', '2026-01-06 05:37:07'),
+(5, 'Ban phim', 'ban-phim', 'Ban phim co, ban phim gaming', NULL, NULL, 5, 'active', '2025-12-31 16:06:27', '2026-01-06 05:37:07'),
+(6, 'Chuot', 'chuot', 'Chuot gaming, chuot van phong', NULL, NULL, 6, 'active', '2025-12-31 16:06:27', '2026-01-06 05:37:07'),
+(7, 'Tai nghe', 'tai-nghe', 'Tai nghe gaming, tai nghe bluetooth', NULL, NULL, 7, 'active', '2025-12-31 16:06:27', '2026-01-06 05:37:07'),
+(8, 'Phu kien', 'phu-kien', 'Phu kien may tinh cac loai', NULL, NULL, 8, 'active', '2025-12-31 16:06:27', '2026-01-06 05:37:07');
 
 -- --------------------------------------------------------
 
@@ -128,6 +163,13 @@ CREATE TABLE `conversations` (
   `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
   `updated_at` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp()
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+--
+-- Dumping data for table `conversations`
+--
+
+INSERT INTO `conversations` (`id`, `user_id`, `assigned_to`, `subject`, `status`, `last_message_at`, `created_at`, `updated_at`) VALUES
+(1, 5, 1, NULL, 'open', '2026-01-08 10:06:21', '2026-01-08 08:27:14', '2026-01-08 09:06:21');
 
 -- --------------------------------------------------------
 
@@ -170,6 +212,18 @@ CREATE TABLE `messages` (
   `created_at` timestamp NOT NULL DEFAULT current_timestamp()
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
+--
+-- Dumping data for table `messages`
+--
+
+INSERT INTO `messages` (`id`, `conversation_id`, `sender_id`, `sender_type`, `content`, `image`, `is_read`, `read_at`, `created_at`) VALUES
+(1, 1, 5, 'user', 'tôi cần tư vấn về laptop', NULL, 1, '2026-01-08 16:01:46', '2026-01-08 08:27:14'),
+(2, 1, 1, 'employee', 'Xin chào, tôi có thể giúp gì?', NULL, 1, '2026-01-08 15:52:53', '2026-01-08 08:52:35'),
+(3, 1, 5, 'user', 'tư vấn laptop', NULL, 1, '2026-01-08 16:01:46', '2026-01-08 08:57:51'),
+(4, 1, 1, 'employee', 'laptop nào ạ', NULL, 1, '2026-01-08 16:03:12', '2026-01-08 08:58:41'),
+(5, 1, 5, 'user', 'laptop msi ấy shop', NULL, 1, '2026-01-08 16:05:58', '2026-01-08 09:05:40'),
+(6, 1, 1, 'employee', 'anh chị vui lòng đợi bên em kiểm tra lại ạ', NULL, 1, '2026-01-08 16:06:29', '2026-01-08 09:06:21');
+
 -- --------------------------------------------------------
 
 --
@@ -208,7 +262,7 @@ CREATE TABLE `orders` (
 --
 
 INSERT INTO `orders` (`id`, `order_number`, `user_id`, `customer_name`, `customer_email`, `customer_phone`, `shipping_address`, `shipping_ward`, `shipping_district`, `shipping_city`, `subtotal`, `shipping_fee`, `discount`, `total`, `payment_method`, `payment_status`, `status`, `note`, `admin_note`, `assigned_employee`, `cancelled_reason`, `delivered_at`, `created_at`, `updated_at`) VALUES
-(1, 'TS20260103E80E3D', 4, 'Mai Tuấn Đạt', 'maituandat2004@gmail.com', '0123456789', 'hhhh', '00001', '002', '01', 92990000, 0, 0, 92990000, 'cod', 'pending', 'confirmed', '', NULL, NULL, NULL, NULL, '2026-01-03 15:57:50', '2026-01-03 16:20:29');
+(1, 'TS20260103E80E3D', 4, 'Mai Tuấn Đạt', 'maituandat2004@gmail.com', '0123456789', 'hhhh', '00001', '002', '01', 92990000, 0, 0, 92990000, 'cod', 'pending', 'delivered', '', NULL, NULL, NULL, '2026-01-06 07:10:35', '2026-01-03 15:57:50', '2026-01-06 06:10:35');
 
 -- --------------------------------------------------------
 
@@ -232,7 +286,9 @@ CREATE TABLE `order_history` (
 INSERT INTO `order_history` (`id`, `order_id`, `status`, `note`, `created_by`, `created_at`) VALUES
 (1, 1, 'pending', 'Đơn hàng được tạo', 4, '2026-01-03 15:57:50'),
 (2, 1, 'confirmed', NULL, NULL, '2026-01-03 16:20:29'),
-(3, 1, 'confirmed', 'Đơn hàng đã được xác nhận', 1, '2026-01-03 16:20:29');
+(3, 1, 'confirmed', 'Đơn hàng đã được xác nhận', 1, '2026-01-03 16:20:29'),
+(4, 1, 'delivered', NULL, NULL, '2026-01-06 06:10:35'),
+(5, 1, 'delivered', 'Đơn hàng đã giao thành công', 1, '2026-01-06 06:10:35');
 
 -- --------------------------------------------------------
 
@@ -270,11 +326,13 @@ CREATE TABLE `products` (
   `name` varchar(255) NOT NULL,
   `slug` varchar(255) NOT NULL,
   `description` text DEFAULT NULL,
+  `specifications` text DEFAULT NULL,
   `short_description` varchar(500) DEFAULT NULL,
   `price` decimal(15,0) NOT NULL,
   `sale_price` decimal(15,0) DEFAULT NULL,
   `category_id` int(11) DEFAULT NULL,
   `brand` varchar(100) DEFAULT NULL,
+  `brand_id` int(11) DEFAULT NULL,
   `sku` varchar(50) DEFAULT NULL,
   `stock` int(11) DEFAULT 0,
   `featured` tinyint(1) DEFAULT 0,
@@ -291,8 +349,10 @@ CREATE TABLE `products` (
 -- Dumping data for table `products`
 --
 
-INSERT INTO `products` (`id`, `name`, `slug`, `description`, `short_description`, `price`, `sale_price`, `category_id`, `brand`, `sku`, `stock`, `featured`, `status`, `rating`, `review_count`, `sold_count`, `views`, `created_at`, `updated_at`) VALUES
-(13, 'Laptop gaming MSI Stealth 18 HX AI A2XWIG 017VN', 'laptop-gaming-msi-stealth-18-hx-ai-a2xwig-017vn', '<figure class=\"table\"><table><tbody><tr><td><a href=\"https://gearvn.com/collections/cpu-bo-vi-xu-ly\"><strong>CPU</strong></a></td><td>Intel® Core™ Ultra 9 processor 275HX (up to 5.4Ghz, 24 Core 24 Threads, 36MB cache)</td></tr><tr><td><a href=\"https://gearvn.com/collections/ram-pc\"><strong>RAM</strong></a></td><td>32GB (16x2) DDR5 6400MHz (2x SO-DIMM socket, up to 96GB SDRAM)</td></tr><tr><td><a href=\"https://gearvn.com/collections/o-cung-di-dong-hdd-box\"><strong>Ổ lưu trữ</strong></a></td><td>2TB SSD M.2 NVMe ( 1 x M.2 NVMe )</td></tr><tr><td><a href=\"https://gearvn.com/collections/vga-card-man-hinh\"><strong>Card đồ họa</strong></a></td><td>GeForce RTX™ 5080 16GB GDDR7 Intel® Arc™ Graphics ( 2002MHz , 150W , 1334 AI TOPS )</td></tr><tr><td><a href=\"https://gearvn.com/pages/man-hinh\"><strong>Màn hình</strong></a></td><td>18\" ( 3840 x 2400 ) UHD (4K) 16:10 , Mini LED IPS , 120Hz , không cảm ứng , 1000 nits , 100% DCI-P3</td></tr><tr><td><br><br><strong>Cổng giao tiếp</strong></td><td>2 x USB 3.2<br>2 x Thunderbolt 4<br>1 x SD card slot<br>Audio combo<br>1 x HDMI<br>LAN 2500 Mbps</td></tr><tr><td><a href=\"https://gearvn.com/collections/ban-phim-may-tinh\"><strong>Bàn phím</strong></a></td><td>Per-Key RGB Gaming Keyboard by SteelSeries with Copilot Key</td></tr><tr><td><strong>Audio</strong></td><td>Nahimic, Hi-Res Audio</td></tr><tr><td><strong>LAN</strong></td><td>REALTEK/RTL8125BG-CG (Up to 2.5G)</td></tr><tr><td><strong>Wifi + Bluetooth</strong></td><td>Intel® Killer™ Wi-Fi 7 BE1750, Bluetooth v5.4</td></tr><tr><td><a href=\"https://gearvn.com/collections/webcam\"><strong>Webcam</strong></a></td><td>IR FHD type (30fps@1080p) with HDR</td></tr><tr><td><strong>Pin</strong></td><td>4 Cell 99.9WHrs</td></tr><tr><td><strong>Trọng lượng</strong></td><td>2.89 kg</td></tr><tr><td><strong>Hệ điều hành</strong></td><td>Windows 11 Home&nbsp;</td></tr><tr><td><strong>Màu sắc</strong></td><td>Midnight Black</td></tr><tr><td><strong>Chất liệu</strong></td><td>A, C: Metal (MgAl), B:&nbsp;Plastic, D:&nbsp;Metal</td></tr><tr><td><strong>Kích thước</strong></td><td>399.99 x 289.67 x 19.9-23.99 mm</td></tr></tbody></table></figure>', NULL, 92990000, NULL, 1, 'MSI', 'msi01', 9, 0, 'active', 0.0, 0, 1, 7, '2026-01-03 14:43:57', '2026-01-03 15:57:50');
+INSERT INTO `products` (`id`, `name`, `slug`, `description`, `specifications`, `short_description`, `price`, `sale_price`, `category_id`, `brand`, `brand_id`, `sku`, `stock`, `featured`, `status`, `rating`, `review_count`, `sold_count`, `views`, `created_at`, `updated_at`) VALUES
+(13, 'Laptop gaming MSI Stealth 18 HX AI A2XWIG 017VN', 'laptop-gaming-msi-stealth-18-hx-ai-a2xwig-017vn', '', '<figure class=\"table\"><table><tbody><tr><td><a href=\"https://gearvn.com/collections/cpu-bo-vi-xu-ly\"><strong>CPU</strong></a></td><td>Intel® Core™ Ultra 9 processor 275HX (up to 5.4Ghz, 24 Core 24 Threads, 36MB cache)</td></tr><tr><td><a href=\"https://gearvn.com/collections/ram-pc\"><strong>RAM</strong></a></td><td>32GB (16x2) DDR5 6400MHz (2x SO-DIMM socket, up to 96GB SDRAM)</td></tr><tr><td><a href=\"https://gearvn.com/collections/o-cung-di-dong-hdd-box\"><strong>Ổ lưu trữ</strong></a></td><td>2TB SSD M.2 NVMe ( 1 x M.2 NVMe )</td></tr><tr><td><a href=\"https://gearvn.com/collections/vga-card-man-hinh\"><strong>Card đồ họa</strong></a></td><td>GeForce RTX™ 5080 16GB GDDR7 Intel® Arc™ Graphics ( 2002MHz , 150W , 1334 AI TOPS )</td></tr><tr><td><a href=\"https://gearvn.com/pages/man-hinh\"><strong>Màn hình</strong></a></td><td>18\" ( 3840 x 2400 ) UHD (4K) 16:10 , Mini LED IPS , 120Hz , không cảm ứng , 1000 nits , 100% DCI-P3</td></tr><tr><td><br><br><strong>Cổng giao tiếp</strong></td><td>2 x USB 3.2<br>2 x Thunderbolt 4<br>1 x SD card slot<br>Audio combo<br>1 x HDMI<br>LAN 2500 Mbps</td></tr><tr><td><a href=\"https://gearvn.com/collections/ban-phim-may-tinh\"><strong>Bàn phím</strong></a></td><td>Per-Key RGB Gaming Keyboard by SteelSeries with Copilot Key</td></tr><tr><td><strong>Audio</strong></td><td>Nahimic, Hi-Res Audio</td></tr><tr><td><strong>LAN</strong></td><td>REALTEK/RTL8125BG-CG (Up to 2.5G)</td></tr><tr><td><strong>Wifi + Bluetooth</strong></td><td>Intel® Killer™ Wi-Fi 7 BE1750, Bluetooth v5.4</td></tr><tr><td><a href=\"https://gearvn.com/collections/webcam\"><strong>Webcam</strong></a></td><td>IR FHD type (30fps@1080p) with HDR</td></tr><tr><td><strong>Pin</strong></td><td>4 Cell 99.9WHrs</td></tr><tr><td><strong>Trọng lượng</strong></td><td>2.89 kg</td></tr><tr><td><strong>Hệ điều hành</strong></td><td>Windows 11 Home&nbsp;</td></tr><tr><td><strong>Màu sắc</strong></td><td>Midnight Black</td></tr><tr><td><strong>Chất liệu</strong></td><td>A, C: Metal (MgAl), B:&nbsp;Plastic, D:&nbsp;Metal</td></tr><tr><td><strong>Kích thước</strong></td><td>399.99 x 289.67 x 19.9-23.99 mm</td></tr></tbody></table></figure>', '', 92990000, NULL, 1, 'MSI', 1, 'msi01', 9, 1, 'active', 5.0, 1, 1, 22, '2026-01-03 14:43:57', '2026-01-08 10:38:05'),
+(15, 'Laptop MSI Prestige 13 AI Evo A1MG 062VN', 'laptop-msi-prestige-13-ai-evo-a1mg-062vn', '<p>VGA: Arc Intel</p><p>CPU: Ultra 7 155H</p><p>RAM: 32 GB</p><p>LCD: 13.3 inch 2.8K OLED</p><p>SSD: 1 TB</p>', '<figure class=\"table\"><table><tbody><tr><td><a href=\"https://gearvn.com/collections/cpu-bo-vi-xu-ly\"><strong>CPU</strong></a></td><td>Intel® Core™ Ultra 7 processor 155H with Intel® AI Boost (NPU) 16 cores (6 P-cores + 8 E-cores + 2 Low Power E-cores), Max Turbo Frequency 4.8 GHz</td></tr><tr><td><a href=\"https://gearvn.com/collections/ram-pc\"><strong>RAM</strong></a></td><td>32GB LPDDR5 6400MHz (không nâng cấp)</td></tr><tr><td><a href=\"https://gearvn.com/collections/o-cung-di-dong-hdd-box\"><strong>Ổ lưu trữ</strong></a></td><td>1TB NVMe PCIe Gen4x4 SSD&nbsp;(1 x slots M.2 NVMe PCIe Gen4)</td></tr><tr><td><a href=\"https://gearvn.com/collections/vga-card-man-hinh\"><strong>Card đồ họa</strong></a></td><td>Intel® Arc™ graphics<br>(Intel® Arc™ graphics requires configuration with 16GB dual-channel memory or above)</td></tr><tr><td><a href=\"https://gearvn.com/pages/man-hinh\"><strong>Màn hình</strong></a></td><td>13.3\" 2.8K (2880 x 1800), OLED, VESA DisplayHDR™ 500 Certified, 100% DCI-P3 (Typical)</td></tr><tr><td><br><br><strong>Cổng giao tiếp</strong></td><td>2x Type-C (USB / DP / Thunderbolt™ 4) with PD charging<br>1x Type-A USB3.2 Gen1<br>1x HDMI™ 2.1 (8K @ 60Hz / 4K @ 120Hz)<br>1x Micro SD<br>1x Mic-in/Headphone-out Combo Jack</td></tr><tr><td><a href=\"https://gearvn.com/collections/ban-phim-may-tinh\"><strong>Bàn phím</strong></a></td><td>Single Backlit Keyboard (White)</td></tr><tr><td><strong>Audio</strong></td><td>2x 2W Audio Speaker Hi-Res Audio Ready, DTS Audio Processing<br>Spatial Array Microphone (3 Mic)</td></tr><tr><td><strong>LAN</strong></td><td>None</td></tr><tr><td><strong>Wifi + Bluetooth</strong></td><td>Intel® Killer™ Wi-Fi 7 BE1750, Bluetooth v5.4</td></tr><tr><td><a href=\"https://gearvn.com/collections/webcam\"><strong>Webcam</strong></a></td><td>IR FHD type (30fps@1080p) with HDR<br>3D Noise Reduction+ (3DNR+)</td></tr><tr><td><strong>Bảo mật</strong></td><td>Fingerprint Security<br>Discrete Trusted Platform Module (dTPM) 2.0<br>Firmware Trusted Platform Module (fTPM) 2.0<br>Webcam Shutter, Kensington Lock</td></tr><tr><td><strong>Pin</strong></td><td>4-Cell 75 Whrs</td></tr><tr><td><strong>Trọng lượng</strong></td><td>0.99 kg</td></tr><tr><td><strong>Hệ điều hành</strong></td><td>Windows 11 Home</td></tr><tr><td><strong>Màu sắc</strong></td><td>Stellar Gray</td></tr><tr><td><strong>Kích thước</strong></td><td>299 x 210 x 16.9 mm</td></tr></tbody></table></figure>', '', 32190000, NULL, 1, 'MSI', 1, NULL, 10, 1, 'active', 0.0, 0, 0, 6, '2026-01-08 01:03:31', '2026-01-08 10:39:51'),
+(18, 'Laptop Acer Swift X14 SFX14 72G 77F9', 'laptop-acer-swift-x14-sfx14-72g-77f9', '<p>Acer Swift X14 SFX14 72G 77F9 được trang bị hệ thống&nbsp;phần cứng bao gồm CPU&nbsp;Intel® Ultra 7 155H,&nbsp;1.40 GHz upto 4.80 GHz,&nbsp;16 nhân 22 luồng,&nbsp;24MB Intel® Smart Cache mang lại&nbsp;hiệu năng mạnh mẽ, xử lý mượt mà các tác vụ thiết kế đồ hoạ, render video,... trên các phần mềm Photoshop, AI, Premiere,... hay thỏa sức cho bạn sáng tạo nội dung.&nbsp;Acer Swift X14 còn được trang bị card đồ họa&nbsp;NVIDIA® GeForce RTX™ Graphics 4050 with 6 GB GDDR6 VRAM giúp&nbsp;bạn thoải mái chơi game, thoải mái biến những thước phim của mình thành những tác phẩm nghệ thuật đầy màu sắc.</p><p>&nbsp;</p><p>&nbsp;</p><p>&nbsp;</p>', '<p>Audio DTS® X:Ultra Audio; featuring optimized Bass; Loudness; Speaker</p><p>Tần số quét 120Hz</p><p>Màu sắc Steel Gray</p><p>Số nhân; luồng 16 nhân 22 luồng</p><p>Bộ nhớ Cache 24MB Intel® Smart Cache</p><p>Màn hình 14.5\" 2.8K WQXGA+ (2880x1800) OLED; 120Hz; 400 nits. DCI-P3 100%; Adobe100%</p><p>Thương hiệu Acer</p><p>Card đồ họa NVIDIA® GeForce RTX™ 4050 with 6 GB GDDR6 VRAM</p><p>Tốc độ 1.40 GHz upto 4.80 GHz</p><p>Ổ cứng 1TB PCIe NVMe SED SSD (Không nâng cấp được)</p><p>Chất liệu Cover A/C/D: Aluminum; Cover B: Plastic</p><p>Hệ điều hành Windows 11 Home Single Language</p><p>Bảo mật Firmware Trusted Platform Module (TPM) solution BIOS user; supervisor passwords</p><p>Trọng lượng 1.5kg</p><p>Pin 76Whr Li-ion battery</p><p>Kích thước 22.79 (W) x 228.12 (D) x 17.9 (H) mm</p><p>Bluetooth 5.3</p><p>CPU Intel® Core™ Ultra 7 155H</p><p>Chuẩn WIFI Killer™ Wireless Wi-Fi 6E 1675i (802.11 a/b/g/n/ac/ax wireless LAN)</p><p>RAM 32GB LPDDR5 Onboard 6400Mhz</p><p>Bàn phím Có led trắng; bảo mật vân tay</p><p>Webcam FHD Camera</p><p>Bảo hành 24 tháng</p>', '', 35490000, 35490000, 1, '', NULL, '', 10, 0, 'active', 0.0, 0, 0, 4, '2026-01-08 10:33:35', '2026-01-08 10:37:50');
 
 -- --------------------------------------------------------
 
@@ -314,9 +374,15 @@ CREATE TABLE `product_images` (
 --
 
 INSERT INTO `product_images` (`id`, `product_id`, `image_url`, `is_primary`, `sort_order`, `created_at`) VALUES
-(14, 13, 'https://product.hstatic.net/200000722513/product/1024__5__824c05bb186d4c05826bb25eea92c719_master.png', 0, 0, '2026-01-03 14:43:57'),
-(15, 13, 'https://product.hstatic.net/200000722513/product/1024__2__6954cbfc6471483a83b06a9d6653ad7c_master.png', 0, 0, '2026-01-03 14:43:57'),
-(16, 13, 'https://product.hstatic.net/200000722513/product/1024__3__5335344653aa44169e8e9f763154aa25_master.png', 2, 0, '2026-01-03 14:43:57');
+(23, 13, 'uploads/products/product_13_23.png', 0, 0, '2026-01-08 01:28:23'),
+(24, 13, 'uploads/products/product_13_24.png', 0, 0, '2026-01-08 01:28:23'),
+(25, 13, 'uploads/products/product_13_25.png', 2, 0, '2026-01-08 01:28:23'),
+(29, 15, 'uploads/products/product_15_29.jpg', 0, 0, '2026-01-08 01:55:52'),
+(30, 15, 'uploads/products/product_15_30.png', 0, 0, '2026-01-08 01:55:52'),
+(31, 15, 'uploads/products/product_15_31.png', 2, 0, '2026-01-08 01:55:52'),
+(35, 18, 'https://product.hstatic.net/200000722513/product/go-steel-gray-04.tif-custom_d9cf3b00b19d4bb1bbbb1545a41395b5_1024x1024_1e039d29110145d1abc7e1a6ad184b65_master.png', 0, 0, '2026-01-08 10:33:50'),
+(36, 18, 'https://product.hstatic.net/200000722513/product/ava_77563131fc2b48acb9a41ec545d9ed7d_master.png', 0, 0, '2026-01-08 10:33:50'),
+(37, 18, 'https://product.hstatic.net/200000722513/product/swift_x_14_-_sfx14-71g_nx.kevsv.004_904714fce972422e993aba01c5880689_master.jpg', 2, 0, '2026-01-08 10:33:50');
 
 -- --------------------------------------------------------
 
@@ -356,6 +422,13 @@ CREATE TABLE `reviews` (
   `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
   `updated_at` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp()
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+--
+-- Dumping data for table `reviews`
+--
+
+INSERT INTO `reviews` (`id`, `product_id`, `user_id`, `order_id`, `rating`, `title`, `content`, `pros`, `cons`, `status`, `helpful_count`, `reply`, `reply_by`, `reply_at`, `created_at`, `updated_at`) VALUES
+(1, 13, 4, NULL, 5, '', '', NULL, NULL, 'approved', 0, NULL, NULL, NULL, '2026-01-07 09:34:39', '2026-01-07 09:34:39');
 
 -- --------------------------------------------------------
 
@@ -426,6 +499,7 @@ CREATE TABLE `users` (
   `role` enum('user','employee','admin') DEFAULT 'user',
   `status` enum('active','inactive','banned') DEFAULT 'active',
   `avatar` varchar(255) DEFAULT NULL,
+  `google_id` varchar(255) DEFAULT NULL,
   `email_verified` tinyint(1) DEFAULT 0,
   `verification_token` varchar(100) DEFAULT NULL,
   `remember_token` varchar(100) DEFAULT NULL,
@@ -434,17 +508,20 @@ CREATE TABLE `users` (
   `reset_expiry` datetime DEFAULT NULL,
   `last_login` datetime DEFAULT NULL,
   `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
-  `updated_at` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp()
+  `updated_at` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp(),
+  `birthday` date DEFAULT NULL,
+  `gender` enum('male','female','other') DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 --
 -- Dumping data for table `users`
 --
 
-INSERT INTO `users` (`id`, `name`, `email`, `password`, `phone`, `role`, `status`, `avatar`, `email_verified`, `verification_token`, `remember_token`, `token_expiry`, `reset_token`, `reset_expiry`, `last_login`, `created_at`, `updated_at`) VALUES
-(1, 'Admin TechShop', 'admin@techshop.com', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', '0901234567', 'admin', 'active', NULL, 1, NULL, NULL, NULL, NULL, NULL, NULL, '2025-12-31 16:06:27', '2025-12-31 16:06:27'),
-(2, 'Nhân viên TechShop', 'employee@techshop.com', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', '0901234568', 'employee', 'active', NULL, 1, NULL, NULL, NULL, NULL, NULL, NULL, '2025-12-31 16:06:27', '2026-01-03 12:46:27'),
-(4, 'Mai Tuấn Đạt', 'maituandat2004@gmail.com', '$2y$10$iJdOVJeQRs.8gPFQOagKHuo76orMFP1DP6GZWJEd/4kLQzsadhoZ6', '0123456789', 'user', 'active', NULL, 0, NULL, NULL, NULL, NULL, NULL, NULL, '2026-01-03 13:08:58', '2026-01-03 13:08:58');
+INSERT INTO `users` (`id`, `name`, `email`, `password`, `phone`, `role`, `status`, `avatar`, `google_id`, `email_verified`, `verification_token`, `remember_token`, `token_expiry`, `reset_token`, `reset_expiry`, `last_login`, `created_at`, `updated_at`, `birthday`, `gender`) VALUES
+(1, 'Admin TechShop', 'admin@techshop.com', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', '0901234567', 'admin', 'active', NULL, NULL, 1, NULL, NULL, NULL, NULL, NULL, NULL, '2025-12-31 16:06:27', '2026-01-07 14:59:05', '0000-00-00', 'male'),
+(4, 'Mai Tuấn Đạt Đẹp Trai', 'maituandat2004@gmail.com', '$2y$10$iJdOVJeQRs.8gPFQOagKHuo76orMFP1DP6GZWJEd/4kLQzsadhoZ6', '0123456789', 'user', 'active', NULL, NULL, 0, NULL, NULL, NULL, NULL, NULL, NULL, '2026-01-03 13:08:58', '2026-01-07 10:46:19', '0000-00-00', ''),
+(5, 'Hứa Khánh Đăng', 'huakhanhdang2004@gmail.com', '$2y$10$RXv2.u4KWhLztZOxZUYcUu8KfORhQ.XVDbuXmklXkc6nqlDDPL1QK', '0123456789', 'user', 'active', NULL, NULL, 0, NULL, NULL, NULL, NULL, NULL, NULL, '2026-01-07 10:50:57', '2026-01-07 10:50:57', NULL, NULL),
+(6, 'Lê Duy', 'leduytctv2019@gmail.com', '$2y$10$LK2o5wLxnQeJSgt6KFqRcOVXGEcPCSNvDynbDqWrMduC751k209pW', '0348137209', 'user', 'active', 'https://lh3.googleusercontent.com/a/ACg8ocKbXXd6vfZr8Mt2cPV2IOuQgn6yiBCr2sBHt7fijNTeLkPpYWu3eg=s96-c', '101370127531312588985', 0, NULL, NULL, NULL, NULL, NULL, NULL, '2026-01-07 16:06:21', '2026-01-08 11:12:23', NULL, NULL);
 
 -- --------------------------------------------------------
 
@@ -487,8 +564,24 @@ CREATE TABLE `wishlist` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 --
+-- Dumping data for table `wishlist`
+--
+
+INSERT INTO `wishlist` (`id`, `user_id`, `product_id`, `created_at`) VALUES
+(2, 4, 13, '2026-01-07 09:39:51');
+
+--
 -- Indexes for dumped tables
 --
+
+--
+-- Indexes for table `brands`
+--
+ALTER TABLE `brands`
+  ADD PRIMARY KEY (`id`),
+  ADD UNIQUE KEY `slug` (`slug`),
+  ADD KEY `idx_status` (`status`),
+  ADD KEY `idx_slug` (`slug`);
 
 --
 -- Indexes for table `carts`
@@ -595,7 +688,8 @@ ALTER TABLE `products`
   ADD KEY `idx_brand` (`brand`),
   ADD KEY `idx_price` (`price`),
   ADD KEY `idx_status` (`status`),
-  ADD KEY `idx_featured` (`featured`);
+  ADD KEY `idx_featured` (`featured`),
+  ADD KEY `idx_brand_id` (`brand_id`);
 ALTER TABLE `products` ADD FULLTEXT KEY `idx_search` (`name`,`description`);
 
 --
@@ -656,7 +750,8 @@ ALTER TABLE `users`
   ADD UNIQUE KEY `email` (`email`),
   ADD KEY `idx_email` (`email`),
   ADD KEY `idx_role` (`role`),
-  ADD KEY `idx_status` (`status`);
+  ADD KEY `idx_status` (`status`),
+  ADD KEY `idx_google_id` (`google_id`);
 
 --
 -- Indexes for table `user_addresses`
@@ -679,16 +774,22 @@ ALTER TABLE `wishlist`
 --
 
 --
+-- AUTO_INCREMENT for table `brands`
+--
+ALTER TABLE `brands`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
+
+--
 -- AUTO_INCREMENT for table `carts`
 --
 ALTER TABLE `carts`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=7;
 
 --
 -- AUTO_INCREMENT for table `cart_items`
 --
 ALTER TABLE `cart_items`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;
 
 --
 -- AUTO_INCREMENT for table `categories`
@@ -706,7 +807,7 @@ ALTER TABLE `contacts`
 -- AUTO_INCREMENT for table `conversations`
 --
 ALTER TABLE `conversations`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
 
 --
 -- AUTO_INCREMENT for table `coupons`
@@ -718,7 +819,7 @@ ALTER TABLE `coupons`
 -- AUTO_INCREMENT for table `messages`
 --
 ALTER TABLE `messages`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=7;
 
 --
 -- AUTO_INCREMENT for table `orders`
@@ -730,7 +831,7 @@ ALTER TABLE `orders`
 -- AUTO_INCREMENT for table `order_history`
 --
 ALTER TABLE `order_history`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=6;
 
 --
 -- AUTO_INCREMENT for table `order_items`
@@ -742,25 +843,25 @@ ALTER TABLE `order_items`
 -- AUTO_INCREMENT for table `products`
 --
 ALTER TABLE `products`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=14;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=19;
 
 --
 -- AUTO_INCREMENT for table `product_images`
 --
 ALTER TABLE `product_images`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=17;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=38;
 
 --
 -- AUTO_INCREMENT for table `product_specifications`
 --
 ALTER TABLE `product_specifications`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=20;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=25;
 
 --
 -- AUTO_INCREMENT for table `reviews`
 --
 ALTER TABLE `reviews`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
 
 --
 -- AUTO_INCREMENT for table `review_helpful`
@@ -784,7 +885,7 @@ ALTER TABLE `settings`
 -- AUTO_INCREMENT for table `users`
 --
 ALTER TABLE `users`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=7;
 
 --
 -- AUTO_INCREMENT for table `user_addresses`
@@ -796,7 +897,7 @@ ALTER TABLE `user_addresses`
 -- AUTO_INCREMENT for table `wishlist`
 --
 ALTER TABLE `wishlist`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
 
 --
 -- Constraints for dumped tables
@@ -866,7 +967,8 @@ ALTER TABLE `order_items`
 -- Constraints for table `products`
 --
 ALTER TABLE `products`
-  ADD CONSTRAINT `products_ibfk_1` FOREIGN KEY (`category_id`) REFERENCES `categories` (`id`) ON DELETE SET NULL;
+  ADD CONSTRAINT `products_ibfk_1` FOREIGN KEY (`category_id`) REFERENCES `categories` (`id`) ON DELETE SET NULL,
+  ADD CONSTRAINT `products_ibfk_2` FOREIGN KEY (`brand_id`) REFERENCES `brands` (`id`) ON DELETE SET NULL;
 
 --
 -- Constraints for table `product_images`
