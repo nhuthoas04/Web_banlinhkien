@@ -12,9 +12,9 @@ include __DIR__ . '/../layouts/admin-header.php';
         </div>
         <div class="header-right">
             <div class="date-range-picker">
-                <input type="date" class="form-control" id="startDate" value="<?= date('Y-m-01') ?>">
+                <input type="date" class="form-control" id="startDate" name="start_date" value="<?= $_GET['start_date'] ?? date('Y-m-01') ?>">
                 <span>đến</span>
-                <input type="date" class="form-control" id="endDate" value="<?= date('Y-m-d') ?>">
+                <input type="date" class="form-control" id="endDate" name="end_date" value="<?= $_GET['end_date'] ?? date('Y-m-d') ?>">
                 <button class="btn btn-admin-primary" id="filterBtn">
                     <i class="fas fa-filter"></i> Lọc
                 </button>
@@ -30,7 +30,7 @@ include __DIR__ . '/../layouts/admin-header.php';
                     <i class="fas fa-money-bill-wave"></i>
                 </div>
                 <div class="stats-info">
-                    <h3><?= formatPrice($stats['total_revenue'] ?? 0) ?></h3>
+                    <h3><?= formatPrice($revenueStats['total_revenue'] ?? 0) ?></h3>
                     <p>Tổng doanh thu</p>
                 </div>
             </div>
@@ -41,7 +41,7 @@ include __DIR__ . '/../layouts/admin-header.php';
                     <i class="fas fa-shopping-cart"></i>
                 </div>
                 <div class="stats-info">
-                    <h3><?= number_format($stats['total_orders'] ?? 0) ?></h3>
+                    <h3><?= number_format($revenueStats['total_orders'] ?? 0) ?></h3>
                     <p>Tổng đơn hàng</p>
                 </div>
             </div>
@@ -52,7 +52,7 @@ include __DIR__ . '/../layouts/admin-header.php';
                     <i class="fas fa-receipt"></i>
                 </div>
                 <div class="stats-info">
-                    <h3><?= formatPrice($stats['avg_order_value'] ?? 0) ?></h3>
+                    <h3><?= formatPrice($revenueStats['avg_order_value'] ?? 0) ?></h3>
                     <p>Giá trị TB/đơn</p>
                 </div>
             </div>
@@ -63,7 +63,7 @@ include __DIR__ . '/../layouts/admin-header.php';
                     <i class="fas fa-check-circle"></i>
                 </div>
                 <div class="stats-info">
-                    <h3><?= number_format($stats['delivered_orders'] ?? 0) ?></h3>
+                    <h3><?= number_format($revenueStats['delivered_orders'] ?? 0) ?></h3>
                     <p>Đơn hoàn thành</p>
                 </div>
             </div>
@@ -313,6 +313,24 @@ document.addEventListener('DOMContentLoaded', function() {
             this.classList.add('active');
             // TODO: Load data for period
         });
+    });
+    
+    // Filter button
+    document.getElementById('filterBtn').addEventListener('click', function() {
+        const startDate = document.getElementById('startDate').value;
+        const endDate = document.getElementById('endDate').value;
+        
+        if (!startDate || !endDate) {
+            alert('Vui lòng chọn khoảng thời gian');
+            return;
+        }
+        
+        if (startDate > endDate) {
+            alert('Ngày bắt đầu phải nhỏ hơn ngày kết thúc');
+            return;
+        }
+        
+        window.location.href = `<?= BASE_URL ?>admin?page=revenue&start_date=${startDate}&end_date=${endDate}`;
     });
 });
 </script>

@@ -1,6 +1,16 @@
 <?php
 $pageTitle = 'Quản lý đơn hàng';
 
+// DEBUG - Check if variables exist
+if (!isset($orderStats)) {
+    echo "<!-- ERROR: \$orderStats not set! -->";
+    $orderStats = ['status_counts' => []];
+}
+if (!isset($orderStats['status_counts'])) {
+    echo "<!-- ERROR: \$orderStats['status_counts'] not set! -->";
+    $orderStats['status_counts'] = [];
+}
+
 // Define constants
 $ORDER_STATUSES = [
     'pending' => 'Chờ xác nhận',
@@ -28,66 +38,62 @@ include __DIR__ . '/../layouts/admin-header.php';
             <h4>Quản lý đơn hàng</h4>
             <p><?= $totalOrders ?> đơn hàng</p>
         </div>
-        <div class="header-right">
-            <button class="btn btn-admin-outline" id="exportBtn">
-                <i class="fas fa-download"></i> Xuất Excel
-            </button>
-        </div>
     </div>
 
     <!-- Stats Cards -->
     <div class="row g-3 mb-4">
-        <div class="col">
-            <div class="order-stat-card pending">
+        <div class="col-xl col-lg-4 col-md-6 col-sm-6">
+            <a href="<?= BASE_URL ?>admin?page=orders&status=pending" class="order-stat-card pending">
                 <i class="fas fa-clock"></i>
                 <div class="stat-info">
-                    <h3><?= $orderStats['pending'] ?? 0 ?></h3>
+                    <h3><?= $orderStats['status_counts']['pending'] ?? 0 ?></h3>
                     <span>Chờ xác nhận</span>
                 </div>
-            </div>
+            </a>
         </div>
-        <div class="col">
-            <div class="order-stat-card confirmed">
+        <div class="col-xl col-lg-4 col-md-6 col-sm-6">
+            <a href="<?= BASE_URL ?>admin?page=orders&status=confirmed" class="order-stat-card confirmed">
                 <i class="fas fa-check-circle"></i>
                 <div class="stat-info">
-                    <h3><?= $orderStats['confirmed'] ?? 0 ?></h3>
+                    <h3><?= $orderStats['status_counts']['confirmed'] ?? 0 ?></h3>
                     <span>Đã xác nhận</span>
                 </div>
-            </div>
+            </a>
         </div>
-        <div class="col">
-            <div class="order-stat-card shipping">
+        <div class="col-xl col-lg-4 col-md-6 col-sm-6">
+            <a href="<?= BASE_URL ?>admin?page=orders&status=shipping" class="order-stat-card shipping">
                 <i class="fas fa-truck"></i>
                 <div class="stat-info">
-                    <h3><?= $orderStats['shipping'] ?? 0 ?></h3>
+                    <h3><?= $orderStats['status_counts']['shipping'] ?? 0 ?></h3>
                     <span>Đang giao</span>
                 </div>
-            </div>
+            </a>
         </div>
-        <div class="col">
-            <div class="order-stat-card delivered">
+        <div class="col-xl col-lg-4 col-md-6 col-sm-6">
+            <a href="<?= BASE_URL ?>admin?page=orders&status=delivered" class="order-stat-card delivered">
                 <i class="fas fa-box-open"></i>
                 <div class="stat-info">
-                    <h3><?= $orderStats['delivered'] ?? 0 ?></h3>
+                    <h3><?= $orderStats['status_counts']['delivered'] ?? 0 ?></h3>
                     <span>Đã giao</span>
                 </div>
-            </div>
+            </a>
         </div>
-        <div class="col">
-            <div class="order-stat-card cancelled">
+        <div class="col-xl col-lg-4 col-md-6 col-sm-6">
+            <a href="<?= BASE_URL ?>admin?page=orders&status=cancelled" class="order-stat-card cancelled">
                 <i class="fas fa-times-circle"></i>
                 <div class="stat-info">
-                    <h3><?= $orderStats['cancelled'] ?? 0 ?></h3>
+                    <h3><?= $orderStats['status_counts']['cancelled'] ?? 0 ?></h3>
                     <span>Đã hủy</span>
                 </div>
-            </div>
+            </a>
         </div>
     </div>
 
     <!-- Filters -->
     <div class="admin-card mb-4">
         <div class="card-body">
-            <form id="filterForm" class="filter-form">
+            <form id="filterForm" class="filter-form" method="GET" action="<?= BASE_URL ?>admin">
+                <input type="hidden" name="page" value="orders">
                 <div class="row g-3">
                     <div class="col-lg-3 col-md-12">
                         <input type="text" class="form-control" name="search" 
@@ -113,10 +119,10 @@ include __DIR__ . '/../layouts/admin-header.php';
                         </select>
                     </div>
                     <div class="col-lg-2 col-md-6 col-sm-6">
-                        <input type="date" class="form-control" name="date_from" placeholder="Từ ngày">
+                        <input type="date" class="form-control" name="start_date" placeholder="Từ ngày" value="<?= htmlspecialchars($startDate ?? '') ?>">
                     </div>
                     <div class="col-lg-2 col-md-6 col-sm-6">
-                        <input type="date" class="form-control" name="date_to" placeholder="Đến ngày">
+                        <input type="date" class="form-control" name="end_date" placeholder="Đến ngày" value="<?= htmlspecialchars($endDate ?? '') ?>">
                     </div>
                     <div class="col-lg-1 col-md-12">
                         <button type="submit" class="btn btn-admin-primary w-100">
@@ -143,7 +149,7 @@ include __DIR__ . '/../layouts/admin-header.php';
                             <th>Sản phẩm</th>
                             <th>Tổng tiền</th>
                             <th>Thanh toán</th>
-                            <th>Trạng thái</th>
+                            <th>Tình trạng</th>
                             <th>Ngày đặt</th>
                             <th width="150">Thao tác</th>
                         </tr>
@@ -484,7 +490,7 @@ document.addEventListener('DOMContentLoaded', function() {
     document.querySelectorAll('.print-btn').forEach(btn => {
         btn.addEventListener('click', function() {
             const orderId = this.dataset.id;
-            window.open('<?= BASE_URL ?>admin?page=order-print&id=' + orderId, '_blank');
+            window.location.href = '<?= BASE_URL ?>admin?page=order-detail&id=' + orderId;
         });
     });
 });
