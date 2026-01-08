@@ -310,35 +310,11 @@ include __DIR__ . '/../layouts/header.php';
                                         <i class="fas fa-chevron-left"></i>
                                     </a>
                                 </li>
-                                
-                                <?php
-                                $startPage = max(1, $page - 2);
-                                $endPage = min($totalPages, $page + 2);
-                                
-                                if ($startPage > 1): ?>
-                                    <li class="page-item">
-                                        <a class="page-link" href="<?= buildPaginationUrl(1) ?>">1</a>
-                                    </li>
-                                    <?php if ($startPage > 2): ?>
-                                        <li class="page-item disabled"><span class="page-link">...</span></li>
-                                    <?php endif; ?>
-                                <?php endif; ?>
-                                
-                                <?php for ($i = $startPage; $i <= $endPage; $i++): ?>
-                                    <li class="page-item <?= $i == $page ? 'active' : '' ?>">
-                                        <a class="page-link" href="<?= buildPaginationUrl($i) ?>"><?= $i ?></a>
-                                    </li>
+                                <?php for ($i = 1; $i <= $totalPages; $i++): ?>
+                                <li class="page-item <?= $i == $page ? 'active' : '' ?>">
+                                    <a class="page-link" href="<?= buildPaginationUrl($i) ?>"><?= $i ?></a>
+                                </li>
                                 <?php endfor; ?>
-                                
-                                <?php if ($endPage < $totalPages): ?>
-                                    <?php if ($endPage < $totalPages - 1): ?>
-                                        <li class="page-item disabled"><span class="page-link">...</span></li>
-                                    <?php endif; ?>
-                                    <li class="page-item">
-                                        <a class="page-link" href="<?= buildPaginationUrl($totalPages) ?>"><?= $totalPages ?></a>
-                                    </li>
-                                <?php endif; ?>
-                                
                                 <li class="page-item <?= $page >= $totalPages ? 'disabled' : '' ?>">
                                     <a class="page-link" href="<?= buildPaginationUrl($page + 1) ?>">
                                         <i class="fas fa-chevron-right"></i>
@@ -717,9 +693,13 @@ function buildPaginationUrl($page) {
     margin-bottom: 20px;
 }
 
-/* Pagination */
+/* Pagination - Simple */
 .products-pagination {
     margin-top: 40px;
+}
+
+.products-pagination .page-item {
+    margin: 0 3px;
 }
 
 .products-pagination .page-link {
@@ -729,13 +709,22 @@ function buildPaginationUrl($page) {
     align-items: center;
     justify-content: center;
     border-radius: 10px;
-    margin: 0 3px;
     font-weight: 500;
+    border: 1px solid #ddd;
+    background: #fff;
+    color: #333;
+    text-decoration: none;
 }
 
 .products-pagination .page-item.active .page-link {
-    background: var(--primary-color);
-    border-color: var(--primary-color);
+    background: #e53935;
+    border-color: #e53935;
+    color: #fff;
+}
+
+.products-pagination .page-item.disabled .page-link {
+    background: #f5f5f5;
+    color: #999;
 }
 
 /* Responsive */
