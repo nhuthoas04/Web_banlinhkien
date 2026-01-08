@@ -3,28 +3,6 @@ $pageTitle = htmlspecialchars($product['name']);
 include __DIR__ . '/../layouts/header.php';
 ?>
 
-<!-- Breadcrumb -->
-<div class="breadcrumb-section py-3 bg-light">
-    <div class="container">
-        <nav aria-label="breadcrumb">
-            <ol class="breadcrumb mb-0">
-                <li class="breadcrumb-item"><a href="<?= BASE_URL ?>">Trang chủ</a></li>
-                <li class="breadcrumb-item">
-                    <a href="<?= BASE_URL ?>?page=products">Sản phẩm</a>
-                </li>
-                <?php if ($category): ?>
-                    <li class="breadcrumb-item">
-                        <a href="<?= BASE_URL ?>?page=products&category=<?= $category['slug'] ?>">
-                            <?= htmlspecialchars($category['name']) ?>
-                        </a>
-                    </li>
-                <?php endif; ?>
-                <li class="breadcrumb-item active"><?= htmlspecialchars($product['name']) ?></li>
-            </ol>
-        </nav>
-    </div>
-</div>
-
 <!-- Product Detail Section -->
 <section class="product-detail py-5">
     <div class="container">

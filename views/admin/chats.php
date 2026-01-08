@@ -79,7 +79,7 @@ include __DIR__ . '/../layouts/admin-header.php';
                     <?php foreach ($messages as $msg): ?>
                     <div class="message <?= $msg['sender_type'] == 'user' ? 'incoming' : 'outgoing' ?>">
                         <div class="message-content">
-                            <p><?= nl2br(htmlspecialchars($msg['message'])) ?></p>
+                            <p><?= nl2br(htmlspecialchars($msg['content'])) ?></p>
                             <span class="message-time"><?= date('H:i', strtotime($msg['created_at'])) ?></span>
                         </div>
                     </div>
@@ -393,6 +393,17 @@ function sendMessage(e) {
             conversation_id: conversationId,
             message: message
         })
+    })
+    .then(res => res.json())
+    .then(data => {
+        console.log('Send response:', data);
+        if (!data.success) {
+            alert('Lỗi: ' + data.message);
+        }
+    })
+    .catch(err => {
+        console.error('Send error:', err);
+        alert('Có lỗi xảy ra khi gửi tin nhắn');
     });
 }
 

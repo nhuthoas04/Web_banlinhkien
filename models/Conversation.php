@@ -174,17 +174,21 @@ class Conversation {
      * Send message
      */
     public function sendMessage($data) {
-        $sql = "INSERT INTO messages (conversation_id, sender_id, sender_type, content, image) 
-                VALUES (:conversation_id, :sender_id, :sender_type, :content, :image)";
+        $sql = "INSERT INTO messages (conversation_id, sender_id, sender_type, content, image, created_at) 
+                VALUES (:conversation_id, :sender_id, :sender_type, :content, :image, NOW())";
         
         $stmt = $this->db->prepare($sql);
-        $stmt->execute([
+        $result = $stmt->execute([
             ':conversation_id' => $data['conversation_id'],
             ':sender_id' => $data['sender_id'],
             ':sender_type' => $data['sender_type'],
             ':content' => $data['content'],
             ':image' => $data['image'] ?? null
         ]);
+        
+        if (!$result) {
+            return false;
+        }
         
         $messageId = $this->db->lastInsertId();
         

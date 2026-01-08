@@ -732,19 +732,24 @@ try {
                     require_once __DIR__ . '/models/Conversation.php';
                     $conversationModel = new Conversation();
                     
-                    $conversations = $conversationModel->getAll(1, 50, [])['data'] ?? [];
                     $activeConversation = null;
                     $messages = [];
                     $userStats = [];
                     
                     if (isset($query_params['conv'])) {
-                        $activeConversation = $conversationModel->getById($query_params['conv']);
+                        $activeConversation = $conversationModel->findById($query_params['conv']);
                         if ($activeConversation) {
                             $messages = $chatModel->getMessages($activeConversation['id']);
                             $userId = $activeConversation['user_id'];
                             $userStats = $orderModel->getUserStats($userId);
+                            
+                            // Đánh dấu tin nhắn đã đọc khi admin xem
+                            $conversationModel->markAsRead($activeConversation['id'], 'employee');
                         }
                     }
+                    
+                    // Lấy danh sách conversations sau khi đánh dấu đã đọc để cập nhật badge
+                    $conversations = $conversationModel->getAll(1, 50, [])['data'] ?? [];
                     
                     include __DIR__ . '/views/admin/chats.php';
                     break;

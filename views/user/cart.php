@@ -4,18 +4,6 @@ $subtotal = $cartTotal ?? 0;
 include __DIR__ . '/../layouts/header.php';
 ?>
 
-<!-- Breadcrumb -->
-<div class="breadcrumb-section py-3 bg-light">
-    <div class="container">
-        <nav aria-label="breadcrumb">
-            <ol class="breadcrumb mb-0">
-                <li class="breadcrumb-item"><a href="<?= BASE_URL ?>">Trang chủ</a></li>
-                <li class="breadcrumb-item active">Giỏ hàng</li>
-            </ol>
-        </nav>
-    </div>
-</div>
-
 <!-- Cart Section -->
 <section class="cart-section py-5">
     <div class="container">

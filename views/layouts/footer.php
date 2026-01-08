@@ -2,13 +2,13 @@
     
     <!-- Footer -->
     <footer class="footer">
-        <div class="footer-main">
+        <div class="footer-main py-4">
             <div class="container">
                 <div class="row">
                     <!-- About -->
-                    <div class="col-lg-4 col-md-6 mb-4">
+                    <div class="col-lg-3 col-md-6 mb-3">
                         <div class="footer-widget">
-                            <div class="footer-logo">
+                            <div class="footer-logo mb-2">
                                 <div class="footer-logo-icon">
                                     <i class="fas fa-microchip"></i>
                                 </div>
@@ -17,8 +17,8 @@
                                     <span class="footer-slogan">Linh kiện máy tính</span>
                                 </div>
                             </div>
-                            <p class="footer-desc">
-                                Chuyên cung cấp các thiết bị và phụ kiện máy tính chính hãng với giá cả cạnh tranh nhất thị trường.
+                            <p class="footer-desc small mb-2">
+                                Chuyên cung cấp thiết bị và phụ kiện máy tính chính hãng.
                             </p>
                             <div class="footer-social">
                                 <a href="#" class="social-link facebook"><i class="fab fa-facebook-f"></i></a>
@@ -30,79 +30,66 @@
                     </div>
                     
                     <!-- Quick Links -->
-                    <div class="col-lg-2 col-md-6 mb-4">
+                    <div class="col-lg-2 col-md-6 mb-3">
                         <div class="footer-widget">
-                            <h5 class="footer-title">Liên kết</h5>
-                            <ul class="footer-links">
-                                <li><a href="<?= BASE_URL ?>"><i class="fas fa-chevron-right"></i> Trang chủ</a></li>
-                                <li><a href="<?= BASE_URL ?>products"><i class="fas fa-chevron-right"></i> Sản phẩm</a></li>
-                                <li><a href="<?= BASE_URL ?>about"><i class="fas fa-chevron-right"></i> Giới thiệu</a></li>
-                                <li><a href="<?= BASE_URL ?>contact"><i class="fas fa-chevron-right"></i> Liên hệ</a></li>
-                                <li><a href="<?= BASE_URL ?>blog"><i class="fas fa-chevron-right"></i> Tin tức</a></li>
+                            <h6 class="footer-title">Liên kết</h6>
+                            <ul class="footer-links compact">
+                                <li><a href="<?= BASE_URL ?>">Trang chủ</a></li>
+                                <li><a href="<?= BASE_URL ?>products">Sản phẩm</a></li>
+                                <li><a href="<?= BASE_URL ?>about">Giới thiệu</a></li>
+                                <li><a href="<?= BASE_URL ?>contact">Liên hệ</a></li>
                             </ul>
                         </div>
                     </div>
                     
                     <!-- Categories -->
-                    <div class="col-lg-2 col-md-6 mb-4">
+                    <div class="col-lg-2 col-md-6 mb-3">
                         <div class="footer-widget">
-                            <h5 class="footer-title">Danh mục</h5>
-                            <ul class="footer-links">
-                                <li><a href="<?= BASE_URL ?>products?category=1"><i class="fas fa-chevron-right"></i> Laptop</a></li>
-                                <li><a href="<?= BASE_URL ?>products?category=2"><i class="fas fa-chevron-right"></i> PC Gaming</a></li>
-                                <li><a href="<?= BASE_URL ?>products?category=3"><i class="fas fa-chevron-right"></i> Linh kiện</a></li>
-                                <li><a href="<?= BASE_URL ?>products?category=4"><i class="fas fa-chevron-right"></i> Phụ kiện</a></li>
-                                <li><a href="<?= BASE_URL ?>products?category=5"><i class="fas fa-chevron-right"></i> Màn hình</a></li>
+                            <h6 class="footer-title">Danh mục</h6>
+                            <ul class="footer-links compact">
+                                <li><a href="<?= BASE_URL ?>products?category=1">Laptop</a></li>
+                                <li><a href="<?= BASE_URL ?>products?category=2">PC Gaming</a></li>
+                                <li><a href="<?= BASE_URL ?>products?category=3">Linh kiện</a></li>
+                                <li><a href="<?= BASE_URL ?>products?category=4">Phụ kiện</a></li>
                             </ul>
                         </div>
                     </div>
                     
                     <!-- Contact -->
-                    <div class="col-lg-4 col-md-6 mb-4">
+                    <div class="col-lg-3 col-md-6 mb-3">
                         <div class="footer-widget">
-                            <h5 class="footer-title">Liên hệ</h5>
-                            <ul class="footer-contact">
+                            <h6 class="footer-title">Liên hệ</h6>
+                            <ul class="footer-contact compact">
                                 <li>
-                                    <div class="contact-icon"><i class="fas fa-map-marker-alt"></i></div>
+                                    <i class="fas fa-map-marker-alt"></i>
                                     <span><?= SITE_ADDRESS ?></span>
                                 </li>
                                 <li>
-                                    <div class="contact-icon"><i class="fas fa-phone-alt"></i></div>
+                                    <i class="fas fa-phone-alt"></i>
                                     <span><?= SITE_PHONE ?></span>
                                 </li>
                                 <li>
-                                    <div class="contact-icon"><i class="fas fa-envelope"></i></div>
+                                    <i class="fas fa-envelope"></i>
                                     <span><?= SITE_EMAIL ?></span>
                                 </li>
-                                <li>
-                                    <div class="contact-icon"><i class="fas fa-clock"></i></div>
-                                    <span>8:00 - 21:00 (Thứ 2 - CN)</span>
-                                </li>
                             </ul>
-                            
-                            <!-- Payment Methods in Contact Section -->
-                            <div class="footer-payments">
-                                <h6>Thanh toán</h6>
-                                <div class="payment-icons">
-                                    <div class="payment-icon-item" title="Visa">
-                                        <i class="fab fa-cc-visa"></i>
-                                    </div>
-                                    <div class="payment-icon-item" title="Mastercard">
-                                        <i class="fab fa-cc-mastercard"></i>
-                                    </div>
-                                    <div class="payment-icon-item" title="JCB">
-                                        <i class="fab fa-cc-jcb"></i>
-                                    </div>
-                                    <div class="payment-icon-item momo" title="MoMo">
-                                        <i class="fas fa-wallet"></i>
-                                    </div>
-                                    <div class="payment-icon-item vnpay" title="VNPay">
-                                        <i class="fas fa-credit-card"></i>
-                                    </div>
-                                    <div class="payment-icon-item cod" title="COD">
-                                        <i class="fas fa-truck"></i>
-                                    </div>
-                                </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Map -->
+                    <div class="col-lg-2 col-md-6 mb-3">
+                        <div class="footer-widget">
+                            <h6 class="footer-title">Vị trí</h6>
+                            <div class="footer-map">
+                                <iframe 
+                                    src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3928.6444755825943!2d106.34162407569496!3d9.93676459016344!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x31a0176a78dc0acf%3A0x85c42b38d72e4ec6!2zMTI2IE5ndXnhu4VuIFRoaeG7h24gVGjDoG5oLCBQaMaw4budbmcgNSwgVHLDoCBWaW5oLCBWaeG7h3QgTmFt!5e0!3m2!1svi!2s!4v1736348100000!5m2!1svi!2s"
+                                    width="100%" 
+                                    height="120" 
+                                    style="border:0; border-radius: 8px;" 
+                                    allowfullscreen="" 
+                                    loading="lazy" 
+                                    referrerpolicy="no-referrer-when-downgrade">
+                                </iframe>
                             </div>
                         </div>
                     </div>
@@ -111,7 +98,7 @@
         </div>
         
         <!-- Footer Bottom -->
-        <div class="footer-bottom">
+        <div class="footer-bottom py-2">
             <div class="container">
                 <div class="row align-items-center">
                     <div class="col-md-6 text-center text-md-start">
@@ -137,32 +124,6 @@
     <a href="#" class="back-to-top" id="backToTop">
         <i class="fas fa-chevron-up"></i>
     </a>
-    
-    <!-- Chat Box -->
-    <?php if (isLoggedIn()): ?>
-    <div class="chat-widget" id="chatWidget">
-        <button class="chat-toggle" id="chatToggle">
-            <i class="fas fa-comments"></i>
-            <span class="chat-badge d-none">0</span>
-        </button>
-        <div class="chat-box d-none" id="chatBox">
-            <div class="chat-header">
-                <h6><i class="fas fa-headset"></i> Hỗ trợ trực tuyến</h6>
-                <button class="chat-close" id="chatClose"><i class="fas fa-times"></i></button>
-            </div>
-            <div class="chat-messages" id="chatMessages">
-                <div class="chat-welcome">
-                    <img src="<?= ASSETS_URL ?>/images/support.png" alt="Support">
-                    <p>Xin chào! Chúng tôi có thể giúp gì cho bạn?</p>
-                </div>
-            </div>
-            <div class="chat-input">
-                <input type="text" id="chatInput" placeholder="Nhập tin nhắn...">
-                <button id="chatSend"><i class="fas fa-paper-plane"></i></button>
-            </div>
-        </div>
-    </div>
-    <?php endif; ?>
     
     <!-- Quick View Modal -->
     <div class="modal fade" id="quickViewModal" tabindex="-1">
@@ -238,7 +199,7 @@
     .floating-chat {
         position: fixed;
         bottom: 30px;
-        right: 30px;
+        right: 100px;
         z-index: 9999;
     }
     
@@ -424,17 +385,19 @@
     }
     
     .chat-msg-content {
-        max-width: 80%;
-        padding: 10px 15px;
-        border-radius: 15px;
+        max-width: 85%;
+        padding: 12px 18px;
+        border-radius: 18px;
         font-size: 14px;
-        line-height: 1.4;
+        line-height: 1.5;
+        word-wrap: break-word;
     }
     
     .chat-msg.received .chat-msg-content {
         background: #fff;
         color: #333;
         border-bottom-left-radius: 5px;
+        box-shadow: 0 1px 3px rgba(0,0,0,0.1);
     }
     
     .chat-msg.sent .chat-msg-content {
@@ -523,11 +486,12 @@
         let html = '';
         messages.forEach(msg => {
             const isSent = msg.sender_type === 'user';
+            const content = msg.content || '';
             const time = new Date(msg.created_at).toLocaleTimeString('vi-VN', {hour: '2-digit', minute: '2-digit'});
             html += `
                 <div class="chat-msg ${isSent ? 'sent' : 'received'}">
                     <div>
-                        <div class="chat-msg-content">${escapeHtml(msg.message)}</div>
+                        <div class="chat-msg-content">${escapeHtml(content)}</div>
                         <div class="chat-msg-time">${time}</div>
                     </div>
                 </div>
@@ -584,7 +548,7 @@
     }
     
     function startChatPolling() {
-        chatPollingInterval = setInterval(loadChatMessages, 5000);
+        chatPollingInterval = setInterval(loadChatMessages, 3000);
     }
     
     function stopChatPolling() {
@@ -595,6 +559,7 @@
     }
     
     function escapeHtml(text) {
+        if (!text) return '';
         const div = document.createElement('div');
         div.textContent = text;
         return div.innerHTML;

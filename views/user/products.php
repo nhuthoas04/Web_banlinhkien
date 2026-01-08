@@ -51,25 +51,6 @@ function removeFilterParam($params) {
 include __DIR__ . '/../layouts/header.php';
 ?>
 
-<!-- Breadcrumb -->
-<div class="breadcrumb-section py-3 bg-light">
-    <div class="container">
-        <nav aria-label="breadcrumb">
-            <ol class="breadcrumb mb-0">
-                <li class="breadcrumb-item"><a href="<?= BASE_URL ?>">Trang chủ</a></li>
-                <?php if ($category && isset($category['parent_name'])): ?>
-                    <li class="breadcrumb-item">
-                        <a href="<?= BASE_URL ?>products?category=<?= $category['parent_id'] ?>">
-                            <?= htmlspecialchars($category['parent_name']) ?>
-                        </a>
-                    </li>
-                <?php endif; ?>
-                <li class="breadcrumb-item active"><?= $pageTitle ?></li>
-            </ol>
-        </nav>
-    </div>
-</div>
-
 <!-- Products Section -->
 <section class="products-page py-5">
     <div class="container">

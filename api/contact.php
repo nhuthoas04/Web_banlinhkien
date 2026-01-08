@@ -37,8 +37,8 @@ function getChatMessages() {
     $db = getDB();
     $userId = $_SESSION['user_id'];
     
-    // Get or create conversation
-    $stmt = $db->prepare("SELECT id FROM conversations WHERE user_id = ? ORDER BY created_at DESC LIMIT 1");
+    // Get conversation - lấy conversation mới nhất hoặc còn open
+    $stmt = $db->prepare("SELECT id FROM conversations WHERE user_id = ? ORDER BY last_message_at DESC, created_at DESC LIMIT 1");
     $stmt->execute([$userId]);
     $conversation = $stmt->fetch();
     
@@ -51,19 +51,19 @@ function getChatMessages() {
         return;
     }
     
-    // Get messages (table name is 'messages', column is 'content')
+    // Get all messages from this conversation
     $stmt = $db->prepare("
-        SELECT id, content as message, sender_type, created_at 
+        SELECT id, content, sender_type, sender_id, created_at 
         FROM messages 
         WHERE conversation_id = ? 
         ORDER BY created_at ASC 
-        LIMIT 50
+        LIMIT 100
     ");
     $stmt->execute([$conversation['id']]);
     $messages = $stmt->fetchAll(PDO::FETCH_ASSOC);
     
-    // Mark messages as read
-    $stmt = $db->prepare("UPDATE messages SET is_read = 1, read_at = NOW() WHERE conversation_id = ? AND sender_type != 'user'");
+    // Mark messages from employee/admin as read
+    $stmt = $db->prepare("UPDATE messages SET is_read = 1, read_at = NOW() WHERE conversation_id = ? AND sender_type != 'user' AND is_read = 0");
     $stmt->execute([$conversation['id']]);
     
     echo json_encode([

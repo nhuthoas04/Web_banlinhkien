@@ -25,9 +25,9 @@ define('ASSETS_URL', BASE_URL . 'assets');
 // Site Information
 define('SITE_NAME', 'TechShop - Thiết Bị Máy Tính');
 define('SITE_DESCRIPTION', 'Cửa hàng thiết bị và phụ kiện máy tính hàng đầu');
-define('SITE_EMAIL', 'contact@techshop.com');
-define('SITE_PHONE', '0123 456 789');
-define('SITE_ADDRESS', '123 Đường ABC, Quận XYZ, TP.HCM');
+define('SITE_EMAIL', 'leduytctv2019@gmail.com');
+define('SITE_PHONE', '0348137209');
+define('SITE_ADDRESS', '126 Nguyễn Thiện Thành, Phường 5, Trà Vinh, Việt Nam');
 
 // Upload Configuration
 define('UPLOAD_PATH', __DIR__ . '/../uploads/');

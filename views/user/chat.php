@@ -4,18 +4,6 @@ $currentPage = 'chat';
 include __DIR__ . '/../layouts/header.php';
 ?>
 
-<!-- Breadcrumb -->
-<div class="breadcrumb-section py-3 bg-light">
-    <div class="container">
-        <nav aria-label="breadcrumb">
-            <ol class="breadcrumb mb-0">
-                <li class="breadcrumb-item"><a href="<?= BASE_URL ?>">Trang chủ</a></li>
-                <li class="breadcrumb-item active">Hỗ trợ trực tuyến</li>
-            </ol>
-        </nav>
-    </div>
-</div>
-
 <section class="chat-section py-5">
     <div class="container">
         <div class="row">

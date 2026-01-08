@@ -2145,12 +2145,12 @@ h1, h2, h3, h4, h5, h6, p {
 }
 
 .footer-title {
-    font-size: 18px;
+    font-size: 15px;
     font-weight: 600;
     color: var(--white);
-    margin-bottom: 25px;
+    margin-bottom: 12px;
     position: relative;
-    padding-bottom: 12px;
+    padding-bottom: 8px;
 }
 
 .footer-title::after {
@@ -2158,8 +2158,8 @@ h1, h2, h3, h4, h5, h6, p {
     position: absolute;
     bottom: 0;
     left: 0;
-    width: 40px;
-    height: 3px;
+    width: 30px;
+    height: 2px;
     background: rgba(255,255,255,0.5);
     border-radius: 2px;
 }
@@ -2171,16 +2171,18 @@ h1, h2, h3, h4, h5, h6, p {
 }
 
 .footer-links li {
-    margin-bottom: 14px;
+    margin-bottom: 10px;
+}
+
+.footer-links.compact li {
+    margin-bottom: 6px;
 }
 
 .footer-links a {
     color: rgba(255,255,255,0.9);
-    font-size: 14px;
+    font-size: 13px;
     transition: all 0.3s ease;
-    display: flex;
-    align-items: center;
-    gap: 8px;
+    display: inline-block;
 }
 
 .footer-links a i {
@@ -2206,10 +2208,27 @@ h1, h2, h3, h4, h5, h6, p {
 .footer-contact li {
     display: flex;
     align-items: flex-start;
-    gap: 15px;
-    margin-bottom: 18px;
-    font-size: 14px;
+    gap: 10px;
+    margin-bottom: 10px;
+    font-size: 13px;
     color: #fff;
+}
+
+.footer-contact.compact li {
+    margin-bottom: 8px;
+}
+
+.footer-contact li i {
+    width: 16px;
+    text-align: center;
+    flex-shrink: 0;
+    margin-top: 2px;
+    opacity: 0.9;
+}
+
+.footer-contact li span {
+    flex: 1;
+    line-height: 1.4;
 }
 
 .footer-contact .contact-icon {
@@ -2226,11 +2245,6 @@ h1, h2, h3, h4, h5, h6, p {
 .footer-contact .contact-icon i {
     color: #fff;
     font-size: 14px;
-}
-
-.footer-contact span {
-    line-height: 1.6;
-    padding-top: 6px;
 }
 
 /* Footer Payments */

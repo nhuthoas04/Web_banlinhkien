@@ -3,9 +3,9 @@
  * Employee Chat API - MySQL Version
  */
 
-// Suppress errors in output for clean JSON
-error_reporting(0);
-ini_set('display_errors', 0);
+// Enable errors for debugging
+error_reporting(E_ALL);
+ini_set('display_errors', 1);
 
 // Start session if not already started
 if (session_status() === PHP_SESSION_NONE) {
@@ -159,21 +159,21 @@ function sendMessage($conversationModel, $data) {
     
     // Auto-assign if not assigned
     if (!$conversation['assigned_to']) {
-        $conversationModel->assign($conversation['id'], $_SESSION['user_id']);
+        $conversationModel->assignTo($conversation['id'], $_SESSION['user_id']);
     }
     
-    $messageId = $conversationModel->addMessage(
-        $conversation['id'],
-        $_SESSION['user_id'],
-        $data['message'],
-        false // is_customer = false
-    );
+    $message = $conversationModel->sendMessage([
+        'conversation_id' => $conversation['id'],
+        'sender_id' => $_SESSION['user_id'],
+        'sender_type' => 'employee',
+        'content' => $data['message']
+    ]);
     
-    if ($messageId) {
+    if ($message) {
         echo json_encode([
             'success' => true,
             'message' => 'Đã gửi tin nhắn',
-            'message_id' => $messageId
+            'data' => $message
         ]);
     } else {
         echo json_encode(['success' => false, 'message' => 'Không thể gửi tin nhắn']);
