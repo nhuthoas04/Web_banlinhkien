@@ -1,0 +1,644 @@
+# DATABASE CONCEPTUAL DATA MODEL (CDM)
+# TechShop - Computer Shop Database
+# Database: computer_shop
+# Charset: utf8mb4_unicode_ci
+
+================================================================================
+## BẢNG 1: users (Người dùng)
+================================================================================
+Primary Key: id
+
+| Column Name          | Data Type      | Length | Nullable | Default           | Extra          | Description           |
+|---------------------|----------------|--------|----------|-------------------|----------------|-----------------------|
+| id                  | INT            | 11     | NO       | NULL              | AUTO_INCREMENT | ID người dùng         |
+| name                | VARCHAR        | 100    | NO       | NULL              |                | Họ tên                |
+| email               | VARCHAR        | 100    | NO       | NULL              | UNIQUE         | Email                 |
+| password            | VARCHAR        | 255    | NO       | NULL              |                | Mật khẩu (bcrypt)     |
+| phone               | VARCHAR        | 20     | YES      | NULL              |                | Số điện thoại         |
+| role                | ENUM           | -      | YES      | 'user'            |                | user,employee,admin   |
+| status              | ENUM           | -      | YES      | 'active'          |                | active,inactive,banned|
+| avatar              | VARCHAR        | 255    | YES      | NULL              |                | Ảnh đại diện          |
+| google_id           | VARCHAR        | 255    | YES      | NULL              |                | Google OAuth ID       |
+| email_verified      | TINYINT        | 1      | YES      | 0                 |                | Email đã xác thực     |
+| verification_token  | VARCHAR        | 100    | YES      | NULL              |                | Token xác thực email  |
+| remember_token      | VARCHAR        | 100    | YES      | NULL              |                | Token ghi nhớ login   |
+| token_expiry        | DATETIME       | -      | YES      | NULL              |                | Hạn token ghi nhớ     |
+| reset_token         | VARCHAR        | 100    | YES      | NULL              |                | Token reset password  |
+| reset_expiry        | DATETIME       | -      | YES      | NULL              |                | Hạn reset token       |
+| last_login          | DATETIME       | -      | YES      | NULL              |                | Lần đăng nhập cuối    |
+| created_at          | TIMESTAMP      | -      | NO       | CURRENT_TIMESTAMP |                | Ngày tạo              |
+| updated_at          | TIMESTAMP      | -      | NO       | CURRENT_TIMESTAMP | ON UPDATE      | Ngày cập nhật         |
+| birthday            | DATE           | -      | YES      | NULL              |                | Ngày sinh             |
+| gender              | ENUM           | -      | YES      | NULL              |                | male,female,other     |
+
+Indexes:
+- PRIMARY KEY (id)
+- UNIQUE KEY (email)
+
+================================================================================
+## BẢNG 2: categories (Danh mục sản phẩm)
+================================================================================
+Primary Key: id
+
+| Column Name | Data Type | Length | Nullable | Default           | Extra          | Description      |
+|------------|-----------|--------|----------|-------------------|----------------|------------------|
+| id         | INT       | 11     | NO       | NULL              | AUTO_INCREMENT | ID danh mục      |
+| name       | VARCHAR   | 100    | NO       | NULL              |                | Tên danh mục     |
+| slug       | VARCHAR   | 100    | NO       | NULL              | UNIQUE         | URL slug         |
+| description| TEXT      | -      | YES      | NULL              |                | Mô tả            |
+| image      | VARCHAR   | 255    | YES      | NULL              |                | Hình ảnh         |
+| parent_id  | INT       | 11     | YES      | NULL              | FOREIGN KEY    | Danh mục cha     |
+| sort_order | INT       | 11     | YES      | 0                 |                | Thứ tự sắp xếp   |
+| status     | ENUM      | -      | YES      | 'active'          |                | active,inactive  |
+| created_at | TIMESTAMP | -      | NO       | CURRENT_TIMESTAMP |                | Ngày tạo         |
+| updated_at | TIMESTAMP | -      | NO       | CURRENT_TIMESTAMP | ON UPDATE      | Ngày cập nhật    |
+
+Indexes:
+- PRIMARY KEY (id)
+- UNIQUE KEY (slug)
+- KEY (parent_id)
+- KEY (status)
+
+Foreign Keys:
+- parent_id REFERENCES categories(id) ON DELETE SET NULL
+
+================================================================================
+## BẢNG 3: brands (Thương hiệu)
+================================================================================
+Primary Key: id
+
+| Column Name | Data Type | Length | Nullable | Default           | Extra | Description      |
+|------------|-----------|--------|----------|-------------------|-------|------------------|
+| id         | INT       | 11     | NO       | NULL              |       | ID thương hiệu   |
+| name       | VARCHAR   | 100    | NO       | NULL              |       | Tên thương hiệu  |
+| slug       | VARCHAR   | 100    | YES      | NULL              | UNIQUE| URL slug         |
+| logo       | VARCHAR   | 255    | YES      | NULL              |       | Logo             |
+| description| TEXT      | -      | YES      | NULL              |       | Mô tả            |
+| status     | ENUM      | -      | YES      | 'active'          |       | active,inactive  |
+| sort_order | INT       | 11     | YES      | 0                 |       | Thứ tự sắp xếp   |
+| created_at | TIMESTAMP | -      | NO       | CURRENT_TIMESTAMP |       | Ngày tạo         |
+| updated_at | TIMESTAMP | -      | NO       | CURRENT_TIMESTAMP | ON UPDATE | Ngày cập nhật|
+
+Indexes:
+- PRIMARY KEY (id)
+- UNIQUE KEY (slug)
+- KEY (status)
+
+================================================================================
+## BẢNG 4: products (Sản phẩm)
+================================================================================
+Primary Key: id
+
+| Column Name       | Data Type | Length | Nullable | Default           | Extra          | Description           |
+|------------------|-----------|--------|----------|-------------------|----------------|-----------------------|
+| id               | INT       | 11     | NO       | NULL              | AUTO_INCREMENT | ID sản phẩm           |
+| name             | VARCHAR   | 255    | NO       | NULL              |                | Tên sản phẩm          |
+| slug             | VARCHAR   | 255    | NO       | NULL              |                | URL slug              |
+| description      | TEXT      | -      | YES      | NULL              |                | Mô tả chi tiết        |
+| specifications   | TEXT      | -      | YES      | NULL              |                | Thông số kỹ thuật     |
+| short_description| VARCHAR   | 500    | YES      | NULL              |                | Mô tả ngắn            |
+| price            | DECIMAL   | 15,0   | NO       | NULL              |                | Giá gốc               |
+| sale_price       | DECIMAL   | 15,0   | YES      | NULL              |                | Giá khuyến mãi        |
+| category_id      | INT       | 11     | YES      | NULL              | FOREIGN KEY    | ID danh mục           |
+| brand            | VARCHAR   | 100    | YES      | NULL              |                | Tên thương hiệu (cũ)  |
+| brand_id         | INT       | 11     | YES      | NULL              | FOREIGN KEY    | ID thương hiệu        |
+| sku              | VARCHAR   | 50     | YES      | NULL              |                | Mã SKU                |
+| stock            | INT       | 11     | YES      | 0                 |                | Số lượng tồn kho      |
+| featured         | TINYINT   | 1      | YES      | 0                 |                | Sản phẩm nổi bật      |
+| status           | ENUM      | -      | YES      | 'active'          |                | active,inactive,out_of_stock |
+| rating           | DECIMAL   | 2,1    | YES      | 0.0               |                | Đánh giá trung bình   |
+| review_count     | INT       | 11     | YES      | 0                 |                | Số đánh giá           |
+| sold_count       | INT       | 11     | YES      | 0                 |                | Số lượng đã bán       |
+| views            | INT       | 11     | YES      | 0                 |                | Lượt xem              |
+| created_at       | TIMESTAMP | -      | NO       | CURRENT_TIMESTAMP |                | Ngày tạo              |
+| updated_at       | TIMESTAMP | -      | NO       | CURRENT_TIMESTAMP | ON UPDATE      | Ngày cập nhật         |
+
+Indexes:
+- PRIMARY KEY (id)
+- KEY (category_id)
+- KEY (brand_id)
+
+Foreign Keys:
+- category_id REFERENCES categories(id) ON DELETE SET NULL
+- brand_id REFERENCES brands(id) ON DELETE SET NULL
+
+================================================================================
+## BẢNG 5: product_images (Hình ảnh sản phẩm)
+================================================================================
+Composite Primary Key: id, product_id
+
+| Column Name | Data Type | Length | Nullable | Default           | Extra | Description           |
+|------------|-----------|--------|----------|-------------------|-------|-----------------------|
+| id         | INT       | 11     | NO       | NULL              |       | ID hình ảnh           |
+| product_id | INT       | 11     | NO       | NULL              | FOREIGN KEY | ID sản phẩm    |
+| image_url  | VARCHAR   | 255    | NO       | NULL              |       | URL hình ảnh          |
+| is_primary | TINYINT   | 1      | YES      | 0                 |       | Ảnh chính             |
+| sort_order | INT       | 11     | YES      | 0                 |       | Thứ tự hiển thị       |
+| created_at | TIMESTAMP | -      | NO       | CURRENT_TIMESTAMP |       | Ngày tạo              |
+
+Foreign Keys:
+- product_id REFERENCES products(id) ON DELETE CASCADE
+
+================================================================================
+## BẢNG 6: product_specifications (Thông số kỹ thuật)
+================================================================================
+Composite Primary Key: id, product_id
+
+| Column Name | Data Type | Length | Nullable | Default | Extra       | Description      |
+|------------|-----------|--------|----------|---------|-------------|------------------|
+| id         | INT       | 11     | NO       | NULL    |             | ID thông số      |
+| product_id | INT       | 11     | NO       | NULL    | FOREIGN KEY | ID sản phẩm      |
+| spec_name  | VARCHAR   | 100    | NO       | NULL    |             | Tên thông số     |
+| spec_value | VARCHAR   | 500    | NO       | NULL    |             | Giá trị          |
+| sort_order | INT       | 11     | YES      | 0       |             | Thứ tự hiển thị  |
+
+Foreign Keys:
+- product_id REFERENCES products(id) ON DELETE CASCADE
+
+================================================================================
+## BẢNG 7: orders (Đơn hàng)
+================================================================================
+Primary Key: id
+
+| Column Name       | Data Type | Length | Nullable | Default           | Extra          | Description              |
+|------------------|-----------|--------|----------|-------------------|----------------|--------------------------|
+| id               | INT       | 11     | NO       | NULL              | AUTO_INCREMENT | ID đơn hàng              |
+| order_number     | VARCHAR   | 20     | NO       | NULL              | UNIQUE         | Mã đơn hàng              |
+| user_id          | INT       | 11     | YES      | NULL              | FOREIGN KEY    | ID người dùng            |
+| customer_name    | VARCHAR   | 100    | NO       | NULL              |                | Tên khách hàng           |
+| customer_email   | VARCHAR   | 100    | NO       | NULL              |                | Email khách              |
+| customer_phone   | VARCHAR   | 20     | NO       | NULL              |                | SĐT khách                |
+| shipping_address | TEXT      | -      | NO       | NULL              |                | Địa chỉ giao hàng        |
+| shipping_ward    | VARCHAR   | 100    | YES      | NULL              |                | Phường/Xã                |
+| shipping_district| VARCHAR   | 100    | YES      | NULL              |                | Quận/Huyện               |
+| shipping_city    | VARCHAR   | 100    | NO       | NULL              |                | Tỉnh/Thành phố          |
+| subtotal         | DECIMAL   | 15,0   | NO       | NULL              |                | Tổng tiền hàng           |
+| shipping_fee     | DECIMAL   | 15,0   | YES      | 0                 |                | Phí vận chuyển           |
+| discount         | DECIMAL   | 15,0   | YES      | 0                 |                | Giảm giá                 |
+| total            | DECIMAL   | 15,0   | NO       | NULL              |                | Tổng thanh toán          |
+| payment_method   | ENUM      | -      | YES      | 'cod'             |                | cod,bank_transfer,momo,vnpay,credit_card |
+| payment_status   | ENUM      | -      | YES      | 'pending'         |                | pending,paid,failed,refunded |
+| status           | ENUM      | -      | YES      | 'pending'         |                | pending,confirmed,processing,shipping,delivered,cancelled,returned |
+| note             | TEXT      | -      | YES      | NULL              |                | Ghi chú khách hàng       |
+| admin_note       | TEXT      | -      | YES      | NULL              |                | Ghi chú admin            |
+| assigned_employee| INT       | 11     | YES      | NULL              | FOREIGN KEY    | NV được giao             |
+| cancelled_reason | VARCHAR   | 500    | YES      | NULL              |                | Lý do hủy                |
+| delivered_at     | DATETIME  | -      | YES      | NULL              |                | Thời gian giao thành công|
+| created_at       | TIMESTAMP | -      | NO       | CURRENT_TIMESTAMP |                | Ngày đặt                 |
+| updated_at       | TIMESTAMP | -      | NO       | CURRENT_TIMESTAMP | ON UPDATE      | Ngày cập nhật            |
+
+Indexes:
+- PRIMARY KEY (id)
+- UNIQUE KEY (order_number)
+- KEY (user_id)
+- KEY (assigned_employee)
+
+Foreign Keys:
+- user_id REFERENCES users(id) ON DELETE SET NULL
+- assigned_employee REFERENCES users(id) ON DELETE SET NULL
+
+================================================================================
+## BẢNG 8: order_items (Chi tiết đơn hàng)
+================================================================================
+Primary Key: id
+
+| Column Name   | Data Type | Length | Nullable | Default | Extra          | Description      |
+|--------------|-----------|--------|----------|---------|----------------|------------------|
+| id           | INT       | 11     | NO       | NULL    | AUTO_INCREMENT | ID chi tiết      |
+| order_id     | INT       | 11     | NO       | NULL    | FOREIGN KEY    | ID đơn hàng      |
+| product_id   | INT       | 11     | YES      | NULL    | FOREIGN KEY    | ID sản phẩm      |
+| product_name | VARCHAR   | 255    | NO       | NULL    |                | Tên sản phẩm     |
+| product_image| VARCHAR   | 255    | YES      | NULL    |                | Ảnh sản phẩm     |
+| product_sku  | VARCHAR   | 50     | YES      | NULL    |                | Mã SKU           |
+| price        | DECIMAL   | 15,0   | NO       | NULL    |                | Giá tại thời điểm|
+| quantity     | INT       | 11     | NO       | NULL    |                | Số lượng         |
+| total        | DECIMAL   | 15,0   | NO       | NULL    |                | Thành tiền       |
+
+Indexes:
+- PRIMARY KEY (id)
+- KEY (order_id)
+- KEY (product_id)
+
+Foreign Keys:
+- order_id REFERENCES orders(id) ON DELETE CASCADE
+- product_id REFERENCES products(id) ON DELETE SET NULL
+
+================================================================================
+## BẢNG 9: reviews (Đánh giá sản phẩm)
+================================================================================
+Primary Key: id
+
+| Column Name   | Data Type | Length | Nullable | Default           | Extra          | Description        |
+|--------------|-----------|--------|----------|-------------------|----------------|--------------------|
+| id           | INT       | 11     | NO       | NULL              | AUTO_INCREMENT | ID đánh giá        |
+| product_id   | INT       | 11     | NO       | NULL              | FOREIGN KEY    | ID sản phẩm        |
+| user_id      | INT       | 11     | NO       | NULL              | FOREIGN KEY    | ID người đánh giá  |
+| order_id     | INT       | 11     | YES      | NULL              | FOREIGN KEY    | ID đơn hàng        |
+| rating       | TINYINT   | 4      | NO       | NULL              |                | Số sao (1-5)       |
+| title        | VARCHAR   | 200    | YES      | NULL              |                | Tiêu đề            |
+| content      | TEXT      | -      | YES      | NULL              |                | Nội dung           |
+| pros         | TEXT      | -      | YES      | NULL              |                | Ưu điểm            |
+| cons         | TEXT      | -      | YES      | NULL              |                | Nhược điểm         |
+| status       | ENUM      | -      | YES      | 'pending'         |                | pending,approved,rejected |
+| helpful_count| INT       | 11     | YES      | 0                 |                | Số lượt hữu ích    |
+| reply        | TEXT      | -      | YES      | NULL              |                | Phản hồi           |
+| reply_by     | INT       | 11     | YES      | NULL              | FOREIGN KEY    | Người phản hồi     |
+| reply_at     | DATETIME  | -      | YES      | NULL              |                | Thời gian phản hồi |
+| created_at   | TIMESTAMP | -      | NO       | CURRENT_TIMESTAMP |                | Ngày tạo           |
+| updated_at   | TIMESTAMP | -      | NO       | CURRENT_TIMESTAMP | ON UPDATE      | Ngày cập nhật      |
+
+Indexes:
+- PRIMARY KEY (id)
+- KEY (product_id)
+- KEY (user_id)
+- KEY (order_id)
+
+Foreign Keys:
+- product_id REFERENCES products(id) ON DELETE CASCADE
+- user_id REFERENCES users(id) ON DELETE CASCADE
+- order_id REFERENCES orders(id) ON DELETE SET NULL
+- reply_by REFERENCES users(id) ON DELETE SET NULL
+
+================================================================================
+## BẢNG 10: carts (Giỏ hàng)
+================================================================================
+Primary Key: id
+
+| Column Name | Data Type | Length | Nullable | Default           | Extra          | Description   |
+|------------|-----------|--------|----------|-------------------|----------------|---------------|
+| id         | INT       | 11     | NO       | NULL              | AUTO_INCREMENT | ID giỏ hàng   |
+| user_id    | INT       | 11     | YES      | NULL              | FOREIGN KEY    | ID người dùng |
+| session_id | VARCHAR   | 100    | YES      | NULL              |                | Session ID    |
+| created_at | TIMESTAMP | -      | NO       | CURRENT_TIMESTAMP |                | Ngày tạo      |
+| updated_at | TIMESTAMP | -      | NO       | CURRENT_TIMESTAMP | ON UPDATE      | Ngày cập nhật |
+
+Indexes:
+- PRIMARY KEY (id)
+- KEY (user_id)
+- KEY (session_id)
+
+Foreign Keys:
+- user_id REFERENCES users(id) ON DELETE CASCADE
+
+================================================================================
+## BẢNG 11: cart_items (Chi tiết giỏ hàng)
+================================================================================
+Primary Key: id
+
+| Column Name | Data Type | Length | Nullable | Default           | Extra          | Description   |
+|------------|-----------|--------|----------|-------------------|----------------|---------------|
+| id         | INT       | 11     | NO       | NULL              | AUTO_INCREMENT | ID chi tiết   |
+| cart_id    | INT       | 11     | NO       | NULL              | FOREIGN KEY    | ID giỏ hàng   |
+| product_id | INT       | 11     | NO       | NULL              | FOREIGN KEY    | ID sản phẩm   |
+| quantity   | INT       | 11     | NO       | 1                 |                | Số lượng      |
+| created_at | TIMESTAMP | -      | NO       | CURRENT_TIMESTAMP |                | Ngày tạo      |
+| updated_at | TIMESTAMP | -      | NO       | CURRENT_TIMESTAMP | ON UPDATE      | Ngày cập nhật |
+
+Indexes:
+- PRIMARY KEY (id)
+- KEY (cart_id)
+- KEY (product_id)
+
+Foreign Keys:
+- cart_id REFERENCES carts(id) ON DELETE CASCADE
+- product_id REFERENCES products(id) ON DELETE CASCADE
+
+================================================================================
+## BẢNG 12: wishlist (Danh sách yêu thích)
+================================================================================
+Primary Key: id
+
+| Column Name | Data Type | Length | Nullable | Default           | Extra          | Description   |
+|------------|-----------|--------|----------|-------------------|----------------|---------------|
+| id         | INT       | 11     | NO       | NULL              | AUTO_INCREMENT | ID            |
+| user_id    | INT       | 11     | NO       | NULL              | FOREIGN KEY    | ID người dùng |
+| product_id | INT       | 11     | NO       | NULL              | FOREIGN KEY    | ID sản phẩm   |
+| created_at | TIMESTAMP | -      | NO       | CURRENT_TIMESTAMP |                | Ngày thêm     |
+
+Indexes:
+- PRIMARY KEY (id)
+- UNIQUE KEY (user_id, product_id)
+
+Foreign Keys:
+- user_id REFERENCES users(id) ON DELETE CASCADE
+- product_id REFERENCES products(id) ON DELETE CASCADE
+
+================================================================================
+## BẢNG 13: conversations (Cuộc hội thoại chat)
+================================================================================
+Primary Key: id
+
+| Column Name     | Data Type | Length | Nullable | Default           | Extra | Description          |
+|----------------|-----------|--------|----------|-------------------|-------|----------------------|
+| id             | INT       | 11     | NO       | NULL              |       | ID cuộc hội thoại    |
+| user_id        | INT       | 11     | NO       | NULL              | FOREIGN KEY | ID người dùng |
+| assigned_to    | INT       | 11     | YES      | NULL              | FOREIGN KEY | NV được giao  |
+| subject        | VARCHAR   | 200    | YES      | NULL              |       | Chủ đề               |
+| status         | ENUM      | -      | YES      | 'open'            |       | open,pending,closed  |
+| last_message_at| DATETIME  | -      | YES      | NULL              |       | Tin nhắn cuối        |
+| created_at     | TIMESTAMP | -      | NO       | CURRENT_TIMESTAMP |       | Ngày tạo             |
+| updated_at     | TIMESTAMP | -      | NO       | CURRENT_TIMESTAMP | ON UPDATE | Ngày cập nhật   |
+
+Indexes:
+- PRIMARY KEY (id)
+- KEY (user_id)
+- KEY (assigned_to)
+- KEY (status)
+
+Foreign Keys:
+- user_id REFERENCES users(id) ON DELETE CASCADE
+- assigned_to REFERENCES users(id) ON DELETE SET NULL
+
+================================================================================
+## BẢNG 14: messages (Tin nhắn chat)
+================================================================================
+Primary Key: id
+
+| Column Name     | Data Type | Length | Nullable | Default           | Extra          | Description       |
+|----------------|-----------|--------|----------|-------------------|----------------|-------------------|
+| id             | INT       | 11     | NO       | NULL              | AUTO_INCREMENT | ID tin nhắn       |
+| conversation_id| INT       | 11     | NO       | NULL              | FOREIGN KEY    | ID cuộc hội thoại |
+| sender_id      | INT       | 11     | NO       | NULL              | FOREIGN KEY    | ID người gửi      |
+| sender_type    | ENUM      | -      | NO       | NULL              |                | user,employee,admin,system |
+| content        | TEXT      | -      | YES      | NULL              |                | Nội dung          |
+| image          | VARCHAR   | 255    | YES      | NULL              |                | Hình ảnh đính kèm |
+| is_read        | TINYINT   | 1      | YES      | 0                 |                | Đã đọc            |
+| read_at        | DATETIME  | -      | YES      | NULL              |                | Thời gian đọc     |
+| created_at     | TIMESTAMP | -      | NO       | CURRENT_TIMESTAMP |                | Ngày gửi          |
+
+Indexes:
+- PRIMARY KEY (id)
+- KEY (conversation_id)
+- KEY (sender_id)
+
+Foreign Keys:
+- conversation_id REFERENCES conversations(id) ON DELETE CASCADE
+- sender_id REFERENCES users(id) ON DELETE CASCADE
+
+================================================================================
+## BẢNG 15: contacts (Liên hệ)
+================================================================================
+Primary Key: id
+
+| Column Name | Data Type | Length | Nullable | Default           | Extra          | Description   |
+|------------|-----------|--------|----------|-------------------|----------------|---------------|
+| id         | INT       | 11     | NO       | NULL              | AUTO_INCREMENT | ID liên hệ    |
+| name       | VARCHAR   | 100    | NO       | NULL              |                | Họ tên        |
+| email      | VARCHAR   | 100    | NO       | NULL              |                | Email         |
+| phone      | VARCHAR   | 20     | YES      | NULL              |                | SĐT           |
+| subject    | VARCHAR   | 200    | NO       | NULL              |                | Chủ đề        |
+| message    | TEXT      | NO       | NULL              |                | Nội dung      |
+| status     | ENUM      | -      | YES      | 'new'             |                | new,read,replied |
+| replied_at | DATETIME  | -      | YES      | NULL              |                | Thời gian trả lời |
+| created_at | TIMESTAMP | -      | NO       | CURRENT_TIMESTAMP |                | Ngày gửi      |
+
+Indexes:
+- PRIMARY KEY (id)
+- KEY (status)
+
+================================================================================
+## BẢNG 16: coupons (Mã giảm giá)
+================================================================================
+Primary Key: id
+
+| Column Name    | Data Type | Length | Nullable | Default           | Extra          | Description      |
+|---------------|-----------|--------|----------|-------------------|----------------|------------------|
+| id            | INT       | 11     | NO       | NULL              | AUTO_INCREMENT | ID mã giảm giá   |
+| code          | VARCHAR   | 50     | NO       | NULL              | UNIQUE         | Mã code          |
+| name          | VARCHAR   | 200    | NO       | NULL              |                | Tên chương trình |
+| description   | TEXT      | -      | YES      | NULL              |                | Mô tả            |
+| discount_type | ENUM      | -      | NO       | NULL              |                | percent,fixed    |
+| discount_value| DECIMAL   | 15,0   | NO       | NULL              |                | Giá trị giảm     |
+| min_order     | DECIMAL   | 15,0   | YES      | 0                 |                | Đơn tối thiểu    |
+| max_discount  | DECIMAL   | 15,0   | YES      | NULL              |                | Giảm tối đa      |
+| usage_limit   | INT       | 11     | YES      | NULL              |                | Giới hạn sử dụng |
+| used_count    | INT       | 11     | YES      | 0                 |                | Số lần đã dùng   |
+| start_date    | DATETIME  | -      | YES      | NULL              |                | Ngày bắt đầu     |
+| end_date      | DATETIME  | -      | YES      | NULL              |                | Ngày kết thúc    |
+| status        | ENUM      | -      | YES      | 'active'          |                | active,inactive  |
+| created_at    | TIMESTAMP | -      | NO       | CURRENT_TIMESTAMP |                | Ngày tạo         |
+| updated_at    | TIMESTAMP | -      | NO       | CURRENT_TIMESTAMP | ON UPDATE      | Ngày cập nhật    |
+
+Indexes:
+- PRIMARY KEY (id)
+- UNIQUE KEY (code)
+- KEY (status)
+
+================================================================================
+## BẢNG 17: user_addresses (Địa chỉ người dùng)
+================================================================================
+Primary Key: id
+
+| Column Name  | Data Type | Length | Nullable | Default           | Extra          | Description    |
+|-------------|-----------|--------|----------|-------------------|----------------|----------------|
+| id          | INT       | 11     | NO       | NULL              | AUTO_INCREMENT | ID địa chỉ     |
+| user_id     | INT       | 11     | NO       | NULL              | FOREIGN KEY    | ID người dùng  |
+| full_name   | VARCHAR   | 100    | NO       | NULL              |                | Họ tên         |
+| phone       | VARCHAR   | 20     | NO       | NULL              |                | SĐT            |
+| address     | TEXT      | -      | NO       | NULL              |                | Địa chỉ chi tiết|
+| ward        | VARCHAR   | 100    | YES      | NULL              |                | Phường/Xã      |
+| district    | VARCHAR   | 100    | YES      | NULL              |                | Quận/Huyện     |
+| city        | VARCHAR   | 100    | NO       | NULL              |                | Tỉnh/TP        |
+| is_default  | TINYINT   | 1      | YES      | 0                 |                | Địa chỉ mặc định|
+| created_at  | TIMESTAMP | -      | NO       | CURRENT_TIMESTAMP |                | Ngày tạo       |
+| updated_at  | TIMESTAMP | -      | NO       | CURRENT_TIMESTAMP | ON UPDATE      | Ngày cập nhật  |
+
+Indexes:
+- PRIMARY KEY (id)
+- KEY (user_id)
+
+Foreign Keys:
+- user_id REFERENCES users(id) ON DELETE CASCADE
+
+================================================================================
+## BẢNG 18: notifications (Thông báo)
+================================================================================
+Primary Key: id
+
+| Column Name | Data Type | Length | Nullable | Default           | Extra          | Description   |
+|------------|-----------|--------|----------|-------------------|----------------|---------------|
+| id         | INT       | 11     | NO       | NULL              | AUTO_INCREMENT | ID thông báo  |
+| user_id    | INT       | 11     | NO       | NULL              | FOREIGN KEY    | ID người dùng |
+| type       | VARCHAR   | 50     | NO       | NULL              |                | Loại thông báo|
+| title      | VARCHAR   | 200    | NO       | NULL              |                | Tiêu đề       |
+| message    | TEXT      | NO       | NULL              |                | Nội dung      |
+| link       | VARCHAR   | 255    | YES      | NULL              |                | Link liên kết |
+| is_read    | TINYINT   | 1      | YES      | 0                 |                | Đã đọc        |
+| read_at    | DATETIME  | -      | YES      | NULL              |                | Thời gian đọc |
+| created_at | TIMESTAMP | -      | NO       | CURRENT_TIMESTAMP |                | Ngày tạo      |
+
+Indexes:
+- PRIMARY KEY (id)
+- KEY (user_id)
+
+Foreign Keys:
+- user_id REFERENCES users(id) ON DELETE CASCADE
+
+================================================================================
+## MỐI QUAN HỆ (RELATIONSHIPS)
+================================================================================
+
+1. users ←→ orders (1:N)
+   - users.id → orders.user_id
+   - 1 user có nhiều orders
+
+2. users ←→ orders (assigned_employee) (1:N)
+   - users.id → orders.assigned_employee
+   - 1 employee được giao nhiều orders
+
+3. categories ←→ categories (parent) (1:N)
+   - categories.id → categories.parent_id
+   - Self-reference: 1 category cha có nhiều category con
+
+4. categories ←→ products (1:N)
+   - categories.id → products.category_id
+   - 1 category có nhiều products
+
+5. brands ←→ products (1:N)
+   - brands.id → products.brand_id
+   - 1 brand có nhiều products
+
+6. products ←→ product_images (1:N)
+   - products.id → product_images.product_id
+   - 1 product có nhiều images
+
+7. products ←→ product_specifications (1:N)
+   - products.id → product_specifications.product_id
+   - 1 product có nhiều specifications
+
+8. orders ←→ order_items (1:N)
+   - orders.id → order_items.order_id
+   - 1 order có nhiều order_items
+
+9. products ←→ order_items (1:N)
+   - products.id → order_items.product_id
+   - 1 product có nhiều order_items
+
+10. products ←→ reviews (1:N)
+    - products.id → reviews.product_id
+    - 1 product có nhiều reviews
+
+11. users ←→ reviews (1:N)
+    - users.id → reviews.user_id
+    - 1 user có nhiều reviews
+
+12. orders ←→ reviews (1:N)
+    - orders.id → reviews.order_id
+    - 1 order có nhiều reviews
+
+13. users ←→ reviews (reply_by) (1:N)
+    - users.id → reviews.reply_by
+    - 1 user (admin/employee) reply nhiều reviews
+
+14. users ←→ carts (1:N)
+    - users.id → carts.user_id
+    - 1 user có nhiều carts (theo session)
+
+15. carts ←→ cart_items (1:N)
+    - carts.id → cart_items.cart_id
+    - 1 cart có nhiều cart_items
+
+16. products ←→ cart_items (1:N)
+    - products.id → cart_items.product_id
+    - 1 product có nhiều cart_items
+
+17. users ←→ wishlist (1:N)
+    - users.id → wishlist.user_id
+    - 1 user có nhiều wishlist items
+
+18. products ←→ wishlist (1:N)
+    - products.id → wishlist.product_id
+    - 1 product có nhiều wishlist items
+
+19. users ←→ conversations (1:N)
+    - users.id → conversations.user_id
+    - 1 user có nhiều conversations
+
+20. users ←→ conversations (assigned_to) (1:N)
+    - users.id → conversations.assigned_to
+    - 1 employee được giao nhiều conversations
+
+21. conversations ←→ messages (1:N)
+    - conversations.id → messages.conversation_id
+    - 1 conversation có nhiều messages
+
+22. users ←→ messages (1:N)
+    - users.id → messages.sender_id
+    - 1 user gửi nhiều messages
+
+23. users ←→ user_addresses (1:N)
+    - users.id → user_addresses.user_id
+    - 1 user có nhiều addresses
+
+24. users ←→ notifications (1:N)
+    - users.id → notifications.user_id
+    - 1 user có nhiều notifications
+
+================================================================================
+## ENUM VALUES
+================================================================================
+
+users.role: 'user', 'employee', 'admin'
+users.status: 'active', 'inactive', 'banned'
+users.gender: 'male', 'female', 'other'
+
+categories.status: 'active', 'inactive'
+brands.status: 'active', 'inactive'
+
+products.status: 'active', 'inactive', 'out_of_stock'
+
+orders.payment_method: 'cod', 'bank_transfer', 'momo', 'vnpay', 'credit_card'
+orders.payment_status: 'pending', 'paid', 'failed', 'refunded'
+orders.status: 'pending', 'confirmed', 'processing', 'shipping', 'delivered', 'cancelled', 'returned'
+
+reviews.status: 'pending', 'approved', 'rejected'
+
+conversations.status: 'open', 'pending', 'closed'
+
+messages.sender_type: 'user', 'employee', 'admin', 'system'
+
+contacts.status: 'new', 'read', 'replied'
+
+coupons.discount_type: 'percent', 'fixed'
+coupons.status: 'active', 'inactive'
+
+================================================================================
+## GHI CHÚ POWERDESIGNER
+================================================================================
+
+KHI NHẬP VÀO POWERDESIGNER:
+
+1. TẠO ENTITIES (Bảng):
+   - Tạo entity cho mỗi bảng
+   - Đặt tên giống tên bảng
+   - Đánh dấu Primary Key
+
+2. THÊM ATTRIBUTES (Cột):
+   - Code: tên cột
+   - Name: mô tả (có thể để giống Code)
+   - Data Type: chọn từ danh sách
+   - Mandatory (M): check nếu NOT NULL
+   - Primary (P): check nếu là PK
+
+3. DATA TYPE MAPPING:
+   INT(11) → Integer
+   VARCHAR(n) → Variable characters(n)
+   TEXT → Long varchar
+   DECIMAL(15,0) → Decimal(15,0)
+   TIMESTAMP → Timestamp
+   DATETIME → Date Time
+   DATE → Date
+   TINYINT(1) → Boolean
+   ENUM → Variable characters (hoặc tạo Domain riêng)
+
+4. TẠO RELATIONSHIPS:
+   - Tạo relationship giữa các entity
+   - One-to-Many: cardinality 1:N
+   - Đặt tên relationship có nghĩa
+   - Ánh xạ Foreign Key
+
+5. TẠO DOMAINS (Tùy chọn):
+   - Cho các ENUM values
+   - Ví dụ: Domain "OrderStatus" với values: pending, confirmed, processing...
+
+================================================================================

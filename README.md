@@ -225,13 +225,9 @@ doan_web_php/
 │       └── main.js              # Main scripts
 │
 ├── 📂 config/                   # Configuration
-│   ├── add_google_login.sql     # SQL: Thêm đăng nhập Google
-│   ├── add_reset_password.sql   # SQL: Thêm reset password
-│   ├── computer_shop.sql        # Database backup
+│   ├── computer_shop.sql        # Database full schema + data
 │   ├── config.php               # App config (SMTP, OAuth)
-│   ├── database.php             # Database connection
-│   ├── fix_categories.sql       # SQL: Fix danh mục
-│   └── update_specifications.sql # SQL: Update thông số
+│   └── database.php             # Database connection
 │
 ├── 📂 controllers/              # MVC Controllers
 │   ├── AdminController.php      # Admin logic
