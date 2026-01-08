@@ -21,10 +21,16 @@ class EmployeeController {
     private $chatModel;
     
     public function __construct() {
-        // Kiểm tra quyền truy cập
+        // Kiểm tra quyền truy cập - chỉ cho phép employee
+        // Admin có trang riêng, không sử dụng trang employee
         if (!isEmployee()) {
-            flash('error', 'Bạn không có quyền truy cập');
-            redirect('/login');
+            if (isAdmin()) {
+                // Admin thì redirect về trang admin
+                redirect('admin');
+            } else {
+                flash('error', 'Bạn không có quyền truy cập');
+                redirect('login');
+            }
         }
         
         $this->userModel = new User();

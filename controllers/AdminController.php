@@ -65,7 +65,7 @@ class AdminController {
         $recentOrders = $this->orderModel->getRecent(null, 10);
         
         // Doanh thu theo ngày (30 ngày)
-        $revenueByDay = $this->orderModel->getRevenueByDay(30);
+        $revenueByDay = $this->orderModel->getRevenueByDays(30);
         
         // Thống kê tổng hợp cho view
         $stats = [
@@ -120,14 +120,93 @@ class AdminController {
         $startDate = $_GET['start_date'] ?? date('Y-m-01');
         $endDate = $_GET['end_date'] ?? date('Y-m-d');
         
-        $orderStats = $this->orderModel->getStatistics($startDate, $endDate . ' 23:59:59');
-        $revenueByDay = $this->orderModel->getRevenueByDay(30);
+        // Lấy thống kê chỉ từ đơn hàng đã hoàn thành
+        $db = getDB();
+        $stmt = $db->prepare("
+            SELECT 
+                COUNT(*) as total_orders,
+                COALESCE(SUM(total), 0) as total_revenue
+            FROM orders
+            WHERE status = 'delivered'
+            AND DATE(created_at) BETWEEN ? AND ?
+        ");
+        $stmt->execute([$startDate, $endDate]);
+        $deliveredStats = $stmt->fetch(PDO::FETCH_ASSOC);
+        
+        // Lấy thống kê trạng thái đơn hàng
+        $stmt = $db->prepare("
+            SELECT status, COUNT(*) as count
+            FROM orders
+            WHERE DATE(created_at) BETWEEN ? AND ?
+            GROUP BY status
+        ");
+        $stmt->execute([$startDate, $endDate]);
+        $statusCounts = $stmt->fetchAll(PDO::FETCH_KEY_PAIR);
+        
+        $orderStats = [
+            'pending' => $statusCounts['pending'] ?? 0,
+            'confirmed' => $statusCounts['confirmed'] ?? 0,
+            'processing' => $statusCounts['processing'] ?? 0,
+            'shipping' => $statusCounts['shipping'] ?? 0,
+            'delivered' => $statusCounts['delivered'] ?? 0,
+            'cancelled' => $statusCounts['cancelled'] ?? 0
+        ];
+        
+        // Stats cho các thẻ thống kê - chỉ tính đơn delivered
+        $revenueStats = [
+            'total_revenue' => $deliveredStats['total_revenue'] ?? 0,
+            'total_orders' => $deliveredStats['total_orders'] ?? 0,
+            'avg_order_value' => ($deliveredStats['total_orders'] ?? 0) > 0 ? ($deliveredStats['total_revenue'] ?? 0) / $deliveredStats['total_orders'] : 0,
+            'delivered_orders' => $deliveredStats['total_orders'] ?? 0
+        ];
+        
+        // Debug
+        error_log("Revenue Stats: " . print_r($revenueStats, true));
+        error_log("Delivered Stats: " . print_r($deliveredStats, true));
+        
+        // Lấy dữ liệu biểu đồ từ model
+        $revenueByDay = $this->orderModel->getRevenueByDays(30);
         $revenueByMonth = $this->orderModel->getRevenueByMonth(12);
+        
+        // Dữ liệu biểu đồ doanh thu (format cho Chart.js)
+        $revenueData = [];
+        if (!empty($revenueByDay)) {
+            foreach ($revenueByDay as $day) {
+                $revenueData[] = [
+                    'date' => date('d/m', strtotime($day['date'] ?? $day['order_date'] ?? '')),
+                    'revenue' => (float)($day['revenue'] ?? $day['total_revenue'] ?? 0)
+                ];
+            }
+        }
         
         // Top sản phẩm bán chạy
         $topProducts = $this->productModel->getBestSelling(10);
         
+        // Top khách hàng tiềm năng
+        $topCustomers = $this->getTopCustomers(10);
+        
         include __DIR__ . '/../views/admin/revenue.php';
+    }
+    
+    /**
+     * Lấy top khách hàng tiềm năng
+     */
+    private function getTopCustomers($limit = 10) {
+        $db = getDB();
+        $stmt = $db->prepare("
+            SELECT u.id, u.name, u.email, u.avatar,
+                   COUNT(DISTINCT o.id) as order_count,
+                   COALESCE(SUM(o.total), 0) as total_spent
+            FROM users u
+            LEFT JOIN orders o ON u.id = o.user_id AND o.status = 'delivered'
+            WHERE u.role = 'user'
+            GROUP BY u.id, u.name, u.email, u.avatar
+            HAVING order_count > 0
+            ORDER BY total_spent DESC
+            LIMIT ?
+        ");
+        $stmt->execute([$limit]);
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
     
     /* ========== QUẢN LÝ TÀI KHOẢN ========== */
@@ -136,27 +215,43 @@ class AdminController {
      * Danh sách tài khoản
      */
     public function users() {
-        $page = isset($_GET['page']) ? (int)$_GET['page'] : 1;
-        $role = $_GET['role'] ?? null;
-        $status = $_GET['status'] ?? null;
+        $page = isset($_GET['p']) ? (int)$_GET['p'] : 1;
+        $limit = 20;
+        
+        // Filters
         $search = $_GET['search'] ?? '';
+        $roleFilter = $_GET['role'] ?? '';
+        $sort = $_GET['sort'] ?? 'newest';
         
-        $filter = [];
-        if ($role) {
-            $filter['role'] = $role;
-        }
-        if ($status) {
-            $filter['status'] = $status;
-        }
+        // Build filters array
+        $filters = [];
         if ($search) {
-            $filter['$or'] = [
-                ['fullname' => ['$regex' => $search, '$options' => 'i']],
-                ['email' => ['$regex' => $search, '$options' => 'i']],
-                ['phone' => ['$regex' => $search, '$options' => 'i']]
-            ];
+            $filters['search'] = $search;
         }
+        if ($roleFilter) {
+            $filters['role'] = $roleFilter;
+        }
+        $filters['sort'] = $sort;
         
-        $result = $this->userModel->getAllUsers($filter, $page);
+        // Get users with filters
+        $result = $this->userModel->getAll($page, $limit, $filters);
+        $users = $result['data'];
+        $totalUsers = $result['total'];
+        $totalPages = $result['pages'];
+        
+        // Get stats by role
+        $userStats = [
+            'user' => 0,
+            'employee' => 0,
+            'admin' => 0
+        ];
+        
+        foreach ($users as $user) {
+            $role = $user['role'] ?? 'user';
+            if (isset($userStats[$role])) {
+                $userStats[$role]++;
+            }
+        }
         
         include __DIR__ . '/../views/admin/users.php';
     }
@@ -522,32 +617,41 @@ class AdminController {
      * Danh sách đơn hàng
      */
     public function orders() {
-        $page = isset($_GET['page']) ? (int)$_GET['page'] : 1;
-        $status = $_GET['status'] ?? null;
+        $page = isset($_GET['p']) ? (int)$_GET['p'] : 1;
+        $limit = 20;
+        
+        // Filters
         $search = $_GET['search'] ?? '';
-        $startDate = $_GET['start_date'] ?? null;
-        $endDate = $_GET['end_date'] ?? null;
+        $statusFilter = $_GET['status'] ?? '';
+        $startDate = $_GET['start_date'] ?? '';
+        $endDate = $_GET['end_date'] ?? '';
         
-        // Lấy thống kê theo trạng thái
-        $orderStats = $this->orderModel->getStatsByStatus();
-        $totalOrders = $this->orderModel->getTotalCount();
-        
-        $filter = [];
-        if ($status) {
-            $filter['status'] = $status;
-        }
-        if ($startDate && $endDate) {
-            $filter['created_at'] = [
-                '$gte' => new MongoDB\BSON\UTCDateTime(strtotime($startDate) * 1000),
-                '$lte' => new MongoDB\BSON\UTCDateTime(strtotime($endDate . ' 23:59:59') * 1000)
-            ];
-        }
-        
+        // Build filters
+        $filters = [];
         if ($search) {
-            $result = $this->orderModel->search($search, $page);
-        } else {
-            $result = $this->orderModel->getAll($filter, $page);
+            $filters['search'] = $search;
         }
+        if ($statusFilter) {
+            $filters['status'] = $statusFilter;
+        }
+        if ($startDate) {
+            $filters['start_date'] = $startDate;
+        }
+        if ($endDate) {
+            $filters['end_date'] = $endDate;
+        }
+        
+        // Get orders
+        $result = $this->orderModel->getAll($page, $limit, $filters);
+        $orders = $result['data'] ?? [];
+        $totalOrders = $result['total'] ?? 0;
+        $totalPages = $result['pages'] ?? 1;
+        
+        // Get stats by status
+        $orderStats = $this->orderModel->getStatistics();
+        
+        // Pass variables to view
+        $currentPage = $page;
         
         include __DIR__ . '/../views/admin/orders.php';
     }
