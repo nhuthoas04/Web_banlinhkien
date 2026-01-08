@@ -4,9 +4,9 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=yes">
     <meta name="base-url" content="<?= BASE_URL ?>">
-    <meta name="theme-color" content="#4f46e5">
+    <meta name="theme-color" content="#059669">
     <meta name="format-detection" content="telephone=no">
-    <title><?= $pageTitle ?? 'Quản trị' ?> - <?= SITE_NAME ?></title>
+    <title><?= $pageTitle ?? 'Nhân viên' ?> - <?= SITE_NAME ?></title>
     
     <!-- Google Fonts - Vietnamese support -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -27,6 +27,134 @@
     
     <!-- Custom Admin CSS -->
     <link href="<?= ASSETS_URL ?>/css/admin.css?v=20260109002" rel="stylesheet">
+    
+    <style>
+        /* Employee theme - Using same DARK colors as Admin */
+        :root {
+            --employee-primary: #1e293b;
+            --employee-primary-light: #334155;
+            --employee-primary-dark: #0f172a;
+        }
+        
+        .admin-sidebar {
+            background: linear-gradient(180deg, #0f172a 0%, #1e293b 50%, #334155 100%);
+        }
+        
+        .sidebar-logo {
+            background: rgba(255, 255, 255, 0.05);
+        }
+        
+        .sidebar-logo i {
+            color: #60a5fa;
+        }
+        
+        .sidebar-avatar {
+            border-color: #60a5fa;
+        }
+        
+        .menu-item.active a::before {
+            background: #60a5fa;
+        }
+        
+        .menu-item.active a,
+        .menu-item a:hover {
+            background: rgba(255, 255, 255, 0.1);
+        }
+        
+        .menu-badge {
+            background: #f59e0b;
+        }
+        
+        .employee-badge {
+            background: #60a5fa !important;
+            color: #fff !important;
+        }
+        
+        .employee-stat-card {
+            background: #fff;
+            border-radius: 12px;
+            padding: 20px;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.08);
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .employee-stat-card .icon {
+            width: 60px;
+            height: 60px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+        }
+        
+        .employee-stat-card.orders .icon {
+            background: rgba(59, 130, 246, 0.15);
+            color: #3b82f6;
+        }
+        
+        .employee-stat-card.pending .icon {
+            background: rgba(245, 158, 11, 0.15);
+            color: #f59e0b;
+        }
+        
+        .employee-stat-card.chats .icon {
+            background: rgba(99, 102, 241, 0.15);
+            color: #6366f1;
+        }
+        
+        .employee-stat-card.reviews .icon {
+            background: rgba(16, 185, 129, 0.15);
+            color: #10b981;
+        }
+        
+        .employee-stat-card .info h3 {
+            font-size: 28px;
+            font-weight: 700;
+            margin-bottom: 4px;
+            color: #1e293b;
+        }
+        
+        .employee-stat-card .info span {
+            color: #64748b;
+            font-size: 13px;
+        }
+        
+        .employee-stat-card .trend {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            font-size: 12px;
+            padding: 4px 10px;
+            border-radius: 50px;
+        }
+        
+        .employee-stat-card .trend.up {
+            background: rgba(16, 185, 129, 0.15);
+            color: #10b981;
+        }
+        
+        .employee-stat-card .trend.down {
+            background: rgba(239, 68, 68, 0.15);
+            color: #ef4444;
+        }
+        
+        /* Employee buttons */
+        .btn-employee-primary {
+            background: linear-gradient(135deg, var(--employee-primary) 0%, var(--employee-primary-light) 100%);
+            border: none;
+            color: #fff;
+        }
+        
+        .btn-employee-primary:hover {
+            background: linear-gradient(135deg, var(--employee-primary-dark) 0%, var(--employee-primary) 100%);
+            color: #fff;
+        }
+    </style>
 </head>
 <body class="admin-body">
     <!-- Sidebar -->
@@ -44,55 +172,28 @@
         <div class="sidebar-user">
             <img src="<?= BASE_URL ?>assets/images/default-avatar.svg" alt="Avatar" class="sidebar-avatar">
             <div class="sidebar-user-info">
-                <h6><?= htmlspecialchars($_SESSION['user']['name'] ?? 'User') ?></h6>
-                <?php $userRole = $_SESSION['role'] ?? $_SESSION['user']['role'] ?? 'user'; ?>
-                <span class="badge bg-<?= $userRole === ROLE_ADMIN ? 'danger' : 'primary' ?>">
-                    <?= $userRole === ROLE_ADMIN ? 'Admin' : 'Nhân viên' ?>
+                <h6><?= htmlspecialchars($_SESSION['user']['name'] ?? 'Nhân viên') ?></h6>
+                <span class="badge employee-badge">
+                    <i class="fas fa-headset me-1"></i>Nhân viên
                 </span>
             </div>
         </div>
         
         <nav class="sidebar-nav">
             <ul class="sidebar-menu">
-                <?php 
-                $currentPage = $_GET['page'] ?? 'dashboard';
-                $prefix = isAdmin() ? 'admin' : 'employee';
-                ?>
+                <?php $currentPage = $_GET['page'] ?? 'dashboard'; ?>
                 
-                <li class="menu-header">QUẢN LÝ</li>
+                <li class="menu-header">CÔNG VIỆC</li>
                 
-                <?php if (isAdmin()): ?>
-                <li class="menu-item <?= $currentPage === 'revenue' ? 'active' : '' ?>">
-                    <a href="<?= BASE_URL ?>admin?page=revenue">
+                <li class="menu-item <?= $currentPage === 'dashboard' ? 'active' : '' ?>">
+                    <a href="<?= BASE_URL ?>employee?page=dashboard">
                         <i class="fas fa-chart-line"></i>
-                        <span>Doanh thu</span>
-                    </a>
-                </li>
-                
-                <li class="menu-item <?= $currentPage === 'users' ? 'active' : '' ?>">
-                    <a href="<?= BASE_URL ?>admin?page=users">
-                        <i class="fas fa-users"></i>
-                        <span>Tài khoản</span>
-                    </a>
-                </li>
-                
-                <li class="menu-item <?= $currentPage === 'categories' ? 'active' : '' ?>">
-                    <a href="<?= BASE_URL ?>admin?page=categories">
-                        <i class="fas fa-folder-tree"></i>
-                        <span>Danh mục</span>
-                    </a>
-                </li>
-                <?php endif; ?>
-                
-                <li class="menu-item <?= $currentPage === 'products' ? 'active' : '' ?>">
-                    <a href="<?= BASE_URL ?><?= $prefix ?>?page=products">
-                        <i class="fas fa-boxes-stacked"></i>
-                        <span>Sản phẩm</span>
+                        <span>Tổng quan</span>
                     </a>
                 </li>
                 
                 <li class="menu-item <?= $currentPage === 'orders' ? 'active' : '' ?>">
-                    <a href="<?= BASE_URL ?><?= $prefix ?>?page=orders">
+                    <a href="<?= BASE_URL ?>employee?page=orders">
                         <i class="fas fa-shopping-cart"></i>
                         <span>Đơn hàng</span>
                         <?php 
@@ -106,9 +207,9 @@
                 </li>
                 
                 <li class="menu-item <?= $currentPage === 'reviews' ? 'active' : '' ?>">
-                    <a href="<?= BASE_URL ?><?= $prefix ?>?page=reviews">
+                    <a href="<?= BASE_URL ?>employee?page=reviews">
                         <i class="fas fa-star"></i>
-                        <span>Đánh giá</span>
+                        <span>Duyệt đánh giá</span>
                         <?php 
                         $reviewModel = new Review();
                         $pendingReviews = $reviewModel->getStatistics()['pending_reviews'] ?? 0;
@@ -119,8 +220,8 @@
                     </a>
                 </li>
                 
-                <li class="menu-item <?= $currentPage === 'chats' ? 'active' : '' ?>">
-                    <a href="<?= BASE_URL ?><?= $prefix ?>?page=chats">
+                <li class="menu-item <?= $currentPage === 'chat' ? 'active' : '' ?>">
+                    <a href="<?= BASE_URL ?>employee?page=chat">
                         <i class="fas fa-comments"></i>
                         <span>Chat hỗ trợ</span>
                         <?php 
@@ -162,5 +263,3 @@
                 <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
             </div>
             <?php endif; ?>
-
-
