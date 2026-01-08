@@ -85,6 +85,7 @@ class UserController {
         $totalPages = $result['totalPages'] ?? 1;
         
         $categories = $this->categoryModel->getAll('active');
+        $brands = $this->productModel->getBrandsWithCount();
         
         include __DIR__ . '/../views/user/products.php';
     }

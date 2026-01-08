@@ -12,6 +12,42 @@ $sort = $sort ?? 'newest';
 $minPrice = $minPrice ?? null;
 $maxPrice = $maxPrice ?? null;
 
+// Parse selected brands from URL
+$selectedBrands = [];
+if (!empty($_GET['brands'])) {
+    $selectedBrands = explode(',', $_GET['brands']);
+}
+
+// Parse selected rating from URL
+$selectedRating = !empty($_GET['rating']) ? (int)$_GET['rating'] : 0;
+
+// Helper function to remove filter parameters
+function removeFilterParam($params) {
+    $url = $_SERVER['REQUEST_URI'];
+    $parsed = parse_url($url);
+    $query = [];
+    if (isset($parsed['query'])) {
+        parse_str($parsed['query'], $query);
+    }
+    
+    if (is_array($params)) {
+        foreach ($params as $param) {
+            unset($query[$param]);
+        }
+    } else {
+        unset($query[$params]);
+    }
+    
+    // Remove page parameter
+    unset($query['p']);
+    
+    $basePath = BASE_URL . 'products';
+    if (empty($query)) {
+        return $basePath;
+    }
+    return $basePath . '?' . http_build_query($query);
+}
+
 include __DIR__ . '/../layouts/header.php';
 ?>
 
@@ -23,7 +59,7 @@ include __DIR__ . '/../layouts/header.php';
                 <li class="breadcrumb-item"><a href="<?= BASE_URL ?>">Trang chủ</a></li>
                 <?php if ($category && isset($category['parent_name'])): ?>
                     <li class="breadcrumb-item">
-                        <a href="<?= BASE_URL ?>?page=products&category=<?= $category['parent_slug'] ?>">
+                        <a href="<?= BASE_URL ?>products?category=<?= $category['parent_id'] ?>">
                             <?= htmlspecialchars($category['parent_name']) ?>
                         </a>
                     </li>
@@ -63,7 +99,7 @@ include __DIR__ . '/../layouts/header.php';
                                             <ul class="sub-category-list">
                                                 <?php foreach ($cat['children'] as $child): ?>
                                                     <li>
-                                                        <a href="<?= BASE_URL ?>?page=products&category=<?= $child['slug'] ?>">
+                                                        <a href="<?= BASE_URL ?>products?category=<?= $child['id'] ?>">
                                                             <?= htmlspecialchars($child['name']) ?>
                                                         </a>
                                                     </li>
@@ -118,14 +154,31 @@ include __DIR__ . '/../layouts/header.php';
                         </h5>
                         <div class="filter-body">
                             <div class="brand-list">
-                                <?php foreach ($brands ?? [] as $brand): ?>
+                                <?php 
+                                $brandList = $brands ?? [];
+                                if (empty($brandList)):
+                                ?>
+                                    <p class="text-muted small">Chưa có thương hiệu</p>
+                                <?php else:
+                                foreach ($brandList as $brand): 
+                                    $brandName = is_array($brand) ? ($brand['name'] ?? '') : $brand;
+                                    $brandId = is_array($brand) ? (string)($brand['id'] ?? '') : '';
+                                    $productCount = is_array($brand) ? ($brand['product_count'] ?? 0) : 0;
+                                    if (empty($brandName)) continue;
+                                    $checkValue = $brandId ?: $brandName;
+                                    $isChecked = in_array($checkValue, $selectedBrands) || in_array($brandName, $selectedBrands) || in_array((string)$brandId, $selectedBrands);
+                                ?>
                                     <label class="brand-checkbox">
                                         <input type="checkbox" name="brands[]" 
-                                               value="<?= htmlspecialchars($brand) ?>"
-                                               <?= in_array($brand, $selectedBrands ?? []) ? 'checked' : '' ?>>
-                                        <span><?= htmlspecialchars($brand) ?></span>
+                                               value="<?= htmlspecialchars($checkValue) ?>"
+                                               <?= $isChecked ? 'checked' : '' ?>>
+                                        <span><?= htmlspecialchars($brandName) ?></span>
+                                        <?php if ($productCount > 0): ?>
+                                            <small class="text-muted">(<?= $productCount ?>)</small>
+                                        <?php endif; ?>
                                     </label>
-                                <?php endforeach; ?>
+                                <?php endforeach; 
+                                endif; ?>
                             </div>
                         </div>
                     </div>
@@ -154,14 +207,50 @@ include __DIR__ . '/../layouts/header.php';
                     </div>
 
                     <!-- Clear Filter -->
-                    <a href="<?= BASE_URL ?>?page=products" class="btn btn-clear-filter w-100">
+                    <?php
+                    $hasFilters = !empty($minPrice) || !empty($maxPrice) || !empty($selectedBrands) || !empty($selectedRating) || !empty($category);
+                    if ($hasFilters):
+                    ?>
+                    <a href="<?= BASE_URL ?>products" class="btn btn-clear-filter w-100">
                         <i class="fas fa-times"></i> Xóa bộ lọc
                     </a>
+                    <?php endif; ?>
                 </div>
             </div>
 
             <!-- Products Grid -->
             <div class="col-lg-9">
+                <!-- Active Filters Display -->
+                <?php if ($hasFilters): ?>
+                <div class="active-filters mb-3">
+                    <span class="filter-label">Đang lọc:</span>
+                    <?php if (!empty($category)): ?>
+                        <span class="filter-tag">
+                            <?= htmlspecialchars($category['name']) ?>
+                            <a href="<?= removeFilterParam('category') ?>"><i class="fas fa-times"></i></a>
+                        </span>
+                    <?php endif; ?>
+                    <?php if (!empty($minPrice) || !empty($maxPrice)): ?>
+                        <span class="filter-tag">
+                            Giá: <?= $minPrice ? number_format($minPrice) . 'đ' : '0' ?> - <?= $maxPrice ? number_format($maxPrice) . 'đ' : '∞' ?>
+                            <a href="<?= removeFilterParam(['min_price', 'max_price']) ?>"><i class="fas fa-times"></i></a>
+                        </span>
+                    <?php endif; ?>
+                    <?php if (!empty($selectedBrands)): ?>
+                        <span class="filter-tag">
+                            Thương hiệu: <?= count($selectedBrands) ?> đã chọn
+                            <a href="<?= removeFilterParam('brands') ?>"><i class="fas fa-times"></i></a>
+                        </span>
+                    <?php endif; ?>
+                    <?php if (!empty($selectedRating)): ?>
+                        <span class="filter-tag">
+                            Từ <?= $selectedRating ?> sao
+                            <a href="<?= removeFilterParam('rating') ?>"><i class="fas fa-times"></i></a>
+                        </span>
+                    <?php endif; ?>
+                </div>
+                <?php endif; ?>
+                
                 <!-- Toolbar -->
                 <div class="products-toolbar">
                     <div class="toolbar-left">
@@ -384,12 +473,37 @@ function buildPaginationUrl($page) {
 }
 
 .btn-filter-apply {
-    background: var(--primary-color);
-    color: #fff;
-    border: none;
-    padding: 10px;
-    border-radius: 10px;
-    font-weight: 500;
+    background: #2563eb !important;
+    color: #ffffff !important;
+    border: none !important;
+    padding: 12px 20px !important;
+    border-radius: 10px !important;
+    font-weight: 600 !important;
+    font-size: 14px !important;
+    display: block !important;
+    visibility: visible !important;
+    opacity: 1 !important;
+    transition: none !important;
+    animation: none !important;
+    transform: none !important;
+    width: 100% !important;
+    cursor: pointer !important;
+}
+
+.btn-filter-apply:hover,
+.btn-filter-apply:focus,
+.btn-filter-apply:active {
+    background: #1d4ed8 !important;
+    color: #ffffff !important;
+    opacity: 1 !important;
+    visibility: visible !important;
+}
+
+#priceFilterForm .btn-filter-apply {
+    display: block !important;
+    visibility: visible !important;
+    opacity: 1 !important;
+    margin-top: 15px !important;
 }
 
 .price-quick {
@@ -433,6 +547,24 @@ function buildPaginationUrl($page) {
     gap: 10px;
     margin-bottom: 10px;
     cursor: pointer;
+    padding: 8px 10px;
+    border-radius: 8px;
+    transition: background 0.2s;
+}
+
+.rating-checkbox:hover {
+    background: #f8f9fa;
+}
+
+.rating-checkbox input[type="radio"] {
+    width: 16px;
+    height: 16px;
+    cursor: pointer;
+}
+
+.rating-checkbox .stars {
+    display: flex;
+    gap: 2px;
 }
 
 .rating-checkbox .stars i {
@@ -451,10 +583,57 @@ function buildPaginationUrl($page) {
     border-radius: 10px;
     padding: 12px;
     font-weight: 500;
+    text-decoration: none;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    margin-top: 15px;
 }
 
 .btn-clear-filter:hover {
-    background: #e9ecef;
+    background: #dc3545;
+    color: #fff;
+    border-color: #dc3545;
+}
+
+/* Active Filters */
+.active-filters {
+    background: #f8f9fa;
+    border-radius: 10px;
+    padding: 12px 15px;
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 10px;
+}
+
+.active-filters .filter-label {
+    font-weight: 600;
+    color: #333;
+    font-size: 14px;
+}
+
+.active-filters .filter-tag {
+    background: #fff;
+    border: 1px solid #e0e0e0;
+    border-radius: 20px;
+    padding: 5px 12px;
+    font-size: 13px;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.active-filters .filter-tag a {
+    color: #dc3545;
+    text-decoration: none;
+    display: flex;
+    align-items: center;
+}
+
+.active-filters .filter-tag a:hover {
+    color: #a71d2a;
 }
 
 /* Toolbar */
@@ -654,31 +833,46 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     });
     
-    // Brand checkboxes
+    // Brand checkboxes - apply filter immediately when changed
     document.querySelectorAll('.brand-checkbox input').forEach(checkbox => {
         checkbox.addEventListener('change', function() {
-            const url = new URL(window.location.href);
-            const brands = [];
-            document.querySelectorAll('.brand-checkbox input:checked').forEach(cb => {
-                brands.push(cb.value);
-            });
-            
-            if (brands.length > 0) {
-                url.searchParams.set('brands', brands.join(','));
-            } else {
-                url.searchParams.delete('brands');
-            }
-            
-            url.searchParams.delete('p');
-            window.location.href = url.toString();
+            applyBrandFilter();
         });
     });
     
-    // Rating filter
+    function applyBrandFilter() {
+        const url = new URL(window.location.href);
+        const brands = [];
+        document.querySelectorAll('.brand-checkbox input:checked').forEach(cb => {
+            brands.push(cb.value);
+        });
+        
+        if (brands.length > 0) {
+            url.searchParams.set('brands', brands.join(','));
+        } else {
+            url.searchParams.delete('brands');
+        }
+        
+        url.searchParams.delete('p');
+        window.location.href = url.toString();
+    }
+    
+    // Rating filter - click again to remove
+    let currentRating = <?= $selectedRating ?>;
     document.querySelectorAll('.rating-checkbox input').forEach(radio => {
-        radio.addEventListener('change', function() {
+        radio.addEventListener('click', function(e) {
             const url = new URL(window.location.href);
-            url.searchParams.set('rating', this.value);
+            const clickedValue = parseInt(this.value);
+            
+            if (clickedValue === currentRating) {
+                // Clicking same value - remove filter
+                url.searchParams.delete('rating');
+                this.checked = false;
+            } else {
+                // New value - apply filter
+                url.searchParams.set('rating', this.value);
+            }
+            
             url.searchParams.delete('p');
             window.location.href = url.toString();
         });

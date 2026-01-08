@@ -653,3 +653,17 @@ window.TechShop = {
     formatPrice,
     showToast
 };
+
+// Global functions for inline onclick handlers
+function addToCart(productId, quantity = 1) {
+    Cart.add(productId, quantity);
+}
+
+function buyNow(productId) {
+    // Add to cart then redirect to checkout
+    Cart.add(productId, 1).then(data => {
+        if (data && data.success) {
+            window.location.href = BASE_URL + 'checkout';
+        }
+    });
+}

@@ -17,9 +17,9 @@ class Product {
      * Create new product
      */
     public function create($data) {
-        $sql = "INSERT INTO {$this->table} (name, slug, description, short_description, price, sale_price, 
+        $sql = "INSERT INTO {$this->table} (name, slug, description, short_description, specifications, price, sale_price, 
                 category_id, brand, sku, stock, featured, status) 
-                VALUES (:name, :slug, :description, :short_description, :price, :sale_price, 
+                VALUES (:name, :slug, :description, :short_description, :specifications, :price, :sale_price, 
                 :category_id, :brand, :sku, :stock, :featured, :status)";
         
         $stmt = $this->db->prepare($sql);
@@ -28,6 +28,7 @@ class Product {
             ':slug' => $data['slug'] ?? generateSlug($data['name']),
             ':description' => $data['description'] ?? null,
             ':short_description' => $data['short_description'] ?? null,
+            ':specifications' => $data['specifications'] ?? null,
             ':price' => $data['price'],
             ':sale_price' => $data['sale_price'] ?? null,
             ':category_id' => $data['category_id'] ?? null,
@@ -55,7 +56,6 @@ class Product {
         
         if ($product) {
             $product['images'] = $this->getImages($id);
-            $product['specifications'] = $this->getSpecifications($id);
         }
         
         return $product;
@@ -75,7 +75,6 @@ class Product {
         
         if ($product) {
             $product['images'] = $this->getImages($product['id']);
-            $product['specifications'] = $this->getSpecifications($product['id']);
         }
         
         return $product;
@@ -89,7 +88,7 @@ class Product {
         $params = [':id' => $id];
         
         foreach ($data as $key => $value) {
-            if ($key !== 'images' && $key !== 'specifications') {
+            if ($key !== 'images') {
                 $fields[] = "{$key} = :{$key}";
                 $params[":{$key}"] = $value;
             }
@@ -127,8 +126,30 @@ class Product {
         }
         
         if (!empty($filters['brand'])) {
-            $where[] = "p.brand = :brand";
-            $params[':brand'] = $filters['brand'];
+            // Support both brand name and brand_id
+            if (is_numeric($filters['brand'])) {
+                $where[] = "p.brand_id = :brand_id";
+                $params[':brand_id'] = $filters['brand'];
+            } else {
+                $where[] = "p.brand = :brand";
+                $params[':brand'] = $filters['brand'];
+            }
+        }
+        
+        // Support multiple brands filter
+        if (!empty($filters['brands'])) {
+            $brandList = is_array($filters['brands']) ? $filters['brands'] : explode(',', $filters['brands']);
+            $brandIdPlaceholders = [];
+            $brandNamePlaceholders = [];
+            foreach ($brandList as $i => $brand) {
+                $keyId = ":brand_id_$i";
+                $keyName = ":brand_name_$i";
+                $brandIdPlaceholders[] = $keyId;
+                $brandNamePlaceholders[] = $keyName;
+                $params[$keyId] = $brand;
+                $params[$keyName] = $brand;
+            }
+            $where[] = "(p.brand_id IN (" . implode(',', $brandIdPlaceholders) . ") OR p.brand IN (" . implode(',', $brandNamePlaceholders) . "))";
         }
         
         if (!empty($filters['status'])) {
@@ -149,6 +170,12 @@ class Product {
         if (!empty($filters['max_price'])) {
             $where[] = "COALESCE(p.sale_price, p.price) <= :max_price";
             $params[':max_price'] = $filters['max_price'];
+        }
+        
+        // Rating filter - products with rating >= value
+        if (!empty($filters['rating'])) {
+            $where[] = "p.rating >= :rating";
+            $params[':rating'] = (int)$filters['rating'];
         }
         
         if (!empty($filters['search'])) {
@@ -235,14 +262,14 @@ class Product {
     }
     
     /**
-     * Get bestselling products
+     * Get bestselling products (sold more than 2 items)
      */
     public function getBestselling($limit = 8) {
         $sql = "SELECT p.*, c.name as category_name,
                 (SELECT image_url FROM product_images WHERE product_id = p.id ORDER BY is_primary DESC, sort_order ASC LIMIT 1) as primary_image
                 FROM {$this->table} p 
                 LEFT JOIN categories c ON p.category_id = c.id 
-                WHERE p.status = 'active' 
+                WHERE p.status = 'active' AND p.sold_count > 2
                 ORDER BY p.sold_count DESC 
                 LIMIT :limit";
         
@@ -434,12 +461,43 @@ class Product {
     }
     
     /**
-     * Get all brands
+     * Get all brands (from brands table or products.brand field)
      */
     public function getBrands() {
-        $sql = "SELECT DISTINCT brand FROM {$this->table} WHERE brand IS NOT NULL ORDER BY brand ASC";
+        // First try to get from brands table
+        try {
+            $sql = "SELECT id, name, slug, logo FROM brands WHERE status = 'active' ORDER BY sort_order ASC, name ASC";
+            $stmt = $this->db->query($sql);
+            $brands = $stmt->fetchAll();
+            if (!empty($brands)) {
+                return $brands;
+            }
+        } catch (Exception $e) {
+            // brands table might not exist
+        }
+        
+        // Fallback to distinct brands from products
+        $sql = "SELECT DISTINCT brand as name FROM {$this->table} WHERE brand IS NOT NULL AND brand != '' ORDER BY brand ASC";
         $stmt = $this->db->query($sql);
-        return $stmt->fetchAll(PDO::FETCH_COLUMN);
+        return $stmt->fetchAll();
+    }
+    
+    /**
+     * Get brands with product count
+     */
+    public function getBrandsWithCount() {
+        try {
+            $sql = "SELECT b.id, b.name, b.slug, b.logo, COUNT(p.id) as product_count 
+                    FROM brands b 
+                    LEFT JOIN products p ON (p.brand_id = b.id OR p.brand = b.name) AND p.status = 'active'
+                    WHERE b.status = 'active'
+                    GROUP BY b.id 
+                    ORDER BY b.sort_order ASC, b.name ASC";
+            $stmt = $this->db->query($sql);
+            return $stmt->fetchAll();
+        } catch (Exception $e) {
+            return $this->getBrands();
+        }
     }
     
     /**
@@ -620,14 +678,14 @@ class Product {
     }
     
     /**
-     * Get top selling products
+     * Get top selling products (sold more than 2 items)
      */
     public function getTopSelling($limit = 5) {
         $sql = "SELECT p.*, c.name as category_name,
                 (SELECT image_url FROM product_images WHERE product_id = p.id ORDER BY is_primary DESC, sort_order ASC LIMIT 1) as primary_image
                 FROM {$this->table} p 
                 LEFT JOIN categories c ON p.category_id = c.id 
-                WHERE p.status = 'active' 
+                WHERE p.status = 'active' AND p.sold_count > 2
                 ORDER BY p.sold_count DESC 
                 LIMIT :limit";
         

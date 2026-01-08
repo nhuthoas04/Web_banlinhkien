@@ -88,7 +88,9 @@ include __DIR__ . '/../layouts/header.php';
                                 <label class="payment-method active">
                                     <input type="radio" name="payment_method" value="cod" checked>
                                     <div class="method-content">
-                                        <img src="<?= BASE_URL ?>assets/images/cod.png" alt="COD">
+                                        <div class="payment-icon cod-icon">
+                                            <i class="fas fa-truck"></i>
+                                        </div>
                                         <div>
                                             <strong>Thanh toán khi nhận hàng (COD)</strong>
                                             <span>Thanh toán bằng tiền mặt khi nhận hàng</span>
@@ -99,7 +101,9 @@ include __DIR__ . '/../layouts/header.php';
                                 <label class="payment-method">
                                     <input type="radio" name="payment_method" value="bank_transfer">
                                     <div class="method-content">
-                                        <img src="<?= BASE_URL ?>assets/images/bank.png" alt="Bank Transfer">
+                                        <div class="payment-icon bank-icon">
+                                            <i class="fas fa-university"></i>
+                                        </div>
                                         <div>
                                             <strong>Chuyển khoản ngân hàng</strong>
                                             <span>Chuyển khoản qua tài khoản ngân hàng</span>
@@ -110,7 +114,9 @@ include __DIR__ . '/../layouts/header.php';
                                 <label class="payment-method">
                                     <input type="radio" name="payment_method" value="momo">
                                     <div class="method-content">
-                                        <img src="<?= BASE_URL ?>assets/images/momo.png" alt="Momo">
+                                        <div class="payment-icon momo-icon">
+                                            <i class="fas fa-wallet"></i>
+                                        </div>
                                         <div>
                                             <strong>Ví MoMo</strong>
                                             <span>Thanh toán qua ví điện tử MoMo</span>
@@ -121,7 +127,9 @@ include __DIR__ . '/../layouts/header.php';
                                 <label class="payment-method">
                                     <input type="radio" name="payment_method" value="vnpay">
                                     <div class="method-content">
-                                        <img src="<?= BASE_URL ?>assets/images/vnpay.png" alt="VNPay">
+                                        <div class="payment-icon vnpay-icon">
+                                            <i class="fas fa-credit-card"></i>
+                                        </div>
                                         <div>
                                             <strong>VNPay</strong>
                                             <span>Thanh toán qua cổng VNPay (ATM/Visa/Master)</span>
@@ -134,9 +142,9 @@ include __DIR__ . '/../layouts/header.php';
                             <div class="bank-info" id="bankInfo" style="display: none;">
                                 <h6>Thông tin chuyển khoản:</h6>
                                 <ul>
-                                    <li><strong>Ngân hàng:</strong> Vietcombank</li>
-                                    <li><strong>Số tài khoản:</strong> 1234567890</li>
-                                    <li><strong>Chủ tài khoản:</strong> CÔNG TY TNHH TECHSHOP</li>
+                                    <li><strong>Ngân hàng:</strong> MBBank</li>
+                                    <li><strong>Số tài khoản:</strong> 82184904112004</li>
+                                    <li><strong>Chủ tài khoản:</strong>LE KHANH DUY</li>
                                     <li><strong>Nội dung:</strong> [Mã đơn hàng] - [Số điện thoại]</li>
                                 </ul>
                                 <p class="note">* Đơn hàng sẽ được xử lý sau khi nhận được thanh toán</p>
@@ -358,6 +366,37 @@ include __DIR__ . '/../layouts/header.php';
     width: 50px;
     height: 50px;
     object-fit: contain;
+}
+
+.payment-icon {
+    width: 50px;
+    height: 50px;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 22px;
+    flex-shrink: 0;
+}
+
+.payment-icon.cod-icon {
+    background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+    color: #fff;
+}
+
+.payment-icon.bank-icon {
+    background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%);
+    color: #fff;
+}
+
+.payment-icon.momo-icon {
+    background: linear-gradient(135deg, #d63384 0%, #a61e4d 100%);
+    color: #fff;
+}
+
+.payment-icon.vnpay-icon {
+    background: linear-gradient(135deg, #0ea5e9 0%, #0284c7 100%);
+    color: #fff;
 }
 
 .method-content strong {

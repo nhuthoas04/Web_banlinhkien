@@ -9,10 +9,6 @@
         <span class="badge badge-sale">-<?= $discountPercent ?>%</span>
         <?php endif; ?>
         
-        <?php if (!empty($product['featured'])): ?>
-        <span class="badge badge-featured">Nổi bật</span>
-        <?php endif; ?>
-        
         <?php if ($product['stock'] <= 0): ?>
         <span class="badge badge-outofstock">Hết hàng</span>
         <?php elseif ($product['stock'] <= 5): ?>
@@ -88,11 +84,18 @@
         </div>
         
         <?php if ($product['stock'] > 0): ?>
-        <button class="btn btn-add-cart" 
-                onclick="addToCart('<?= $product['id'] ?>')"
-                data-product-id="<?= $product['id'] ?>">
-            <i class="fas fa-shopping-cart"></i> Thêm vào giỏ
-        </button>
+        <div class="product-buttons">
+            <button class="btn btn-add-cart" 
+                    onclick="addToCart('<?= $product['id'] ?>')"
+                    data-product-id="<?= $product['id'] ?>">
+                <i class="fas fa-shopping-cart"></i> Thêm vào giỏ
+            </button>
+            <button class="btn btn-buy-now" 
+                    onclick="buyNow('<?= $product['id'] ?>')"
+                    data-product-id="<?= $product['id'] ?>">
+                <i class="fas fa-bolt"></i> Mua ngay
+            </button>
+        </div>
         <?php else: ?>
         <button class="btn btn-notify" data-product-id="<?= $product['id'] ?>">
             <i class="fas fa-bell"></i> Thông báo khi có hàng

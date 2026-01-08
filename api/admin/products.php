@@ -6,9 +6,10 @@
 // Clean output buffer
 ob_start();
 
-// Suppress errors in output for clean JSON
-error_reporting(0);
+// Enable error logging to file instead of output
+error_reporting(E_ALL);
 ini_set('display_errors', 0);
+ini_set('log_errors', 1);
 
 // Start session if not already started
 if (session_status() === PHP_SESSION_NONE) {
@@ -97,6 +98,9 @@ switch ($action) {
         break;
     case 'delete-image':
         deleteProductImage($input);
+        break;
+    case 'add_brand':
+        addBrand($input);
         break;
     case 'stats':
         getStats($productModel);
@@ -190,15 +194,15 @@ function createProduct($productModel, $data) {
         'sku' => $data['sku'] ?? '',
         'category_id' => (int)$data['category_id'],
         'brand' => $data['brand'] ?? '',
+        'brand_id' => !empty($data['brand_id']) ? (int)$data['brand_id'] : null,
         'price' => (int)$data['price'],
         'sale_price' => !empty($data['sale_price']) ? (int)$data['sale_price'] : null,
         'stock' => (int)($data['stock'] ?? 0),
         'description' => $data['description'] ?? '',
-        'content' => $data['content'] ?? '',
+        'short_description' => $data['short_description'] ?? '',
+        'specifications' => $data['specifications'] ?? '',
         'status' => $data['status'] ?? 'active',
-        'featured' => !empty($data['featured']) ? 1 : 0,
-        'meta_title' => $data['meta_title'] ?? '',
-        'meta_description' => $data['meta_description'] ?? ''
+        'featured' => !empty($data['featured']) ? 1 : 0
     ];
     
     $productId = $productModel->create($productData);
@@ -226,27 +230,6 @@ function createProduct($productModel, $data) {
         }
     }
     
-    // Add specifications from form (spec_keys[] and spec_values[])
-    $specKeys = $data['spec_keys'] ?? [];
-    $specValues = $data['spec_values'] ?? [];
-    if (!empty($specKeys) && is_array($specKeys)) {
-        foreach ($specKeys as $i => $key) {
-            $value = $specValues[$i] ?? '';
-            if (!empty($key) && !empty($value)) {
-                $productModel->addSpecification($productId, $key, $value);
-            }
-        }
-    }
-    
-    // Add specifications from JSON (specifications array)
-    if (!empty($data['specifications']) && is_array($data['specifications'])) {
-        foreach ($data['specifications'] as $spec) {
-            if (!empty($spec['name']) && !empty($spec['value'])) {
-                $productModel->addSpecification($productId, $spec['name'], $spec['value']);
-            }
-        }
-    }
-    
     echo json_encode([
         'success' => true,
         'message' => 'Tạo sản phẩm thành công',
@@ -255,6 +238,9 @@ function createProduct($productModel, $data) {
 }
 
 function updateProduct($productModel, $data) {
+    // Debug log
+    error_log("updateProduct called with data: " . print_r($data, true));
+    
     if (empty($data['id'])) {
         echo json_encode(['success' => false, 'message' => 'Product ID required']);
         return;
@@ -277,9 +263,8 @@ function updateProduct($productModel, $data) {
     }
     
     $updateData = [];
-    $allowedFields = ['name', 'sku', 'category_id', 'brand', 'price', 'sale_price', 
-                      'stock', 'description', 'content', 'status', 'featured',
-                      'meta_title', 'meta_description'];
+    $allowedFields = ['name', 'sku', 'category_id', 'brand', 'brand_id', 'price', 'sale_price', 
+                      'stock', 'description', 'short_description', 'specifications', 'status'];
     
     foreach ($allowedFields as $field) {
         if (isset($data[$field])) {
@@ -287,64 +272,82 @@ function updateProduct($productModel, $data) {
         }
     }
     
+    // Handle brand_id - convert empty to null
+    if (isset($updateData['brand_id']) && $updateData['brand_id'] === '') {
+        $updateData['brand_id'] = null;
+    }
+    
+    // Handle featured checkbox - if not set, it means unchecked = 0
+    $updateData['featured'] = !empty($data['featured']) ? 1 : 0;
+    
+    // Handle sale_price - convert empty to null
+    if (isset($updateData['sale_price']) && $updateData['sale_price'] === '') {
+        $updateData['sale_price'] = null;
+    }
+    
     // Update slug if name changed
     if (isset($data['name']) && $data['name'] !== $product['name']) {
         $updateData['slug'] = generateSlug($data['name']);
     }
     
+    // Debug log
+    error_log("updateData to save: " . print_r($updateData, true));
+    
     if (!empty($updateData)) {
-        $productModel->update($product['id'], $updateData);
+        try {
+            $result = $productModel->update($product['id'], $updateData);
+            error_log("Update result: " . ($result ? 'true' : 'false'));
+            if (!$result) {
+                echo json_encode(['success' => false, 'message' => 'Không thể cập nhật sản phẩm']);
+                return;
+            }
+        } catch (Exception $e) {
+            error_log("Update error: " . $e->getMessage());
+            echo json_encode(['success' => false, 'message' => 'Lỗi: ' . $e->getMessage()]);
+            return;
+        }
     }
     
-    // Update images if provided (image_urls[] from form or images[] from JSON)
+    // Update images - handle existing_images[], image_urls[], and images[]
+    $existingImages = $data['existing_images'] ?? [];
     $imageUrls = $data['image_urls'] ?? [];
     $images = $data['images'] ?? [];
     
-    // If any image data is provided, update all images
-    if (!empty($imageUrls) || !empty($images)) {
+    // Collect all images to save
+    $allImages = [];
+    
+    // Add existing images that weren't removed
+    if (is_array($existingImages)) {
+        foreach ($existingImages as $img) {
+            if (!empty($img)) {
+                $allImages[] = $img;
+            }
+        }
+    }
+    
+    // Add new image URLs
+    if (is_array($imageUrls)) {
+        foreach ($imageUrls as $img) {
+            if (!empty($img)) {
+                $allImages[] = $img;
+            }
+        }
+    }
+    
+    // Add images from JSON array
+    if (is_array($images)) {
+        foreach ($images as $img) {
+            if (!empty($img)) {
+                $allImages[] = $img;
+            }
+        }
+    }
+    
+    // Update images in database
+    if (!empty($allImages) || isset($data['existing_images']) || isset($data['image_urls'])) {
         $productModel->deleteImages($product['id']);
-        $index = 0;
-        
-        // Add image URLs first
-        if (is_array($imageUrls)) {
-            foreach ($imageUrls as $imageUrl) {
-                if (!empty($imageUrl)) {
-                    $productModel->addImage($product['id'], $imageUrl, $index++);
-                }
-            }
-        }
-        
-        // Add images from JSON array
-        if (is_array($images)) {
-            foreach ($images as $imageUrl) {
-                if (!empty($imageUrl)) {
-                    $productModel->addImage($product['id'], $imageUrl, $index++);
-                }
-            }
-        }
-    }
-    
-    // Update specifications from form (spec_keys[] and spec_values[])
-    $specKeys = $data['spec_keys'] ?? [];
-    $specValues = $data['spec_values'] ?? [];
-    
-    if (!empty($specKeys) && is_array($specKeys)) {
-        $productModel->deleteSpecifications($product['id']);
-        foreach ($specKeys as $i => $key) {
-            $value = $specValues[$i] ?? '';
-            if (!empty($key) && !empty($value)) {
-                $productModel->addSpecification($product['id'], $key, $value);
-            }
-        }
-    }
-    
-    // Update specifications from JSON (specifications array)
-    if (isset($data['specifications']) && is_array($data['specifications'])) {
-        $productModel->deleteSpecifications($product['id']);
-        foreach ($data['specifications'] as $spec) {
-            if (!empty($spec['name']) && !empty($spec['value'])) {
-                $productModel->addSpecification($product['id'], $spec['name'], $spec['value']);
-            }
+        foreach ($allImages as $index => $imageUrl) {
+            $productModel->addImage($product['id'], $imageUrl, $index);
         }
     }
     
@@ -477,6 +480,39 @@ function deleteProductImage($data) {
     }
     
     echo json_encode(['success' => true, 'message' => 'Đã xóa ảnh']);
+}
+
+function addBrand($data) {
+    require_once __DIR__ . '/../../models/Brand.php';
+    
+    $name = trim($data['name'] ?? '');
+    $logo = trim($data['logo'] ?? '');
+    
+    if (empty($name)) {
+        echo json_encode(['success' => false, 'message' => 'Tên thương hiệu là bắt buộc']);
+        return;
+    }
+    
+    $brandModel = new Brand();
+    $brandModel->ensureTable();
+    
+    // Check if brand already exists
+    $existing = $brandModel->findByName($name);
+    if ($existing) {
+        echo json_encode(['success' => false, 'message' => 'Thương hiệu đã tồn tại']);
+        return;
+    }
+    
+    $brandId = $brandModel->create([
+        'name' => $name,
+        'logo' => $logo ?: null
+    ]);
+    
+    echo json_encode([
+        'success' => true, 
+        'message' => 'Đã thêm thương hiệu', 
+        'brand_id' => $brandId
+    ]);
 }
 
 function getStats($productModel) {

@@ -53,8 +53,26 @@ include __DIR__ . '/../layouts/admin-header.php';
                             </div>
                             <div class="col-md-6">
                                 <label class="form-label">Thương hiệu</label>
-                                <input type="text" class="form-control" name="brand"
-                                       value="<?= htmlspecialchars($product['brand'] ?? '') ?>">
+                                <select class="form-select" name="brand_id" id="brandSelect">
+                                    <option value="">-- Chọn thương hiệu --</option>
+                                    <?php 
+                                    require_once __DIR__ . '/../../models/Brand.php';
+                                    $brandModel = new Brand();
+                                    $brandModel->ensureTable();
+                                    $brands = $brandModel->getActive();
+                                    foreach ($brands as $brand): 
+                                    ?>
+                                        <option value="<?= $brand['id'] ?>" 
+                                            <?= ($product['brand_id'] ?? '') == $brand['id'] ? 'selected' : '' ?>>
+                                            <?= htmlspecialchars($brand['name']) ?>
+                                        </option>
+                                    <?php endforeach; ?>
+                                </select>
+                                <div class="mt-2">
+                                    <a href="#" class="text-primary small" data-bs-toggle="modal" data-bs-target="#addBrandModal">
+                                        <i class="fas fa-plus"></i> Thêm thương hiệu mới
+                                    </a>
+                                </div>
                             </div>
                             <div class="col-12">
                                 <label class="form-label">Mô tả ngắn</label>
@@ -62,9 +80,19 @@ include __DIR__ . '/../layouts/admin-header.php';
                             </div>
                             <div class="col-12">
                                 <label class="form-label">Mô tả chi tiết</label>
-                                <textarea class="form-control editor" name="description" id="description"><?= htmlspecialchars($product['description'] ?? '') ?></textarea>
+                                <textarea class="form-control editor" name="description" id="description"><?= $product['description'] ?? '' ?></textarea>
                             </div>
                         </div>
+                    </div>
+                </div>
+
+                <!-- Specifications -->
+                <div class="admin-card mb-4">
+                    <div class="card-header">
+                        <h6><i class="fas fa-list-alt me-2"></i>Thông số kỹ thuật</h6>
+                    </div>
+                    <div class="card-body">
+                        <textarea class="form-control editor" name="specifications" id="specifications"><?= $product['specifications'] ?? '' ?></textarea>
                     </div>
                 </div>
 
@@ -96,9 +124,15 @@ include __DIR__ . '/../layouts/admin-header.php';
                         
                         <div class="image-preview-grid" id="imagePreviewGrid">
                             <?php if (!empty($product['images'])): ?>
-                                <?php foreach ($product['images'] as $index => $image): ?>
-                                    <div class="image-preview-item <?= $index === 0 ? 'main' : '' ?>" data-image="<?= $image ?>">
-                                        <img src="<?= (strpos($image, 'http') === 0) ? $image : BASE_URL . $image ?>" alt="">
+                                <?php foreach ($product['images'] as $index => $imageData): ?>
+                                    <?php 
+                                    // Handle both array format (from DB) and string format
+                                    $imageUrl = is_array($imageData) ? ($imageData['image_url'] ?? '') : $imageData;
+                                    $isPrimary = is_array($imageData) ? ($imageData['is_primary'] ?? ($index === 0)) : ($index === 0);
+                                    if (empty($imageUrl)) continue;
+                                    ?>
+                                    <div class="image-preview-item <?= $isPrimary ? 'main' : '' ?>" data-image="<?= htmlspecialchars($imageUrl) ?>">
+                                        <img src="<?= (strpos($imageUrl, 'http') === 0) ? $imageUrl : BASE_URL . $imageUrl ?>" alt="">
                                         <div class="overlay">
                                             <button type="button" class="btn-set-main" title="Đặt làm ảnh chính">
                                                 <i class="fas fa-star"></i>
@@ -107,66 +141,13 @@ include __DIR__ . '/../layouts/admin-header.php';
                                                 <i class="fas fa-trash"></i>
                                             </button>
                                         </div>
-                                        <?php if ($index === 0): ?>
+                                        <?php if ($isPrimary): ?>
                                             <span class="main-badge">Ảnh chính</span>
                                         <?php endif; ?>
-                                        <input type="hidden" name="existing_images[]" value="<?= $image ?>">
+                                        <input type="hidden" name="existing_images[]" value="<?= htmlspecialchars($imageUrl) ?>">
                                     </div>
                                 <?php endforeach; ?>
                             <?php endif; ?>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Specifications -->
-                <div class="admin-card mb-4">
-                    <div class="card-header d-flex justify-content-between align-items-center">
-                        <h6><i class="fas fa-list-alt me-2"></i>Thông số kỹ thuật</h6>
-                        <button type="button" class="btn btn-sm btn-outline-primary" id="addSpecBtn">
-                            <i class="fas fa-plus"></i> Thêm thông số
-                        </button>
-                    </div>
-                    <div class="card-body">
-                        <div id="specsContainer">
-                            <?php if (!empty($product['specifications'])): ?>
-                                <?php foreach ($product['specifications'] as $key => $value): ?>
-                                    <div class="spec-row">
-                                        <input type="text" class="form-control" name="spec_keys[]" 
-                                               value="<?= htmlspecialchars($key) ?>" placeholder="Tên thông số">
-                                        <input type="text" class="form-control" name="spec_values[]" 
-                                               value="<?= htmlspecialchars($value) ?>" placeholder="Giá trị">
-                                        <button type="button" class="btn btn-outline-danger btn-remove-spec">
-                                            <i class="fas fa-times"></i>
-                                        </button>
-                                    </div>
-                                <?php endforeach; ?>
-                            <?php else: ?>
-                                <div class="spec-row">
-                                    <input type="text" class="form-control" name="spec_keys[]" placeholder="Tên thông số">
-                                    <input type="text" class="form-control" name="spec_values[]" placeholder="Giá trị">
-                                    <button type="button" class="btn btn-outline-danger btn-remove-spec">
-                                        <i class="fas fa-times"></i>
-                                    </button>
-                                </div>
-                            <?php endif; ?>
-                        </div>
-                        
-                        <div class="spec-templates mt-3">
-                            <small class="text-muted">Mẫu có sẵn:</small>
-                            <div class="d-flex flex-wrap gap-2 mt-2">
-                                <button type="button" class="btn btn-sm btn-outline-secondary spec-template" 
-                                        data-specs='[["CPU",""],["RAM",""],["Ổ cứng",""],["Card đồ họa",""],["Màn hình",""]]'>
-                                    Laptop
-                                </button>
-                                <button type="button" class="btn btn-sm btn-outline-secondary spec-template" 
-                                        data-specs='[["CPU",""],["RAM",""],["Ổ cứng",""],["Card đồ họa",""],["Mainboard",""],["Nguồn",""]]'>
-                                    PC
-                                </button>
-                                <button type="button" class="btn btn-sm btn-outline-secondary spec-template" 
-                                        data-specs='[["Kích thước",""],["Độ phân giải",""],["Tần số quét",""],["Tấm nền",""],["Cổng kết nối",""]]'>
-                                    Màn hình
-                                </button>
-                            </div>
                         </div>
                     </div>
                 </div>
@@ -183,7 +164,7 @@ include __DIR__ . '/../layouts/admin-header.php';
                     <div class="card-body">
                         <div class="row g-3">
                             <div class="col-12">
-                                <label class="form-label">Giá bán <span class="text-danger">*</span></label>
+                                <label class="form-label">Giá gốc <span class="text-danger">*</span></label>
                                 <div class="input-group">
                                     <input type="number" class="form-control" name="price" 
                                            value="<?= $product['price'] ?? '' ?>" required min="0">
@@ -191,21 +172,13 @@ include __DIR__ . '/../layouts/admin-header.php';
                                 </div>
                             </div>
                             <div class="col-12">
-                                <label class="form-label">Giá gốc (nếu có giảm giá)</label>
+                                <label class="form-label">Giá khuyến mãi (nếu có)</label>
                                 <div class="input-group">
-                                    <input type="number" class="form-control" name="original_price" 
-                                           value="<?= $product['original_price'] ?? '' ?>" min="0">
+                                    <input type="number" class="form-control" name="sale_price" 
+                                           value="<?= $product['sale_price'] ?? '' ?>" min="0">
                                     <span class="input-group-text">₫</span>
                                 </div>
-                            </div>
-                            <div class="col-12">
-                                <div class="form-check">
-                                    <input class="form-check-input" type="checkbox" name="is_sale" id="isSale"
-                                           <?= !empty($product['is_sale']) ? 'checked' : '' ?>>
-                                    <label class="form-check-label" for="isSale">
-                                        Đang giảm giá
-                                    </label>
-                                </div>
+                                <small class="text-muted">Để trống nếu không có khuyến mãi</small>
                             </div>
                         </div>
                     </div>
@@ -246,19 +219,10 @@ include __DIR__ . '/../layouts/admin-header.php';
                             </div>
                             <div class="col-12">
                                 <div class="form-check">
-                                    <input class="form-check-input" type="checkbox" name="is_featured" id="isFeatured"
-                                           <?= !empty($product['is_featured']) ? 'checked' : '' ?>>
+                                    <input class="form-check-input" type="checkbox" name="featured" id="isFeatured" value="1"
+                                           <?= !empty($product['featured']) ? 'checked' : '' ?>>
                                     <label class="form-check-label" for="isFeatured">
                                         Sản phẩm nổi bật
-                                    </label>
-                                </div>
-                            </div>
-                            <div class="col-12">
-                                <div class="form-check">
-                                    <input class="form-check-input" type="checkbox" name="is_new" id="isNew"
-                                           <?= !empty($product['is_new']) ? 'checked' : '' ?>>
-                                    <label class="form-check-label" for="isNew">
-                                        Sản phẩm mới
                                     </label>
                                 </div>
                             </div>
@@ -278,29 +242,7 @@ include __DIR__ . '/../layouts/admin-header.php';
                                 <input type="number" class="form-control" name="stock" 
                                        value="<?= $product['stock'] ?? 0 ?>" min="0">
                             </div>
-                            <div class="col-12">
-                                <div class="form-check">
-                                    <input class="form-check-input" type="checkbox" name="track_stock" id="trackStock"
-                                           <?= ($product['track_stock'] ?? true) ? 'checked' : '' ?>>
-                                    <label class="form-check-label" for="trackStock">
-                                        Theo dõi số lượng tồn kho
-                                    </label>
-                                </div>
-                            </div>
                         </div>
-                    </div>
-                </div>
-
-                <!-- Tags -->
-                <div class="admin-card mb-4">
-                    <div class="card-header">
-                        <h6><i class="fas fa-tags me-2"></i>Tags</h6>
-                    </div>
-                    <div class="card-body">
-                        <input type="text" class="form-control" name="tags" id="tagsInput"
-                               value="<?= htmlspecialchars(implode(', ', $product['tags'] ?? [])) ?>"
-                               placeholder="Nhập tags, phân cách bằng dấu phẩy">
-                        <small class="text-muted">VD: gaming, cao cấp, văn phòng</small>
                     </div>
                 </div>
             </div>
@@ -440,24 +382,38 @@ include __DIR__ . '/../layouts/admin-header.php';
 <script src="https://cdn.ckeditor.com/ckeditor5/39.0.1/classic/ckeditor.js"></script>
 <script>
 document.addEventListener('DOMContentLoaded', function() {
-    // CKEditor
+    let descriptionEditor = null;
+    let specificationsEditor = null;
+    let editorsReady = 0;
+    
+    function checkEditorsReady() {
+        editorsReady++;
+        console.log('Editors ready:', editorsReady);
+    }
+    
+    // CKEditor for description
     ClassicEditor
         .create(document.querySelector('#description'), {
             toolbar: ['heading', '|', 'bold', 'italic', 'link', 'bulletedList', 'numberedList', '|', 'blockQuote', 'insertTable', 'undo', 'redo']
         })
-        .catch(error => console.error(error));
+        .then(editor => {
+            descriptionEditor = editor;
+            checkEditorsReady();
+            console.log('Description editor ready');
+        })
+        .catch(error => console.error('Description editor error:', error));
     
-    // Auto generate slug from name
-    document.getElementById('productName').addEventListener('input', function() {
-        const slug = this.value
-            .toLowerCase()
-            .normalize('NFD')
-            .replace(/[\u0300-\u036f]/g, '')
-            .replace(/đ/g, 'd')
-            .replace(/[^a-z0-9]+/g, '-')
-            .replace(/(^-|-$)/g, '');
-        document.getElementById('productSlug').value = slug;
-    });
+    // CKEditor for specifications
+    ClassicEditor
+        .create(document.querySelector('#specifications'), {
+            toolbar: ['heading', '|', 'bold', 'italic', 'link', 'bulletedList', 'numberedList', '|', 'blockQuote', 'insertTable', 'undo', 'redo']
+        })
+        .then(editor => {
+            specificationsEditor = editor;
+            checkEditorsReady();
+            console.log('Specifications editor ready');
+        })
+        .catch(error => console.error(error));
     
     // Image upload zone
     const uploadZone = document.getElementById('imageUploadZone');
@@ -543,7 +499,7 @@ document.addEventListener('DOMContentLoaded', function() {
         }
         
         // Validate URL
-        if (!url.match(/^https?:\/\/.+\.(jpg|jpeg|png|gif|webp)(\?.*)?$/i) && !url.match(/^https?:\/\/.+/i)) {
+        if (!url.match(/^https?:\/\/.+/i)) {
             Swal.fire('Lỗi', 'URL không hợp lệ', 'error');
             return;
         }
@@ -579,91 +535,163 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     });
     
-    // Add specification row
-    document.getElementById('addSpecBtn').addEventListener('click', function() {
-        const row = document.createElement('div');
-        row.className = 'spec-row';
-        row.innerHTML = `
-            <input type="text" class="form-control" name="spec_keys[]" placeholder="Tên thông số">
-            <input type="text" class="form-control" name="spec_values[]" placeholder="Giá trị">
-            <button type="button" class="btn btn-outline-danger btn-remove-spec">
-                <i class="fas fa-times"></i>
-            </button>
-        `;
-        document.getElementById('specsContainer').appendChild(row);
-        
-        row.querySelector('.btn-remove-spec').addEventListener('click', function() {
-            row.remove();
-        });
-    });
-    
-    // Remove spec row
-    document.querySelectorAll('.btn-remove-spec').forEach(btn => {
-        btn.addEventListener('click', function() {
-            this.closest('.spec-row').remove();
-        });
-    });
-    
-    // Spec templates
-    document.querySelectorAll('.spec-template').forEach(btn => {
-        btn.addEventListener('click', function() {
-            const specs = JSON.parse(this.dataset.specs);
-            const container = document.getElementById('specsContainer');
-            container.innerHTML = '';
-            
-            specs.forEach(([key, value]) => {
-                const row = document.createElement('div');
-                row.className = 'spec-row';
-                row.innerHTML = `
-                    <input type="text" class="form-control" name="spec_keys[]" value="${key}" placeholder="Tên thông số">
-                    <input type="text" class="form-control" name="spec_values[]" value="${value}" placeholder="Giá trị">
-                    <button type="button" class="btn btn-outline-danger btn-remove-spec">
-                        <i class="fas fa-times"></i>
-                    </button>
-                `;
-                container.appendChild(row);
-                
-                row.querySelector('.btn-remove-spec').addEventListener('click', function() {
-                    row.remove();
-                });
-            });
-        });
-    });
-    
     // Form submit
     document.getElementById('productForm').addEventListener('submit', function(e) {
         e.preventDefault();
         
         const formData = new FormData(this);
         
+        // Debug: log form data before CKEditor
+        console.log('Form action:', formData.get('action'));
+        console.log('Form id:', formData.get('id'));
+        
+        // Update textarea values from CKEditor before submit
+        if (descriptionEditor) {
+            const descData = descriptionEditor.getData();
+            formData.set('description', descData);
+            console.log('Description from CKEditor:', descData.substring(0, 100));
+        } else {
+            console.warn('Description editor not ready!');
+        }
+        
+        if (specificationsEditor) {
+            const specData = specificationsEditor.getData();
+            formData.set('specifications', specData);
+            console.log('Specifications from CKEditor:', specData.substring(0, 100));
+        } else {
+            console.warn('Specifications editor not ready!');
+        }
+        
+        // Debug: log all form data
+        console.log('=== Form Data ===');
+        for (let [key, value] of formData.entries()) {
+            if (typeof value === 'string' && value.length > 100) {
+                console.log(key + ':', value.substring(0, 100) + '...');
+            } else {
+                console.log(key + ':', value);
+            }
+        }
+        
         // Add images order
         const imageItems = document.querySelectorAll('.image-preview-item');
         const mainIndex = Array.from(imageItems).findIndex(item => item.classList.contains('main'));
         formData.append('main_image_index', mainIndex >= 0 ? mainIndex : 0);
         
+        // Show loading
+        Swal.fire({
+            title: 'Đang xử lý...',
+            allowOutsideClick: false,
+            didOpen: () => {
+                Swal.showLoading();
+            }
+        });
+        
         fetch('<?= BASE_URL ?>api/admin/products.php', {
             method: 'POST',
             body: formData
         })
-        .then(response => response.json())
-        .then(data => {
-            if (data.success) {
-                Swal.fire({
-                    icon: 'success',
-                    title: 'Thành công',
-                    text: '<?= $isEdit ? "Đã cập nhật sản phẩm" : "Đã thêm sản phẩm mới" ?>',
-                    confirmButtonText: 'OK'
-                }).then(() => {
-                    window.location.href = '<?= BASE_URL ?>admin?page=products';
-                });
-            } else {
-                Swal.fire('Lỗi', data.message || 'Có lỗi xảy ra', 'error');
+        .then(response => {
+            console.log('Response status:', response.status);
+            return response.text();
+        })
+        .then(text => {
+            console.log('Raw response:', text);
+            try {
+                const data = JSON.parse(text);
+                if (data.success) {
+                    Swal.fire({
+                        icon: 'success',
+                        title: 'Thành công',
+                        text: '<?= $isEdit ? "Đã cập nhật sản phẩm" : "Đã thêm sản phẩm mới" ?>',
+                        confirmButtonText: 'OK'
+                    }).then(() => {
+                        window.location.href = '<?= BASE_URL ?>admin?page=products';
+                    });
+                } else {
+                    Swal.fire('Lỗi', data.message || 'Có lỗi xảy ra', 'error');
+                }
+            } catch(e) {
+                console.error('JSON parse error:', e);
+                Swal.fire('Lỗi', 'Server trả về dữ liệu không hợp lệ: ' + text.substring(0, 200), 'error');
             }
         })
         .catch(error => {
             console.error('Error:', error);
             Swal.fire('Lỗi', 'Không thể kết nối đến server', 'error');
         });
+    });
+});
+</script>
+
+<!-- Add Brand Modal -->
+<div class="modal fade" id="addBrandModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title"><i class="fas fa-plus me-2"></i>Thêm thương hiệu mới</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <form id="addBrandForm">
+                    <div class="mb-3">
+                        <label class="form-label">Tên thương hiệu <span class="text-danger">*</span></label>
+                        <input type="text" class="form-control" name="brand_name" id="newBrandName" required>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Logo (URL)</label>
+                        <input type="text" class="form-control" name="brand_logo" id="newBrandLogo" placeholder="https://example.com/logo.png">
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Hủy</button>
+                <button type="button" class="btn btn-primary" id="saveBrandBtn">
+                    <i class="fas fa-save me-1"></i> Lưu thương hiệu
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+// Add new brand
+document.getElementById('saveBrandBtn').addEventListener('click', function() {
+    const name = document.getElementById('newBrandName').value.trim();
+    const logo = document.getElementById('newBrandLogo').value.trim();
+    
+    if (!name) {
+        Swal.fire('Lỗi', 'Vui lòng nhập tên thương hiệu', 'error');
+        return;
+    }
+    
+    const formData = new FormData();
+    formData.append('action', 'add_brand');
+    formData.append('name', name);
+    formData.append('logo', logo);
+    
+    fetch('<?= BASE_URL ?>api/admin/products.php', {
+        method: 'POST',
+        body: formData
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            // Add new option to select
+            const select = document.getElementById('brandSelect');
+            const option = new Option(name, data.brand_id, true, true);
+            select.add(option);
+            
+            // Close modal and reset form
+            bootstrap.Modal.getInstance(document.getElementById('addBrandModal')).hide();
+            document.getElementById('addBrandForm').reset();
+            
+            Swal.fire('Thành công', 'Đã thêm thương hiệu mới', 'success');
+        } else {
+            Swal.fire('Lỗi', data.message || 'Có lỗi xảy ra', 'error');
+        }
+    })
+    .catch(error => {
+        Swal.fire('Lỗi', 'Không thể kết nối đến server', 'error');
     });
 });
 </script>

@@ -42,9 +42,12 @@ include __DIR__ . '/../layouts/admin-header.php';
                     <div class="col-md-2">
                         <select class="form-select" name="brand">
                             <option value="">Tất cả thương hiệu</option>
-                            <?php foreach ($brands as $brand): ?>
-                                <option value="<?= htmlspecialchars($brand) ?>" <?= ($brandFilter ?? '') == $brand ? 'selected' : '' ?>>
-                                    <?= htmlspecialchars($brand) ?>
+                            <?php foreach ($brands as $brand): 
+                                $brandName = is_array($brand) ? ($brand['name'] ?? '') : $brand;
+                                if (empty($brandName)) continue;
+                            ?>
+                                <option value="<?= htmlspecialchars($brandName) ?>" <?= ($brandFilter ?? '') == $brandName ? 'selected' : '' ?>>
+                                    <?= htmlspecialchars($brandName) ?>
                                 </option>
                             <?php endforeach; ?>
                         </select>
@@ -79,8 +82,14 @@ include __DIR__ . '/../layouts/admin-header.php';
     </div>
 
     <!-- Products Table -->
-    <div class="admin-card">
+    <div class="admin-card" style="margin-top: 20px;">
         <div class="card-body p-0">
+            <?php if (empty($products)): ?>
+                <div class="text-center py-5">
+                    <i class="fas fa-box-open fa-3x text-muted mb-3"></i>
+                    <p class="text-muted">Không có sản phẩm nào</p>
+                </div>
+            <?php else: ?>
             <div class="table-responsive">
                 <table class="admin-table" id="productsTable">
                     <thead>
@@ -107,11 +116,25 @@ include __DIR__ . '/../layouts/admin-header.php';
                                 <td>
                                     <div class="product-cell">
                                         <?php 
-                                        $imgPath = $product['primary_image'] ?? 'assets/images/no-image.jpg';
-                                        $productImage = (strpos($imgPath, 'http') === 0) ? $imgPath : BASE_URL . $imgPath;
+                                        $imgPath = $product['primary_image'] ?? '';
+                                        $hasImage = !empty($imgPath);
+                                        if ($hasImage && strpos($imgPath, 'http') !== 0) {
+                                            $imgPath = BASE_URL . $imgPath;
+                                        }
                                         ?>
-                                        <img src="<?= $productImage ?>" 
-                                             alt="<?= htmlspecialchars($product['name']) ?>">
+                                        <?php if ($hasImage): ?>
+                                        <img src="<?= $imgPath ?>" 
+                                             alt="<?= htmlspecialchars($product['name']) ?>"
+                                             class="product-thumb"
+                                             onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+                                        <div class="product-thumb-placeholder" style="display:none;">
+                                            <i class="fas fa-image"></i>
+                                        </div>
+                                        <?php else: ?>
+                                        <div class="product-thumb-placeholder">
+                                            <i class="fas fa-image"></i>
+                                        </div>
+                                        <?php endif; ?>
                                         <div class="product-info">
                                             <a href="<?= BASE_URL ?>admin?page=product-edit&id=<?= $product['id'] ?>" 
                                                class="product-name"><?= htmlspecialchars($product['name']) ?></a>
@@ -166,6 +189,7 @@ include __DIR__ . '/../layouts/admin-header.php';
                     </tbody>
                 </table>
             </div>
+            <?php endif; ?>
         </div>
     </div>
 
@@ -229,6 +253,14 @@ include __DIR__ . '/../layouts/admin-header.php';
 .filter-form .form-select {
     border-radius: 10px;
     padding: 10px 15px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.filter-form .form-select {
+    padding-right: 35px;
+    background-position: right 10px center;
 }
 
 /* Product Cell */
@@ -238,11 +270,25 @@ include __DIR__ . '/../layouts/admin-header.php';
     gap: 15px;
 }
 
-.product-cell img {
+.product-cell img.product-thumb {
     width: 60px;
     height: 60px;
     border-radius: 10px;
     object-fit: cover;
+    background: #f1f5f9;
+}
+
+.product-thumb-placeholder {
+    width: 60px;
+    height: 60px;
+    border-radius: 10px;
+    background: linear-gradient(135deg, #f1f5f9 0%, #e2e8f0 100%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #94a3b8;
+    font-size: 20px;
+    flex-shrink: 0;
 }
 
 .product-info {

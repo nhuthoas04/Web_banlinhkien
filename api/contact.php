@@ -6,16 +6,125 @@
 header('Content-Type: application/json');
 
 require_once __DIR__ . '/../config/database.php';
+session_start();
 
 $input = json_decode(file_get_contents('php://input'), true);
+if (!$input) {
+    $input = $_POST;
+}
 $action = $input['action'] ?? $_GET['action'] ?? '';
 
 switch ($action) {
     case 'submit':
         submitContact($input);
         break;
+    case 'get_messages':
+        getChatMessages();
+        break;
+    case 'send_message':
+        sendChatMessage($input);
+        break;
     default:
         echo json_encode(['success' => false, 'message' => 'Invalid action']);
+}
+
+function getChatMessages() {
+    if (empty($_SESSION['user_id'])) {
+        echo json_encode(['success' => false, 'message' => 'Chưa đăng nhập']);
+        return;
+    }
+    
+    $db = getDB();
+    $userId = $_SESSION['user_id'];
+    
+    // Get or create conversation
+    $stmt = $db->prepare("SELECT id FROM conversations WHERE user_id = ? ORDER BY created_at DESC LIMIT 1");
+    $stmt->execute([$userId]);
+    $conversation = $stmt->fetch();
+    
+    if (!$conversation) {
+        echo json_encode([
+            'success' => true,
+            'conversation_id' => null,
+            'messages' => []
+        ]);
+        return;
+    }
+    
+    // Get messages (table name is 'messages', column is 'content')
+    $stmt = $db->prepare("
+        SELECT id, content as message, sender_type, created_at 
+        FROM messages 
+        WHERE conversation_id = ? 
+        ORDER BY created_at ASC 
+        LIMIT 50
+    ");
+    $stmt->execute([$conversation['id']]);
+    $messages = $stmt->fetchAll(PDO::FETCH_ASSOC);
+    
+    // Mark messages as read
+    $stmt = $db->prepare("UPDATE messages SET is_read = 1, read_at = NOW() WHERE conversation_id = ? AND sender_type != 'user'");
+    $stmt->execute([$conversation['id']]);
+    
+    echo json_encode([
+        'success' => true,
+        'conversation_id' => $conversation['id'],
+        'messages' => $messages
+    ]);
+}
+
+function sendChatMessage($data) {
+    if (empty($_SESSION['user_id'])) {
+        echo json_encode(['success' => false, 'message' => 'Chưa đăng nhập']);
+        return;
+    }
+    
+    $message = trim($data['message'] ?? '');
+    if (empty($message)) {
+        echo json_encode(['success' => false, 'message' => 'Tin nhắn trống']);
+        return;
+    }
+    
+    $db = getDB();
+    $userId = $_SESSION['user_id'];
+    $conversationId = $data['conversation_id'] ?? null;
+    
+    // Get or create conversation
+    if (!$conversationId) {
+        $stmt = $db->prepare("SELECT id FROM conversations WHERE user_id = ? ORDER BY created_at DESC LIMIT 1");
+        $stmt->execute([$userId]);
+        $conversation = $stmt->fetch();
+        
+        if ($conversation) {
+            $conversationId = $conversation['id'];
+        } else {
+            // Create new conversation
+            $stmt = $db->prepare("INSERT INTO conversations (user_id, status, created_at) VALUES (?, 'open', NOW())");
+            $stmt->execute([$userId]);
+            $conversationId = $db->lastInsertId();
+        }
+    }
+    
+    // Insert message (table name is 'messages', column is 'content')
+    $stmt = $db->prepare("
+        INSERT INTO messages (conversation_id, sender_type, sender_id, content, created_at) 
+        VALUES (?, 'user', ?, ?, NOW())
+    ");
+    $result = $stmt->execute([$conversationId, $userId, $message]);
+    
+    // Update conversation
+    $stmt = $db->prepare("UPDATE conversations SET last_message = ?, updated_at = NOW() WHERE id = ?");
+    $stmt->execute([$message, $conversationId]);
+    
+    if ($result) {
+        echo json_encode([
+            'success' => true,
+            'conversation_id' => $conversationId,
+            'message_id' => $db->lastInsertId()
+        ]);
+    } else {
+        echo json_encode(['success' => false, 'message' => 'Không thể gửi tin nhắn']);
+    }
 }
 
 function submitContact($data) {

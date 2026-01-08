@@ -282,6 +282,8 @@ class AdminController {
      */
     public function addProduct() {
         if ($_SERVER['REQUEST_METHOD'] === 'GET') {
+            $isEdit = false;
+            $product = [];
             $categories = $this->categoryModel->getAll(['status' => 'active']);
             include __DIR__ . '/../views/admin/product-form.php';
             return;
@@ -350,14 +352,15 @@ class AdminController {
      * Sửa sản phẩm
      */
     public function editProduct($productId) {
-        $product = $this->productModel->getById($productId);
+        $product = $this->productModel->findById($productId);
         
         if (!$product) {
             flash('error', 'Sản phẩm không tồn tại');
-            redirect('/admin/products');
+            redirect('/admin?page=products');
         }
         
         if ($_SERVER['REQUEST_METHOD'] === 'GET') {
+            $isEdit = true;
             $categories = $this->categoryModel->getAll(['status' => 'active']);
             include __DIR__ . '/../views/admin/product-form.php';
             return;

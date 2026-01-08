@@ -137,9 +137,19 @@ try {
                 }
             }
             
-            // Brand filter
+            // Brand filter (single)
             if (!empty($query_params['brand'])) {
                 $filters['brand'] = $query_params['brand'];
+            }
+            
+            // Brands filter (multiple)
+            if (!empty($query_params['brands'])) {
+                $filters['brands'] = $query_params['brands'];
+            }
+            
+            // Rating filter
+            if (!empty($query_params['rating'])) {
+                $filters['rating'] = (int)$query_params['rating'];
             }
             
             // Price range filter
@@ -168,6 +178,9 @@ try {
             
             // Get all categories for sidebar
             $categories = $categoryModel->getAll('active');
+            
+            // Get all brands for sidebar filter
+            $brands = $productModel->getBrandsWithCount();
             
             include __DIR__ . '/views/user/products.php';
             break;

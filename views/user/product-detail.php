@@ -116,28 +116,6 @@ include __DIR__ . '/../layouts/header.php';
                         </div>
                     <?php endif; ?>
 
-                    <!-- Specifications Quick View -->
-                    <?php if (!empty($product['specifications'])): ?>
-                        <div class="quick-specs">
-                            <h6>Thông số nổi bật:</h6>
-                            <ul>
-                                <?php 
-                                $specCount = 0;
-                                foreach ($product['specifications'] as $spec):
-                                    if ($specCount >= 5) break;
-                                ?>
-                                    <li>
-                                        <span class="spec-name"><?= htmlspecialchars($spec['name']) ?>:</span>
-                                        <span class="spec-value"><?= htmlspecialchars($spec['value']) ?></span>
-                                    </li>
-                                <?php 
-                                    $specCount++;
-                                endforeach; 
-                                ?>
-                            </ul>
-                        </div>
-                    <?php endif; ?>
-
                     <!-- Stock Status -->
                     <div class="stock-status">
                         <?php if (($product['stock'] ?? 0) > 0): ?>
@@ -250,16 +228,9 @@ include __DIR__ . '/../layouts/header.php';
                 <div class="tab-pane fade" id="specifications">
                     <div class="tab-body">
                         <?php if (!empty($product['specifications'])): ?>
-                            <table class="specs-table">
-                                <tbody>
-                                    <?php foreach ($product['specifications'] as $spec): ?>
-                                        <tr>
-                                            <td class="spec-name"><?= htmlspecialchars($spec['name']) ?></td>
-                                            <td class="spec-value"><?= htmlspecialchars($spec['value']) ?></td>
-                                        </tr>
-                                    <?php endforeach; ?>
-                                </tbody>
-                            </table>
+                            <div class="specifications-content">
+                                <?= $product['specifications'] ?>
+                            </div>
                         <?php else: ?>
                             <p class="text-muted">Chưa có thông số kỹ thuật cho sản phẩm này.</p>
                         <?php endif; ?>
