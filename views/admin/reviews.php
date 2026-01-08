@@ -15,44 +15,44 @@ include __DIR__ . '/../layouts/admin-header.php';
     <!-- Stats -->
     <div class="row g-3 mb-4">
         <div class="col-md-2">
-            <div class="review-stat-card">
+            <a href="<?= BASE_URL ?>admin?page=reviews&rating=5" class="review-stat-card <?= ($ratingFilter ?? '') == '5' ? 'active' : '' ?>" style="text-decoration: none; display: block;">
                 <div class="stars">
                     <i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i>
                 </div>
                 <div class="count"><?= $reviewStats[5] ?? 0 ?></div>
-            </div>
+            </a>
         </div>
         <div class="col-md-2">
-            <div class="review-stat-card">
+            <a href="<?= BASE_URL ?>admin?page=reviews&rating=4" class="review-stat-card <?= ($ratingFilter ?? '') == '4' ? 'active' : '' ?>" style="text-decoration: none; display: block;">
                 <div class="stars">
                     <i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="far fa-star"></i>
                 </div>
                 <div class="count"><?= $reviewStats[4] ?? 0 ?></div>
-            </div>
+            </a>
         </div>
         <div class="col-md-2">
-            <div class="review-stat-card">
+            <a href="<?= BASE_URL ?>admin?page=reviews&rating=3" class="review-stat-card <?= ($ratingFilter ?? '') == '3' ? 'active' : '' ?>" style="text-decoration: none; display: block;">
                 <div class="stars">
                     <i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="far fa-star"></i><i class="far fa-star"></i>
                 </div>
                 <div class="count"><?= $reviewStats[3] ?? 0 ?></div>
-            </div>
+            </a>
         </div>
         <div class="col-md-2">
-            <div class="review-stat-card">
+            <a href="<?= BASE_URL ?>admin?page=reviews&rating=2" class="review-stat-card <?= ($ratingFilter ?? '') == '2' ? 'active' : '' ?>" style="text-decoration: none; display: block;">
                 <div class="stars">
                     <i class="fas fa-star"></i><i class="fas fa-star"></i><i class="far fa-star"></i><i class="far fa-star"></i><i class="far fa-star"></i>
                 </div>
                 <div class="count"><?= $reviewStats[2] ?? 0 ?></div>
-            </div>
+            </a>
         </div>
         <div class="col-md-2">
-            <div class="review-stat-card">
+            <a href="<?= BASE_URL ?>admin?page=reviews&rating=1" class="review-stat-card <?= ($ratingFilter ?? '') == '1' ? 'active' : '' ?>" style="text-decoration: none; display: block;">
                 <div class="stars">
                     <i class="fas fa-star"></i><i class="far fa-star"></i><i class="far fa-star"></i><i class="far fa-star"></i><i class="far fa-star"></i>
                 </div>
                 <div class="count"><?= $reviewStats[1] ?? 0 ?></div>
-            </div>
+            </a>
         </div>
         <div class="col-md-2">
             <div class="review-stat-card highlight">
@@ -68,7 +68,8 @@ include __DIR__ . '/../layouts/admin-header.php';
     <!-- Filters -->
     <div class="admin-card mb-4">
         <div class="card-body">
-            <form id="filterForm" class="filter-form">
+            <form id="filterForm" class="filter-form" method="GET" action="<?= BASE_URL ?>admin">
+                <input type="hidden" name="page" value="reviews">
                 <div class="row g-3">
                     <div class="col-md-3">
                         <input type="text" class="form-control" name="search" 

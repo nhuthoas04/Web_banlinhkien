@@ -68,25 +68,19 @@ include __DIR__ . '/../layouts/admin-header.php';
     <!-- Filters -->
     <div class="admin-card mb-4">
         <div class="card-body">
-            <form id="filterForm" class="filter-form">
+            <form id="filterForm" class="filter-form" method="GET" action="<?= BASE_URL ?>admin">
+                <input type="hidden" name="page" value="users">
                 <div class="row g-3">
-                    <div class="col-md-4">
+                    <div class="col-md-5">
                         <input type="text" class="form-control" name="search" 
                                placeholder="Tìm kiếm theo tên, email, SĐT..." value="<?= htmlspecialchars($search ?? '') ?>">
                     </div>
-                    <div class="col-md-2">
+                    <div class="col-md-3">
                         <select class="form-select" name="role">
                             <option value="">Tất cả vai trò</option>
                             <option value="user" <?= ($roleFilter ?? '') == 'user' ? 'selected' : '' ?>>Khách hàng</option>
                             <option value="employee" <?= ($roleFilter ?? '') == 'employee' ? 'selected' : '' ?>>Nhân viên</option>
                             <option value="admin" <?= ($roleFilter ?? '') == 'admin' ? 'selected' : '' ?>>Quản trị viên</option>
-                        </select>
-                    </div>
-                    <div class="col-md-2">
-                        <select class="form-select" name="status">
-                            <option value="">Tất cả trạng thái</option>
-                            <option value="active" <?= ($statusFilter ?? '') == 'active' ? 'selected' : '' ?>>Hoạt động</option>
-                            <option value="inactive" <?= ($statusFilter ?? '') == 'inactive' ? 'selected' : '' ?>>Bị khóa</option>
                         </select>
                     </div>
                     <div class="col-md-2">
@@ -123,7 +117,7 @@ include __DIR__ . '/../layouts/admin-header.php';
                             <th>Vai trò</th>
                             <th>Đơn hàng</th>
                             <th>Ngày tạo</th>
-                            <th>Trạng thái</th>
+                            <th>Khóa TK</th>
                             <th width="120">Thao tác</th>
                         </tr>
                     </thead>
@@ -169,9 +163,6 @@ include __DIR__ . '/../layouts/admin-header.php';
                                 </td>
                                 <td>
                                     <div class="action-buttons">
-                                        <button class="btn-icon edit-btn" data-id="<?= $user['id'] ?>" title="Sửa">
-                                            <i class="fas fa-edit"></i>
-                                        </button>
                                         <button class="btn-icon delete" data-id="<?= $user['id'] ?>" title="Xóa">
                                             <i class="fas fa-trash"></i>
                                         </button>
@@ -189,9 +180,18 @@ include __DIR__ . '/../layouts/admin-header.php';
     <?php if ($totalPages > 1): ?>
         <nav class="admin-pagination">
             <ul class="pagination">
-                <?php for ($i = 1; $i <= $totalPages; $i++): ?>
-                    <li class="page-item <?= $i == $currentPage ? 'active' : '' ?>">
-                        <a class="page-link" href="?page=users&p=<?= $i ?>"><?= $i ?></a>
+                <?php 
+                $queryParams = [];
+                if (!empty($search)) $queryParams['search'] = $search;
+                if (!empty($roleFilter)) $queryParams['role'] = $roleFilter;
+                if (!empty($sort)) $queryParams['sort'] = $sort;
+                $queryString = http_build_query($queryParams);
+                
+                for ($i = 1; $i <= $totalPages; $i++): 
+                    $url = "?page=users&p={$i}" . ($queryString ? "&{$queryString}" : '');
+                ?>
+                    <li class="page-item <?= $i == $page ? 'active' : '' ?>">
+                        <a class="page-link" href="<?= $url ?>"><?= $i ?></a>
                     </li>
                 <?php endfor; ?>
             </ul>
@@ -208,6 +208,7 @@ include __DIR__ . '/../layouts/admin-header.php';
                 <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
             </div>
             <form id="addUserForm">
+                <?= tokenField() ?>
                 <div class="modal-body">
                     <div class="row g-3">
                         <div class="col-md-6">
@@ -243,57 +244,6 @@ include __DIR__ . '/../layouts/admin-header.php';
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Hủy</button>
                     <button type="submit" class="btn btn-admin-primary">Thêm người dùng</button>
-                </div>
-            </form>
-        </div>
-    </div>
-</div>
-
-<!-- Edit User Modal -->
-<div class="modal fade" id="editUserModal" tabindex="-1">
-    <div class="modal-dialog">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title">Chỉnh sửa người dùng</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-            </div>
-            <form id="editUserForm">
-                <input type="hidden" name="user_id" id="editUserId">
-                <div class="modal-body">
-                    <div class="row g-3">
-                        <div class="col-md-6">
-                            <label class="form-label">Tên đăng nhập</label>
-                            <input type="text" class="form-control" id="editUsername" readonly>
-                        </div>
-                        <div class="col-md-6">
-                            <label class="form-label">Email <span class="text-danger">*</span></label>
-                            <input type="email" class="form-control" name="email" id="editEmail" required>
-                        </div>
-                        <div class="col-md-6">
-                            <label class="form-label">Họ và tên</label>
-                            <input type="text" class="form-control" name="fullname" id="editFullname">
-                        </div>
-                        <div class="col-md-6">
-                            <label class="form-label">Số điện thoại</label>
-                            <input type="tel" class="form-control" name="phone" id="editPhone">
-                        </div>
-                        <div class="col-md-6">
-                            <label class="form-label">Mật khẩu mới</label>
-                            <input type="password" class="form-control" name="password" minlength="6">
-                        </div>
-                        <div class="col-md-6">
-                            <label class="form-label">Vai trò <span class="text-danger">*</span></label>
-                            <select class="form-select" name="role" id="editRole" required>
-                                <option value="user">Khách hàng</option>
-                                <option value="employee">Nhân viên</option>
-                                <option value="admin">Quản trị viên</option>
-                            </select>
-                        </div>
-                    </div>
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Hủy</button>
-                    <button type="submit" class="btn btn-admin-primary">Lưu thay đổi</button>
                 </div>
             </form>
         </div>
@@ -419,58 +369,13 @@ document.addEventListener('DOMContentLoaded', function() {
         
         fetch('<?= BASE_URL ?>api/admin/users.php', {
             method: 'POST',
+            credentials: 'same-origin',
             body: formData
         })
         .then(response => response.json())
         .then(data => {
             if (data.success) {
                 Swal.fire('Thành công', 'Đã thêm người dùng mới', 'success')
-                .then(() => location.reload());
-            } else {
-                Swal.fire('Lỗi', data.message || 'Có lỗi xảy ra', 'error');
-            }
-        });
-    });
-    
-    // Edit user button
-    document.querySelectorAll('.edit-btn').forEach(btn => {
-        btn.addEventListener('click', function() {
-            const userId = this.dataset.id;
-            
-            // Fetch user data
-            fetch('<?= BASE_URL ?>api/admin/users.php?action=get&id=' + userId)
-            .then(response => response.json())
-            .then(data => {
-                if (data.success) {
-                    const user = data.user;
-                    document.getElementById('editUserId').value = user._id;
-                    document.getElementById('editUsername').value = user.username;
-                    document.getElementById('editEmail').value = user.email;
-                    document.getElementById('editFullname').value = user.fullname || '';
-                    document.getElementById('editPhone').value = user.phone || '';
-                    document.getElementById('editRole').value = user.role;
-                    
-                    new bootstrap.Modal(document.getElementById('editUserModal')).show();
-                }
-            });
-        });
-    });
-    
-    // Edit user form
-    document.getElementById('editUserForm').addEventListener('submit', function(e) {
-        e.preventDefault();
-        
-        const formData = new FormData(this);
-        formData.append('action', 'update');
-        
-        fetch('<?= BASE_URL ?>api/admin/users.php', {
-            method: 'POST',
-            body: formData
-        })
-        .then(response => response.json())
-        .then(data => {
-            if (data.success) {
-                Swal.fire('Thành công', 'Đã cập nhật thông tin', 'success')
                 .then(() => location.reload());
             } else {
                 Swal.fire('Lỗi', data.message || 'Có lỗi xảy ra', 'error');
@@ -486,19 +391,21 @@ document.addEventListener('DOMContentLoaded', function() {
             
             fetch('<?= BASE_URL ?>api/admin/users.php', {
                 method: 'POST',
+                credentials: 'same-origin',
                 headers: {
                     'Content-Type': 'application/json'
                 },
                 body: JSON.stringify({
                     action: 'update-status',
                     id: userId,
-                    status: status
+                    status: status,
+                    csrf_token: '<?= getToken() ?>'
                 })
             })
             .then(response => response.json())
             .then(data => {
                 if (data.success) {
-                    Swal.fire('Thành công', 'Đã cập nhật trạng thái', 'success');
+                    Swal.fire('Thành công', 'Đã cập nhật tình trạng tài khoản', 'success');
                 } else {
                     Swal.fire('Lỗi', data.message || 'Có lỗi xảy ra', 'error');
                     this.checked = !this.checked;
@@ -524,12 +431,14 @@ document.addEventListener('DOMContentLoaded', function() {
                 if (result.isConfirmed) {
                     fetch('<?= BASE_URL ?>api/admin/users.php', {
                         method: 'POST',
+                        credentials: 'same-origin',
                         headers: {
                             'Content-Type': 'application/json'
                         },
                         body: JSON.stringify({
                             action: 'delete',
-                            id: userId
+                            id: userId,
+                            csrf_token: '<?= getToken() ?>'
                         })
                     })
                     .then(response => response.json())

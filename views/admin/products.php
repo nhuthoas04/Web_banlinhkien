@@ -11,9 +11,7 @@ include __DIR__ . '/../layouts/admin-header.php';
             <p><?= $totalProducts ?> sản phẩm</p>
         </div>
         <div class="header-right">
-            <button class="btn btn-admin-outline" id="exportBtn">
-                <i class="fas fa-download"></i> Xuất Excel
-            </button>
+
             <a href="<?= BASE_URL ?>admin?page=product-add" class="btn btn-admin-primary">
                 <i class="fas fa-plus"></i> Thêm sản phẩm
             </a>
@@ -23,7 +21,8 @@ include __DIR__ . '/../layouts/admin-header.php';
     <!-- Filters -->
     <div class="admin-card mb-4">
         <div class="card-body">
-            <form id="filterForm" class="filter-form">
+            <form id="filterForm" class="filter-form" method="GET" action="<?= BASE_URL ?>admin">
+                <input type="hidden" name="page" value="products">
                 <div class="row g-3">
                     <div class="col-md-3">
                         <input type="text" class="form-control" name="search" 

@@ -68,8 +68,8 @@ include __DIR__ . '/../layouts/admin-header.php';
                     <button class="btn btn-sm btn-outline-secondary" title="Thông tin khách hàng" data-bs-toggle="offcanvas" data-bs-target="#customerInfo">
                         <i class="fas fa-user"></i>
                     </button>
-                    <button class="btn btn-sm btn-outline-danger" title="Đóng cuộc hội thoại" onclick="closeConversation(<?= $activeConversation['id'] ?>)">
-                        <i class="fas fa-times"></i>
+                    <button class="btn btn-sm btn-outline-danger" title="Xóa cuộc hội thoại" onclick="deleteConversation(<?= $activeConversation['id'] ?>)">
+                        <i class="fas fa-trash"></i>
                     </button>
                 </div>
             </div>
@@ -418,6 +418,51 @@ function closeConversation(id) {
             })
         }).then(() => location.reload());
     }
+}
+
+function deleteConversation(id) {
+    Swal.fire({
+        title: 'Xóa cuộc hội thoại?',
+        text: 'Toàn bộ tin nhắn trong cuộc hội thoại sẽ bị xóa vĩnh viễn!',
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: '#d33',
+        cancelButtonColor: '#6c757d',
+        confirmButtonText: 'Xóa',
+        cancelButtonText: 'Hủy'
+    }).then((result) => {
+        if (result.isConfirmed) {
+            fetch('<?= BASE_URL ?>api/employee/chat.php', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({
+                    action: 'delete',
+                    conversation_id: id,
+                    csrf_token: '<?= getToken() ?>'
+                })
+            })
+            .then(res => res.json())
+            .then(data => {
+                if (data.success) {
+                    Swal.fire({
+                        icon: 'success',
+                        title: 'Đã xóa!',
+                        text: 'Cuộc hội thoại đã được xóa.',
+                        timer: 1500,
+                        showConfirmButton: false
+                    }).then(() => {
+                        window.location.href = '<?= BASE_URL ?>admin?page=chats';
+                    });
+                } else {
+                    Swal.fire('Lỗi!', data.message || 'Không thể xóa cuộc hội thoại', 'error');
+                }
+            })
+            .catch(err => {
+                console.error('Delete error:', err);
+                Swal.fire('Lỗi!', 'Có lỗi xảy ra khi xóa', 'error');
+            });
+        }
+    });
 }
 
 // Click conversation
