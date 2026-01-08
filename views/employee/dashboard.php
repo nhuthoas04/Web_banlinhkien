@@ -1,6 +1,6 @@
 <?php
 $pageTitle = 'Dashboard Nhân viên';
-include __DIR__ . '/../layouts/admin-header.php';
+include __DIR__ . '/../layouts/employee-header.php';
 ?>
 
 <div class="admin-content">
@@ -148,7 +148,7 @@ include __DIR__ . '/../layouts/admin-header.php';
                 <div class="card-body p-0">
                     <div class="chat-list">
                         <?php foreach ($recentChats as $chat): ?>
-                            <a href="?page=chat&id=<?= $chat['id'] ?>" class="chat-item <?= !$chat['is_read'] ? 'unread' : '' ?>">
+                            <a href="?page=chat&id=<?= $chat['id'] ?>" class="chat-item <?= ($chat['unread_count'] ?? 0) > 0 ? 'unread' : '' ?>">
                                 <img src="<?= BASE_URL . ($chat['user']['avatar'] ?? 'assets/images/default-avatar.svg') ?>" 
                                      alt="Avatar" class="avatar">
                                 <div class="chat-info">
@@ -156,10 +156,10 @@ include __DIR__ . '/../layouts/admin-header.php';
                                         <span class="name"><?= htmlspecialchars($chat['user']['name'] ?? $chat['user_name'] ?? 'Khách') ?></span>
                                         <span class="time"><?= timeAgo($chat['last_message_at'] ?? '') ?></span>
                                     </div>
-                                    <p class="last-message"><?= htmlspecialchars(mb_substr($chat['last_message'], 0, 50)) ?>...</p>
+                                    <p class="last-message"><?= htmlspecialchars(mb_substr($chat['last_message'] ?? 'Chưa có tin nhắn', 0, 50)) ?>...</p>
                                 </div>
-                                <?php if ($chat['unread_count'] > 0): ?>
-                                    <span class="unread-badge"><?= $chat['unread_count'] ?></span>
+                                <?php if (($chat['unread_count'] ?? 0) > 0): ?>
+                                    <span class="unread-badge"><?= $chat['unread_count'] ?? 0 ?></span>
                                 <?php endif; ?>
                             </a>
                         <?php endforeach; ?>
@@ -568,6 +568,6 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 </script>
 
-<?php include __DIR__ . '/../layouts/admin-footer.php'; ?>
+<?php include __DIR__ . '/../layouts/employee-footer.php'; ?>
 
 

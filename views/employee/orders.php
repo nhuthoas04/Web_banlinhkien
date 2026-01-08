@@ -1,6 +1,6 @@
 <?php
 $pageTitle = 'Quản lý đơn hàng';
-include __DIR__ . '/../layouts/admin-header.php';
+include __DIR__ . '/../layouts/employee-header.php';
 ?>
 
 <div class="admin-content">
@@ -67,14 +67,9 @@ include __DIR__ . '/../layouts/admin-header.php';
                                value="<?= $dateTo ?? '' ?>" placeholder="Đến ngày">
                     </div>
                     <div class="col-md-3">
-                        <div class="d-flex gap-2">
-                            <button type="submit" class="btn btn-admin-primary flex-fill">
-                                <i class="fas fa-search"></i> Tìm kiếm
-                            </button>
-                            <button type="button" class="btn btn-outline-secondary" id="exportBtn">
-                                <i class="fas fa-download"></i>
-                            </button>
-                        </div>
+                        <button type="submit" class="btn btn-admin-primary w-100">
+                            <i class="fas fa-search"></i> Tìm kiếm
+                        </button>
                     </div>
                 </div>
             </form>
@@ -427,13 +422,6 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     });
     
-    // Export
-    document.getElementById('exportBtn').addEventListener('click', function() {
-        const params = new URLSearchParams(window.location.search);
-        params.set('export', '1');
-        window.location.href = '<?= BASE_URL ?>api/employee/orders.php?action=export&' + params.toString();
-    });
-    
     // Select all
     document.getElementById('selectAll').addEventListener('change', function() {
         document.querySelectorAll('.item-select').forEach(cb => {
@@ -443,6 +431,6 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 </script>
 
-<?php include __DIR__ . '/../layouts/admin-footer.php'; ?>
+<?php include __DIR__ . '/../layouts/employee-footer.php'; ?>
 
 

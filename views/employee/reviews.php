@@ -1,6 +1,6 @@
 <?php
 $pageTitle = 'Quản lý đánh giá';
-include __DIR__ . '/../layouts/admin-header.php';
+include __DIR__ . '/../layouts/employee-header.php';
 ?>
 
 <div class="admin-content">
@@ -506,6 +506,6 @@ function showImage(src) {
 }
 </script>
 
-<?php include __DIR__ . '/../layouts/admin-footer.php'; ?>
+<?php include __DIR__ . '/../layouts/employee-footer.php'; ?>
 
 

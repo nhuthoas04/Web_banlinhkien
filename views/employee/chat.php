@@ -1,6 +1,6 @@
 <?php
 $pageTitle = 'Hỗ trợ khách hàng';
-include __DIR__ . '/../layouts/admin-header.php';
+include __DIR__ . '/../layouts/employee-header.php';
 ?>
 
 <div class="admin-content chat-page">
@@ -905,6 +905,6 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 </script>
 
-<?php include __DIR__ . '/../layouts/admin-footer.php'; ?>
+<?php include __DIR__ . '/../layouts/employee-footer.php'; ?>
 
 
