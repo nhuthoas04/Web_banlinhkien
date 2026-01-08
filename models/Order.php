@@ -335,7 +335,18 @@ class Order {
         $sql = "SELECT status, COUNT(*) as count FROM {$this->table} {$whereClause} GROUP BY status";
         $stmt = $this->db->prepare($sql);
         $stmt->execute($params);
-        $stats['by_status'] = $stmt->fetchAll(PDO::FETCH_KEY_PAIR);
+        $statusCounts = $stmt->fetchAll(PDO::FETCH_KEY_PAIR);
+        
+        // Format status_counts với tất cả các status
+        $stats['status_counts'] = [
+            'pending' => $statusCounts['pending'] ?? 0,
+            'confirmed' => $statusCounts['confirmed'] ?? 0,
+            'processing' => $statusCounts['processing'] ?? 0,
+            'shipping' => $statusCounts['shipping'] ?? 0,
+            'delivered' => $statusCounts['delivered'] ?? 0,
+            'cancelled' => $statusCounts['cancelled'] ?? 0
+        ];
+        $stats['by_status'] = $statusCounts; // Keep backward compatibility
         
         // Revenue by payment status
         $sql = "SELECT payment_status, COALESCE(SUM(total), 0) as revenue FROM {$this->table} {$whereClause} GROUP BY payment_status";

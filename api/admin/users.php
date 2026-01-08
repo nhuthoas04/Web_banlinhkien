@@ -3,31 +3,60 @@
  * Admin Users API - MySQL Version
  */
 
-// Suppress errors in output for clean JSON
-error_reporting(0);
-ini_set('display_errors', 0);
+// Enable error reporting for debugging
+error_reporting(E_ALL);
+ini_set('display_errors', 1);
+ini_set('log_errors', 1);
 
 // Start session if not already started
 if (session_status() === PHP_SESSION_NONE) {
     session_start();
 }
 
-header('Content-Type: application/json');
+header('Content-Type: application/json; charset=utf-8');
 
 require_once __DIR__ . '/../../config/database.php';
+require_once __DIR__ . '/../../config/config.php';
 require_once __DIR__ . '/../../models/User.php';
+
+// Debug: Log session info
+error_log("API Users - Session ID: " . session_id());
+error_log("API Users - Session data: " . print_r($_SESSION, true));
+error_log("API Users - REQUEST_METHOD: " . $_SERVER['REQUEST_METHOD']);
+error_log("API Users - Action: " . ($_GET['action'] ?? 'none'));
 
 // Check admin access - kiểm tra nhiều cách lưu session
 $userId = $_SESSION['user_id'] ?? $_SESSION['user']['id'] ?? null;
 $userRole = $_SESSION['role'] ?? $_SESSION['user']['role'] ?? '';
 
+error_log("API Users - User ID: " . ($userId ?? 'null'));
+error_log("API Users - User Role: " . $userRole);
+
 if (!$userId || $userRole !== 'admin') {
-    echo json_encode(['success' => false, 'message' => 'Không có quyền truy cập']);
+    error_log("API Users - Access denied for user: " . ($userId ?? 'null') . " with role: " . $userRole);
+    echo json_encode(['success' => false, 'message' => 'Không có quyền truy cập', 'debug' => [
+        'user_id' => $userId,
+        'role' => $userRole,
+        'session_id' => session_id(),
+        'has_session' => !empty($_SESSION)
+    ]]);
     exit;
 }
 
 $input = json_decode(file_get_contents('php://input'), true);
-$action = $input['action'] ?? $_GET['action'] ?? '';
+$action = $input['action'] ?? $_POST['action'] ?? $_GET['action'] ?? '';
+
+// Validate CSRF token for POST/PUT/DELETE requests only
+if ($_SERVER['REQUEST_METHOD'] !== 'GET' && !in_array($action, ['list', 'detail', 'stats'])) {
+    $token = $input['csrf_token'] ?? $_POST['csrf_token'] ?? '';
+    if (!verifyToken($token)) {
+        echo json_encode(['success' => false, 'message' => 'Token không hợp lệ']);
+        exit;
+    }
+}
+
+// Merge POST data with JSON input
+$data = array_merge($_POST, $input ?? []);
 
 $userModel = new User();
 
@@ -36,22 +65,22 @@ switch ($action) {
         listUsers($userModel);
         break;
     case 'detail':
-        getUser($userModel, $input);
+        getUser($userModel, $data);
         break;
     case 'create':
-        createUser($userModel, $input);
+        createUser($userModel, $data);
         break;
     case 'update':
-        updateUser($userModel, $input);
+        updateUser($userModel, $data);
         break;
     case 'delete':
-        deleteUser($userModel, $input);
+        deleteUser($userModel, $data);
         break;
     case 'update-status':
-        updateStatus($userModel, $input);
+        updateStatus($userModel, $data);
         break;
     case 'reset-password':
-        resetPassword($userModel, $input);
+        resetPassword($userModel, $data);
         break;
     case 'stats':
         getStats($userModel);
@@ -129,36 +158,42 @@ function getUser($userModel, $data) {
 
 function createUser($userModel, $data) {
     // Validate required fields
-    $required = ['email', 'password', 'fullname'];
-    foreach ($required as $field) {
-        if (empty($data[$field])) {
-            echo json_encode(['success' => false, 'message' => "Trường $field là bắt buộc"]);
-            return;
-        }
+    $email = $data['email'] ?? '';
+    $password = $data['password'] ?? '';
+    $name = $data['fullname'] ?? $data['name'] ?? '';
+    
+    if (empty($email)) {
+        echo json_encode(['success' => false, 'message' => 'Email là bắt buộc']);
+        return;
+    }
+    
+    if (empty($password)) {
+        echo json_encode(['success' => false, 'message' => 'Mật khẩu là bắt buộc']);
+        return;
     }
     
     // Validate email
-    if (!filter_var($data['email'], FILTER_VALIDATE_EMAIL)) {
+    if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
         echo json_encode(['success' => false, 'message' => 'Email không hợp lệ']);
         return;
     }
     
     // Check if email exists
-    if ($userModel->findByEmail($data['email'])) {
+    if ($userModel->findByEmail($email)) {
         echo json_encode(['success' => false, 'message' => 'Email đã tồn tại']);
         return;
     }
     
     // Validate password
-    if (strlen($data['password']) < 6) {
+    if (strlen($password) < 6) {
         echo json_encode(['success' => false, 'message' => 'Mật khẩu phải có ít nhất 6 ký tự']);
         return;
     }
     
     $userData = [
-        'email' => $data['email'],
-        'password' => password_hash($data['password'], PASSWORD_DEFAULT),
-        'fullname' => $data['fullname'],
+        'email' => $email,
+        'password' => password_hash($password, PASSWORD_DEFAULT),
+        'name' => $name,
         'phone' => $data['phone'] ?? '',
         'role' => $data['role'] ?? 'user',
         'status' => $data['status'] ?? 'active'
@@ -196,7 +231,7 @@ function updateUser($userModel, $data) {
         return;
     }
     
-    $allowedFields = ['fullname', 'phone', 'role', 'status', 'birthday', 'gender'];
+    $allowedFields = ['name', 'fullname', 'phone', 'role', 'status', 'birthday', 'gender'];
     $updateData = [];
     
     foreach ($allowedFields as $field) {

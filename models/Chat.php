@@ -336,7 +336,9 @@ class Chat {
      * Get recent conversations
      */
     public function getRecent($limit = 5) {
-        $sql = "SELECT c.*, u.name as user_name
+        $sql = "SELECT c.*, u.name as user_name, u.avatar,
+                (SELECT content FROM messages WHERE conversation_id = c.id ORDER BY created_at DESC LIMIT 1) as last_message,
+                (SELECT COUNT(*) FROM messages WHERE conversation_id = c.id AND is_read = 0 AND sender_type = 'user') as unread_count
                 FROM conversations c
                 LEFT JOIN users u ON c.user_id = u.id
                 ORDER BY c.last_message_at DESC
@@ -344,7 +346,17 @@ class Chat {
         $stmt = $this->db->prepare($sql);
         $stmt->bindValue(':limit', $limit, PDO::PARAM_INT);
         $stmt->execute();
-        return $stmt->fetchAll();
+        $conversations = $stmt->fetchAll();
+        
+        // Add user data to each conversation
+        foreach ($conversations as &$conv) {
+            $conv['user'] = [
+                'name' => $conv['user_name'],
+                'avatar' => $conv['avatar']
+            ];
+        }
+        
+        return $conversations;
     }
     
     /**

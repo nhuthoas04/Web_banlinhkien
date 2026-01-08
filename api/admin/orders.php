@@ -154,6 +154,9 @@ function updateStatus($orderModel, $data) {
     $note = $data['note'] ?? getStatusNote($status);
     $orderModel->addHistory($order['id'], $status, $note, $_SESSION['user_id']);
     
+    // Create notification for user
+    createOrderNotification($order, $status);
+    
     // If cancelled, restore stock
     if ($status === 'cancelled' && $order['status'] !== 'cancelled') {
         require_once __DIR__ . '/../../models/Product.php';
@@ -168,6 +171,58 @@ function updateStatus($orderModel, $data) {
         'success' => true,
         'message' => 'Cập nhật trạng thái thành công'
     ]);
+}
+
+function createOrderNotification($order, $status) {
+    $db = getDB();
+    
+    $statusMessages = [
+        'confirmed' => 'Đơn hàng #' . ($order['order_number'] ?? $order['id']) . ' đã được xác nhận',
+        'processing' => 'Đơn hàng #' . ($order['order_number'] ?? $order['id']) . ' đang được xử lý',
+        'shipping' => 'Đơn hàng #' . ($order['order_number'] ?? $order['id']) . ' đang được giao đến bạn',
+        'delivered' => 'Đơn hàng #' . ($order['order_number'] ?? $order['id']) . ' đã giao thành công',
+        'cancelled' => 'Đơn hàng #' . ($order['order_number'] ?? $order['id']) . ' đã bị hủy'
+    ];
+    
+    if (!isset($statusMessages[$status])) {
+        return;
+    }
+    
+    // Check if notifications table exists
+    try {
+        $stmt = $db->query("SHOW TABLES LIKE 'notifications'");
+        if (!$stmt->fetch()) {
+            // Create notifications table if not exists
+            $db->exec("
+                CREATE TABLE IF NOT EXISTS notifications (
+                    id INT AUTO_INCREMENT PRIMARY KEY,
+                    user_id INT NOT NULL,
+                    type VARCHAR(50) DEFAULT 'order',
+                    title VARCHAR(255) NOT NULL,
+                    message TEXT,
+                    link VARCHAR(255),
+                    is_read TINYINT(1) DEFAULT 0,
+                    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                    FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
+                ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4
+            ");
+        }
+        
+        // Insert notification
+        $stmt = $db->prepare("
+            INSERT INTO notifications (user_id, type, title, message, link)
+            VALUES (?, 'order', ?, ?, ?)
+        ");
+        $stmt->execute([
+            $order['user_id'],
+            $statusMessages[$status],
+            'Trạng thái đơn hàng của bạn đã được cập nhật',
+            'orders?id=' . $order['id']
+        ]);
+    } catch (Exception $e) {
+        // Silently fail - notification is not critical
+        error_log('Notification error: ' . $e->getMessage());
+    }
 }
 
 function getStatusNote($status) {

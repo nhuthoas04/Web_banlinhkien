@@ -49,6 +49,9 @@ switch ($action) {
     case 'close':
         closeConversation($conversationModel, $input);
         break;
+    case 'delete':
+        deleteConversation($conversationModel, $input);
+        break;
     case 'mark-read':
         markAsRead($conversationModel, $input);
         break;
@@ -222,6 +225,51 @@ function closeConversation($conversationModel, $data) {
         'success' => true,
         'message' => 'Đã đóng cuộc trò chuyện'
     ]);
+}
+
+function deleteConversation($conversationModel, $data) {
+    // Verify CSRF token
+    require_once __DIR__ . '/../../config/config.php';
+    if (!verifyToken($data['csrf_token'] ?? '')) {
+        echo json_encode(['success' => false, 'message' => 'Token không hợp lệ']);
+        return;
+    }
+    
+    if (empty($data['conversation_id'])) {
+        echo json_encode(['success' => false, 'message' => 'Conversation ID required']);
+        return;
+    }
+    
+    $conversation = $conversationModel->findById((int)$data['conversation_id']);
+    
+    if (!$conversation) {
+        echo json_encode(['success' => false, 'message' => 'Cuộc trò chuyện không tồn tại']);
+        return;
+    }
+    
+    // Delete messages first, then conversation
+    $db = getDB();
+    try {
+        $db->beginTransaction();
+        
+        // Delete all messages in this conversation
+        $stmt = $db->prepare("DELETE FROM messages WHERE conversation_id = ?");
+        $stmt->execute([$conversation['id']]);
+        
+        // Delete the conversation
+        $stmt = $db->prepare("DELETE FROM conversations WHERE id = ?");
+        $stmt->execute([$conversation['id']]);
+        
+        $db->commit();
+        
+        echo json_encode([
+            'success' => true,
+            'message' => 'Đã xóa cuộc trò chuyện'
+        ]);
+    } catch (Exception $e) {
+        $db->rollBack();
+        echo json_encode(['success' => false, 'message' => 'Lỗi: ' . $e->getMessage()]);
+    }
 }
 
 function markAsRead($conversationModel, $data) {
