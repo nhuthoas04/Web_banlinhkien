@@ -244,5 +244,3 @@ $pageTitle = 'Đăng ký - ' . SITE_NAME;
     </script>
 </body>
 </html>
-
-

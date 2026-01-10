@@ -147,9 +147,12 @@ include __DIR__ . '/../layouts/employee-header.php';
                                     <?php endif; ?>
                                 </td>
                                 <td>
-                                    <select class="form-select form-select-sm status-select" data-id="<?= $order['id'] ?>"
+                                    <select class="form-select form-select-sm status-select" 
+                                            data-order-id="<?= $order['id'] ?>" 
+                                            data-current-status="<?= $order['status'] ?>"
                                             <?= in_array($order['status'], ['delivered', 'cancelled']) ? 'disabled' : '' ?>>
                                         <option value="pending" <?= $order['status'] == 'pending' ? 'selected' : '' ?>>Chờ xử lý</option>
+                                        <option value="confirmed" <?= $order['status'] == 'confirmed' ? 'selected' : '' ?>>Đã xác nhận</option>
                                         <option value="processing" <?= $order['status'] == 'processing' ? 'selected' : '' ?>>Đang xử lý</option>
                                         <option value="shipping" <?= $order['status'] == 'shipping' ? 'selected' : '' ?>>Đang giao</option>
                                         <option value="delivered" <?= $order['status'] == 'delivered' ? 'selected' : '' ?>>Đã giao</option>
@@ -329,9 +332,9 @@ document.addEventListener('DOMContentLoaded', function() {
     // Status change
     document.querySelectorAll('.status-select').forEach(select => {
         select.addEventListener('change', function() {
-            const orderId = this.dataset.id;
+            const orderId = this.dataset.orderId;
             const status = this.value;
-            const originalValue = this.dataset.original || this.querySelector('option[selected]')?.value;
+            const originalValue = this.dataset.currentStatus;
             
             Swal.fire({
                 title: 'Cập nhật trạng thái?',

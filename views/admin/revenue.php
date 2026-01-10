@@ -292,7 +292,7 @@ document.addEventListener('DOMContentLoaded', function() {
                     <?= $orderStats['delivered'] ?? 0 ?>,
                     <?= $orderStats['cancelled'] ?? 0 ?>
                 ],
-                backgroundColor: ['#f59e0b', '#8b5cf6', '#10b981', '#ef4444']
+                backgroundColor: ['#f59e0b', '#ffff02', '#10b981', '#ef4444']
             }]
         },
         options: {
